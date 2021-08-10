@@ -8,99 +8,79 @@ Spring Boot voorziet in een aantal starters die ons toelaten jars toe te voegen 
 
 - https://start.spring.io
 
-Dependency:
-spring-boot-starter-web
+Spring initializer genereert een basis project in Java met Springboot.
+
+- Project: Maven Project
+- Language: Java
+- Spring Boot: 2.5.3
+- Project Metadata: vul informatie in over jouw project
+    - Group: nl.danielle (identifier van de ontwikkelaar)
+    - Artifact: springboot-demo (hoe heet je project)
+    - Name: springboot-demo (hoe heet je project)
+    - Description: Demo project for Spring Boot
+    - Package name: maakt het systeem zelf aan
+    - Packaging: Jar
+    - Java: 8
+    
+Klik op "Add dependencies" en voeg `Spring Web` toe. 
+
+Met "generate" wordt er een bestand in jouw download map gezet. Unzip het bestand en open het in Intellij.
+
+![img13.png](img13.png)
 
 ### Maven
 
 Apache Maven is een softwareprojectbeheer- en -begripstool gebaseerd op het concept van een projectobjectmodel (POM).
 
-- pom.xml
+De file `pom.xml` geeft allerlei informatie die hij nodig heeft.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-   <parent>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-parent</artifactId>
-      <version>2.3.4.RELEASE</version>
-      <relativePath/> <!-- lookup parent from repository -->
-   </parent>
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.5.3</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
+	<groupId>nl.danielle</groupId>
+	<artifactId>springboot-demo</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>springboot-demo</name>
+	<description>Demo project for Spring Boot</description>
+	<properties>
+		<java.version>1.8</java.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
 
-   <groupId>nl.gettoworktogether</groupId>
-   <artifactId>restful_controller</artifactId>
-   <version>0.0.1-SNAPSHOT</version>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
-   <name>restful_controller</name>
-   <description>Demo project for Spring Boot</description>
-
-   <properties>
-      <java.version>11</java.version>
-   </properties>
-
-   <dependencies>
-      <dependency>
-         <groupId>org.springframework.boot</groupId>
-         <artifactId>spring-boot-starter-web</artifactId>
-      </dependency>
-
-      <dependency>
-         <groupId>org.springframework.boot</groupId>
-         <artifactId>spring-boot-starter-test</artifactId>
-         <scope>test</scope>
-         <exclusions>
-            <exclusion>
-               <groupId>org.junit.vintage</groupId>
-               <artifactId>junit-vintage-engine</artifactId>
-            </exclusion>
-         </exclusions>
-      </dependency>
-   </dependencies>
-
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-maven-plugin</artifactId>
-         </plugin>
-      </plugins>
-   </build>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
 ```
 
-### Project structure
-
-- packages gebruiken
-
-```
-▽ project
-	▽ src
-		▽ main
-			▽ java
-				▽ group
-					▷ config
-					▷ controller
-					▷ exception
-					▷ model
-					▷ repository
-					▷ service
-					▷ util
-					   Application.java
-				 ▽ resources
-					   application.properties
-	 	▽ test
-			▽ java
-				▽ group
-					test classes
-	pom.xml
-```
-
 ### Springboot applicatie
 
-- Annotatie @SpringBootApplication
+Je herkent SpringBoot aan de annotatie @SpringBootApplication
 
 ```java
 @SpringBootApplication
