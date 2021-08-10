@@ -25,3 +25,16 @@ Lees [hier](postman.md) meer.
 Een RESTful API is een architectuurstijl voor een toepassingsprogramma-interface (API) die gebruik maakt van HTTP-verzoeken om toegang te krijgen tot gegevens en deze te gebruiken. Die gegevens kunnen worden gebruikt voor de gegevenstypen GET, PUT, POST en DELETE, waarmee het lezen (reading), bijwerken (updating), creëren (creating) en verwijderen (deleting) van bewerkingen met betrekking tot bronnen wordt bedoeld.
 
 Leer meer over Restful API [hier](restful_api.md).
+
+### Getting started: eerste Springboot applicatie
+
+- IDE IntelliJ
+- JDK version >= 11
+- Springboot Initialzer
+- Maven
+    - pom.xml
+- Project Structure
+- Springboot Application
+    - @SpringBootApplication
+
+Lees meer over Springboot [hier](springboot.md).
