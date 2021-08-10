@@ -1,6 +1,6 @@
 ## Restful API
 
-Wanneer je een API gaat maken heb je het vaak over een Restful API. Deze draait om dezelfde techniek van een request en een response.
+Wanneer je een API gaat maken heb je het vaak over een Restful API. Deze draait om dezelfde techniek van een HTTP request en een HTTP response.
 
 _HTTP Request_
 - URL
@@ -27,31 +27,37 @@ Door gebruik te maken van de verschillende HTTP methods heb je de mogelijkheid o
 ### URI
 
 De URL (of URI) die je gebruikt is de manier waarop je aanwijst wat je wilt gaan doen.
-Stel je hebt klanten en je wilt klanten toevoegen, dan zeg je /klanten en dan doe je een PUT en in de body geef je de informatie die je daar in wilt zetten.
+Stel je hebt klanten en je wilt klanten toevoegen, dan zeg je `/klanten` en dan doe je een PUT en in de body geef je de informatie die je daar in wilt zetten.
 
 Ander voorbeeld. Stel je houdt je bezig met boeken. Je doet als eerste een GET naar /books (dit is het adres van de API) en dan krijg je terug alle boeken die erin zitten.
 
-- GET	/books		Read many
-
+| GET        | /books           | Read many  |
+| ------------- |:-------------:| -----:|
+	
 Een POST gebruik je wanneer je een boek wilt toevoegen.
 
-- POST	/books		Create
+| POST        | /books           | Create  |
+| ------------- |:-------------:| -----:|
 
 Je kun GET ook gebruiken om 1 specifieke boek op te halen. Dan moet je een id meegeven.
 
-- GET	/books/{id}	Read one
+| GET        | /books/{id}           | Read one  |
+| ------------- |:-------------:| -----:|
 
 PUT gebruik je om een update te doen van een bestaand boek.
 
-- PUT	/books/{id}	Update
+| PUT        | /books/{id}           | Update  |
+| ------------- |:-------------:| -----:|
 
 PATCH is een partial update, net iets anders dan een PUT.
 
-- PATCH	/books/{id}	Partial update
+| PATCH        | /books/{id}           | Partial update  |
+| ------------- |:-------------:| -----:|
 
 Je kan een boek verwijderen met DELETE.
 
-- DELETE 	/books/{id}	Delete
+| DELETE        | /books/{id}           | Delete  |
+| ------------- |:-------------:| -----:|
 
 ### Status code
 
@@ -93,10 +99,10 @@ De volledige lijst kun je hier terug vinden: https://www.restapitutorial.com/htt
 
 ## Restful design
 
-De REST architectuurstijl beschrijft zes beperkingen.
-- Uniforme interface
-- Stateloos
-- Cacheerbaar
+De REST architectuurstijl beschrijft zes voordelen.
+- Redelijk standaard manier van werken: uniforme interface
+- Iedere request die je doet vanuit de client onafhankelijk is van een volgend request. Dus er gaat een request heen, er komt een antwoord terug en dan is het klaar: stateloos
+- Wanneer ik een API opvraag en een ander doet hetzelfde, krijgen we hetzelfde antwoord. Dus zo'n API url is cachable, hij kan in een soot cache worden opgeslagen om de performance te verbeteren. Cacheerbaar
 - Client-Server
 - Gelaagd systeem
 - Code op aanvraag (optioneel)
@@ -125,7 +131,7 @@ meervoudige zelfstandige naamwoorden voor URI's die verwijzen naar verzamelingen
 - JSON en/of XML body
 - Querystring parameters
 
-## Links
+## Bronnen
 
 - https://restcookbook.com
 - https://stackoverflow.blog/2020/03/02/best-practices-for-rest-api-design/
