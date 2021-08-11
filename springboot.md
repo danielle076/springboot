@@ -247,6 +247,19 @@ public class BaseController {
 }
 ```
 
+
+
+
+
+
+
+
+
+
+
+
+### ResponseEntity
+
 We maken een nieuwe controller genaamd `ClientsController.java`. Hierin gaan we clients ophalen met behulp van een List.
 
 ![img17.png](img17.png)
@@ -282,37 +295,146 @@ Wanneer je dit runt in Postman krijg je het volgende.
 
 ![img18.png](img18.png)
 
+Een ResponseEntity bouwt een status code, header en body: `esponseEntity<Object>(data, HttpStatus.OK)`. De data kom in de body en de statuscode kun je kiezen.
 
+Wat heel magisch is, is dat we een List hadden, dat we de List `data` hebben meegegeven als argument en dat de ResponseEntity daar zelf JSON van heeft gemaakt (met behulp van de helper jackson).
 
+### Instance variabele
 
-
-
-
-
-
-
-### ResponseEntity
-
-- Automatic translation to JSON (by Jackson)
-- HttpStatus
+Wanneer je meerdere methodes hebt die met dezelfde data werken dan moet je de data niet als een local variabele doen maar als een instance variabele doen binnen de klasse, dus passen we de code aan.
 
 ```java
-@RestController
-public class CustomersController {
+package nl.danielle.springbootdemo.controller;
 
-    @RequestMapping(value = "/")
-    public String hello() {
-        return "Hello World";
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+public class ClientsController {
+
+    Map<Long, String> data = new HashMap<>();
+
+    ClientsController() {
+        this.data.put(1L, "Freckle");
+        this.data.put(2L, "Frummel");
+        this.data.put(3L, "Frizzle");
     }
 
-    @RequestMapping(value = "/message")
-    public ResponseEntity<Object> getMessage() {
-        return new ResponseEntity<>("REST endpoint: /message", HttpStatus.OK);
+    @GetMapping(value = "/clients")
+    public ResponseEntity<Object> getClients() {
+        return new ResponseEntity<Object>(this.data.values(), HttpStatus.OK);
     }
 }
 ```
 
+### Ophalen id
+
+We gaan één client ophalen. Dit doe je door `{id}` toe te voegen aan je pad. De id moet opgehaald worden en dat doe je met `@PathVariable("id") Long id`.
+
+```java
+package nl.danielle.springbootdemo.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+public class ClientsController {
+
+    Map<Long, String> data = new HashMap<>();
+
+    ClientsController() {
+        this.data.put(1L, "Freckle");
+        this.data.put(2L, "Frummel");
+        this.data.put(3L, "Frizzle");
+    }
+
+    @GetMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> getClient(@PathVariable("id") Long id) {
+        return new ResponseEntity<Object>(this.data.get(id), HttpStatus.OK);
+    }
+}
+```
+
+Wanneer je de URL `http://localhost:8080/clients/2` in Postman zet krijg je het volgende terug.
+
+![img19.png](img19.png)
+
+### Verwijderen
+
+In plaats van een GetMapping wordt het DeleteMapping.
+
+Wanneer je `remove gebruikt`, dan hoef je geen `data` terug te geven. We vullen nu in "Record deleted". Bij het verwijderen wordt vaak `HttpStatus.NO_CONTENT` ipv `HttpStatus.OK` gebruikt. 
+
+```java
+package nl.danielle.springbootdemo.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+public class ClientsController {
+
+    Map<Long, String> data = new HashMap<>();
+
+    ClientsController() {
+        this.data.put(1L, "Freckle");
+        this.data.put(2L, "Frummel");
+        this.data.put(3L, "Frizzle");
+    }
+
+    @GetMapping(value = "/clients")
+    public ResponseEntity<Object> getClients() {
+        return new ResponseEntity<Object>(this.data.values(), HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> deleteClient(@PathVariable("id") Long id) {
+        this.data.remove(id);
+        return new ResponseEntity<Object>("Record deleted", HttpStatus.NO_CONTENT);
+    }
+}
+```
+
+Run eerst `http://localhost:8080/clients` in Postman.
+
+![img20.png](img20.png)
+
+Dan runnen we `http://localhost:8080/clients/3` in Postman.
+
+![img21.png](img21.png)
+
+Vervolgens runnen we weer `http://localhost:8080/clients` in Postman.
+
+![img22.png](img22.png)
+
+
+
+
+
+
+
+
 ### RequestMapping
+
+
 
 - Request method
 - URI path
@@ -373,9 +495,9 @@ public class ExceptionController {
 
 ### Springboot helpers
 
-- tomcat: webserver
+- tomcat (webserver): zorgt ervoor dat hij op localhost 8080 gaat reageren
 - hibernate: ORM
-- jackson: object ↔ json
+- jackson (object ↔ json): kan objecten vertalen in JSON
 - hikari: datasource, db connection object pool
 
 ### Web framework
