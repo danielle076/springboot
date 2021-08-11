@@ -333,7 +333,7 @@ public class ClientsController {
 }
 ```
 
-### Ophalen id
+### Eén id ophalen
 
 We gaan één client ophalen. Dit doe je door `{id}` toe te voegen aan je pad. De id moet opgehaald worden en dat doe je met `@PathVariable("id") Long id`.
 
@@ -371,7 +371,7 @@ Wanneer je de URL `http://localhost:8080/clients/2` in Postman zet krijg je het 
 
 ![img19.png](images/img19.png)
 
-### Verwijderen
+### DeleteMapping
 
 In plaats van een GetMapping wordt het DeleteMapping.
 
@@ -426,7 +426,7 @@ Vervolgens runnen we weer `http://localhost:8080/clients` in Postman.
 
 ![img22.png](images/img22.png)
 
-### Post
+### PostMapping
 
 We gebruiken PostMapping. PostMapping creates een nieuw gegeven.
 
@@ -483,7 +483,7 @@ Wanneer we weer GET gebruiken met `http://localhost:8080/clients/` krijgen we de
 ![img25.png](images/img25.png)
 
 
-### Put
+### PutMapping
 
 We gaan de naam updaten met PUT.
 
@@ -556,54 +556,129 @@ We eindigen weer met GET en de url `http://localhost:8080/clients/` om te zien o
 
 ![img29.png](images/img29.png)
 
-
-
-
-
-
-
-
-
-
-
-
-
-### RequestMapping
-
-- Request method
-- URI path
-- URI path variables
+### Blauwdruk controllers
 
 ```java
+package nl.danielle.springbootdemo.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
-public class CustomersController {
-   @RequestMapping(value = "/customers")
-    public ResponseEntity<Object> getCustomers() {
-        return new ResponseEntity<>(data, HttpStatus.OK);
+public class ClientsController {
+
+    Map<Long, String> data = new HashMap<>();
+
+    ClientsController() {
+        this.data.put(1L, "Freckle");
+        this.data.put(2L, "Frummel");
+        this.data.put(3L, "Frizzle");
     }
 
-   @RequestMapping(value = "/customers/{id}")
-    public ResponseEntity<Object> getCustomer(@PathVariable("id") int id) {
-        return new ResponseEntity<>(data, HttpStatus.OK);
+    @GetMapping(value = "/clients")
+    public ResponseEntity<Object> getClients() {
+        return new ResponseEntity<Object>(this.data.values(), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> getClient(@PathVariable("id") Long id) {
+        return new ResponseEntity<Object>(this.data.get(id), HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> deleteClient(@PathVariable("id") Long id) {
+        this.data.remove(id);
+        return new ResponseEntity<Object>("Record deleted", HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping(value = "/clients")
+    public ResponseEntity<Object> addClient(@RequestBody String clientName) {
+        long maxID = this.data.keySet().stream().max(Comparator.comparing(Long::valueOf)).get();
+        this.data.put(maxID + 1, clientName);
+        return new ResponseEntity<Object>("Record created", HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> updateClient(@PathVariable("id") Long id, @RequestBody String clientName) {
+        this.data.put(id, clientName);
+        return new ResponseEntity<Object>("Record updated", HttpStatus.OK);
     }
 }
 ```
 
-### Exceptions
+Dit is een soort blauwdruk/template van alle controllers die je gaat maken. 
 
-- Custom Exceptions => extend RuntimeException
-- Throw exceptions
-- Exception Controller
+Wanneer je een nieuwe controller gaat maken dan geef je andere endpoints
+
+### Error Handler
+
+Wanneer je `http://localhost:8080/clients/9` opvraagt, dan krijg je geen antwoord, want deze bestaat niet. De statuscode staat echter op `200 OK`, maar dit klopt niet, er moet een andere status code komen namelijk `404 NOT FOUND`.
+
+We kunnen kijken of nummer 9 er wel inzit. Dit kun je checken met een if-statement die checked of de id die je opvraagt er wel is `if (this.data.keySet().contains(id));`. Zo ja, dan geef je status 200, zo nee dan krijgt hij status 404.
 
 ```java
-public class RecordNotFoundException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
+package nl.danielle.springbootdemo.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+public class ClientsController {
+
+    Map<Long, String> data = new HashMap<>();
+
+    ClientsController() {
+        this.data.put(1L, "Freckle");
+        this.data.put(2L, "Frummel");
+        this.data.put(3L, "Frizzle");
+    }    
+    
+    @GetMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> getClient(@PathVariable("id") Long id) {
+        if (this.data.keySet().contains(id)) {
+            return new ResponseEntity<Object>(this.data.get(id), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<Object>("Record not found", HttpStatus.NOT_FOUND);
+        }
+    }
 }
 ```
 
+Wanneer je in Postman `http://localhost:8080/clients/9` ophaalt krijg je "Record not found" en status 404.
+
+![img30.png](images/img30.png)
+
+### Exception Handler
+
+Hoe wij `ClientsController` hebben beschreven met een if en else statement is niet netjes.
+De controller klasse zou alleen de mapping met path moeten en hebben en dit doorspelen naar een methode die dat afhandeld. 
+
+We gaan werken met exceptions. We hebben een nieuwe controller nodig: `ExceptionController`.
+Dit is een @RestController, maar ook een @ControllerAdvice. Wat dit ding doet, is wanneer er een fout/exception is gegenereert wordt zal de exception door deze controller af worden gevangen.
+
+_ExceptionController.java_
+
 ```java
+package nl.danielle.springbootdemo.controller;
+
+import nl.danielle.springbootdemo.exception.RecordNotFoundException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
+
 @RestController
 @ControllerAdvice
+
 public class ExceptionController {
     @ExceptionHandler(value = RecordNotFoundException.class)
     public ResponseEntity<Object> exception(RecordNotFoundException exception) {
@@ -612,14 +687,87 @@ public class ExceptionController {
 }
 ```
 
+We maken een nieuwe package `exception` en hierbinnen een file `RecordNotFoundException.java` met de volgende code.
 
+```java
+package nl.danielle.springbootdemo.exception;
 
+public class RecordNotFoundException extends RuntimeException{
+}
+```
 
+In de `ClientsController` pas je de if statement aan: 
 
+    if (!this.data.keySet().contains(id)) {
+    throw new RecordNotFoundException();
+    }
 
+Je kunt dit bij alle `{id}` aanpassen. De `ClientsController` zie er als volgt uit.
 
+```java
+package nl.danielle.springbootdemo.controller;
 
+import nl.danielle.springbootdemo.exception.RecordNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+public class ClientsController {
+
+    Map<Long, String> data = new HashMap<>();
+
+    ClientsController() {
+        this.data.put(1L, "Freckle");
+        this.data.put(2L, "Frummel");
+        this.data.put(3L, "Frizzle");
+    }
+
+    @GetMapping(value = "/clients")
+    public ResponseEntity<Object> getClients() {
+        return new ResponseEntity<Object>(this.data.values(), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> getClient(@PathVariable("id") Long id) {
+        if (!this.data.keySet().contains(id)) {
+            throw new RecordNotFoundException();
+        }
+        return new ResponseEntity<Object>("Record not found", HttpStatus.NOT_FOUND);
+    }
+
+    @DeleteMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> deleteClient(@PathVariable("id") Long id) {
+        if (!this.data.keySet().contains(id)) {
+            throw new RecordNotFoundException();
+        }
+        this.data.remove(id);
+        return new ResponseEntity<Object>("Record deleted", HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping(value = "/clients")
+    public ResponseEntity<Object> addClient(@RequestBody String clientName) {
+        long maxID = this.data.keySet().stream().max(Comparator.comparing(Long::valueOf)).get();
+        this.data.put(maxID + 1, clientName);
+        return new ResponseEntity<Object>("Record created", HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> updateClient(@PathVariable("id") Long id, @RequestBody String clientName) {
+        if (!this.data.keySet().contains(id)) {
+            throw new RecordNotFoundException();
+        }
+        this.data.put(id, clientName);
+        return new ResponseEntity<Object>("Record updated", HttpStatus.OK);
+    }
+}
+```
+
+Hij gaat overal kijken of de id er is, bestaat hij niet dan gaat hij naar `RecordNotFoundException`.
 
 ### Springboot Flow architectuur
 
