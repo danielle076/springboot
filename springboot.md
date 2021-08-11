@@ -24,7 +24,7 @@ Klik op "Add dependencies" en voeg `Spring Web` toe.
 
 Met "generate" wordt er een bestand in jouw download map gezet. Unzip het bestand en open het in Intellij.
 
-![img13.png](img13.png)
+![img13.png](images/img13.png)
 
 ### Maven
 
@@ -128,7 +128,7 @@ Wat gebeurd er? Als het pad `/` is dan gaat hij de String methode `getDemo` uitv
 
 Run main applicatie en wanneer je een melding krijgt "Started SpringbootDemoApplication" dan is het goed gegaan.
 
-![img14.png](img14.png)
+![img14.png](images/img14.png)
 
 TomCat (de webserver) heeft de applicatie gestart op port 8080: `Tomcat started on port(s): 8080 (http) with context path ''`. Wanneer je in de webbrowser de volgende url zet `http://localhost:8080/` krijg je `Hello World!` in beeld te zien.
 
@@ -170,7 +170,7 @@ Wanneer je main runt en de server opent in de webbrowser met de link `http://loc
 
 Je kan deze url ook in postman zetten, zo kun je de endpoints (het adres na /) testen.
 
-![img15.png](img15.png)
+![img15.png](images/img15.png)
 
 ### Project structuur
 
@@ -203,7 +203,7 @@ Alles wat je onder `group` ziet staan zijn verschillende packages. Bijvoorbeeld 
 	
 Maak een nieuwe package aan in je project genaamd `controller`.
 
-![img16.png](img16.png)
+![img16.png](images/img16.png)
 
 Binnen deze package maak je een nieuwe java class genaamd `BaseController`. Het idee is dat onder deze package de verschillende controllers komen te staan, zoals bijvoorbeeld klanten controller, een user controller etc, dus allerlei toegang tot je applicatie.
 
@@ -262,7 +262,7 @@ public class BaseController {
 
 We maken een nieuwe controller genaamd `ClientsController.java`. Hierin gaan we clients ophalen met behulp van een List.
 
-![img17.png](img17.png)
+![img17.png](images/img17.png)
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -293,7 +293,7 @@ public class ClientsController {
 
 Wanneer je dit runt in Postman krijg je het volgende.
 
-![img18.png](img18.png)
+![img18.png](images/img18.png)
 
 Een ResponseEntity bouwt een status code, header en body: `esponseEntity<Object>(data, HttpStatus.OK)`. De data kom in de body en de statuscode kun je kiezen.
 
@@ -369,7 +369,7 @@ public class ClientsController {
 
 Wanneer je de URL `http://localhost:8080/clients/2` in Postman zet krijg je het volgende terug.
 
-![img19.png](img19.png)
+![img19.png](images/img19.png)
 
 ### Verwijderen
 
@@ -416,15 +416,15 @@ public class ClientsController {
 
 Run eerst `http://localhost:8080/clients` in Postman.
 
-![img20.png](img20.png)
+![img20.png](images/img20.png)
 
 Dan runnen we `http://localhost:8080/clients/3` in Postman.
 
-![img21.png](img21.png)
+![img21.png](images/img21.png)
 
 Vervolgens runnen we weer `http://localhost:8080/clients` in Postman.
 
-![img22.png](img22.png)
+![img22.png](images/img22.png)
 
 ### Post
 
@@ -472,15 +472,15 @@ public class ClientsController {
 
 We beginnen met `http://localhost:8080/clients/` in Postman.
 
-![img23.png](img23.png)
+![img23.png](images/img23.png)
 
 Vervolgens gebruiken we `POST` en voegen we Fabian toe aan de body.
 
-![img24.png](img24.png)
+![img24.png](images/img24.png)
 
 Wanneer we weer GET gebruiken met `http://localhost:8080/clients/` krijgen we de toevoeging te zien.
 
-![img25.png](img25.png)
+![img25.png](images/img25.png)
 
 
 ### Put
@@ -542,19 +542,19 @@ public class ClientsController {
 
 We beginnen met `http://localhost:8080/clients/` in Postman.
 
-![img26.png](img26.png)
+![img26.png](images/img26.png)
 
 Vervolgens gebruiken we `POST` en voegen we Fabian toe aan de body.
 
-![img27.png](img27.png)
+![img27.png](images/img27.png)
 
 Wanneer we weer PUT gebruiken met `http://localhost:8080/clients/` kunnen we Fabian aanpassen wat post 4 is.
 
-![img28.png](img28.png)
+![img28.png](images/img28.png)
 
 We eindigen weer met GET en de url `http://localhost:8080/clients/` om te zien of Fabian veranderd is in Fabiola.
 
-![img29.png](img29.png)
+![img29.png](images/img29.png)
 
 
 
@@ -623,7 +623,7 @@ public class ExceptionController {
 
 ### Springboot Flow architectuur
 
-![img10.png](img10.png)
+![img10.png](images/img10.png)
 
 - https://www.javatpoint.com/spring-boot-architecture
 
@@ -647,12 +647,12 @@ public class ExceptionController {
 - View
 - Controller
 
-![img11.png](img11.png)
+![img11.png](images/img11.png)
 
 - https://www.javatpoint.com/spring-boot-tutorial
 - http://zetcode.com/all/#springboot
 
 ### Springboot layers
 
-![img12.png](img12.png)
+![img12.png](images/img12.png)
 
