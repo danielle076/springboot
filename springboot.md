@@ -319,6 +319,7 @@ public class ClientsController {
 
     Map<Long, String> data = new HashMap<>();
 
+    // constructor
     ClientsController() {
         this.data.put(1L, "Freckle");
         this.data.put(2L, "Frummel");
@@ -425,6 +426,141 @@ Vervolgens runnen we weer `http://localhost:8080/clients` in Postman.
 
 ![img22.png](img22.png)
 
+### Post
+
+We gebruiken PostMapping. PostMapping creates een nieuw gegeven.
+
+Een naam meegeven doe je in de Body van Postman. Met `@RequestBody String clientName` zorg je ervoor dat je een naam kan toevoegen.
+
+`long maxID = this.data.keySet().stream().max(Comparator.comparing(Long::valueOf)).get();` betekend het volgende: je zet een Set om in een Stream, van die Stream wil je een max hebben en dat vergelijkt hij door value te doen en uiteindelijk wil je dat hebben met een .get (niet zelf verzinnen: google is your friend). Het resultaat is dat je de hoogste id hebt die in de keys zit, ook wanneer deze uitelkaar gaat lopen (wanneer je gegevens verwijderd zal hij hem niet opvullen maar aanvullen).
+
+```java
+package nl.danielle.springbootdemo.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+public class ClientsController {
+
+    Map<Long, String> data = new HashMap<>();
+
+    ClientsController() {
+        this.data.put(1L, "Freckle");
+        this.data.put(2L, "Frummel");
+        this.data.put(3L, "Frizzle");
+    }
+
+    @GetMapping(value = "/clients")
+    public ResponseEntity<Object> getClients() {
+        return new ResponseEntity<Object>(this.data.values(), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/clients")
+    public ResponseEntity<Object> addClient(@RequestBody String clientName) {
+        long maxID = this.data.keySet().stream().max(Comparator.comparing(Long::valueOf)).get();
+        this.data.put(maxID + 1, clientName);
+        return new ResponseEntity<Object>("Record created", HttpStatus.NO_CONTENT);
+    }
+}
+```
+
+We beginnen met `http://localhost:8080/clients/` in Postman.
+
+![img23.png](img23.png)
+
+Vervolgens gebruiken we `POST` en voegen we Fabian toe aan de body.
+
+![img24.png](img24.png)
+
+Wanneer we weer GET gebruiken met `http://localhost:8080/clients/` krijgen we de toevoeging te zien.
+
+![img25.png](img25.png)
+
+
+### Put
+
+We gaan de naam updaten met PUT.
+
+```java
+package nl.danielle.springbootdemo.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+
+@RestController
+public class ClientsController {
+
+    Map<Long, String> data = new HashMap<>();
+
+    ClientsController() {
+        this.data.put(1L, "Freckle");
+        this.data.put(2L, "Frummel");
+        this.data.put(3L, "Frizzle");
+    }
+
+    @GetMapping(value = "/clients")
+    public ResponseEntity<Object> getClients() {
+        return new ResponseEntity<Object>(this.data.values(), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> getClient(@PathVariable("id") Long id) {
+        return new ResponseEntity<Object>(this.data.get(id), HttpStatus.OK);
+    }
+
+    @DeleteMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> deleteClient(@PathVariable("id") Long id) {
+        this.data.remove(id);
+        return new ResponseEntity<Object>("Record deleted", HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping(value = "/clients")
+    public ResponseEntity<Object> addClient(@RequestBody String clientName) {
+        long maxID = this.data.keySet().stream().max(Comparator.comparing(Long::valueOf)).get();
+        this.data.put(maxID + 1, clientName);
+        return new ResponseEntity<Object>("Record created", HttpStatus.NO_CONTENT);
+    }
+
+    @PutMapping(value = "/clients/{id}")
+    public ResponseEntity<Object> updateClient(@PathVariable("id") Long id, @RequestBody String clientName) {
+        this.data.put(id, clientName);
+        return new ResponseEntity<Object>("Record updated", HttpStatus.OK);
+    }
+}
+```
+
+We beginnen met `http://localhost:8080/clients/` in Postman.
+
+![img26.png](img26.png)
+
+Vervolgens gebruiken we `POST` en voegen we Fabian toe aan de body.
+
+![img27.png](img27.png)
+
+Wanneer we weer PUT gebruiken met `http://localhost:8080/clients/` kunnen we Fabian aanpassen wat post 4 is.
+
+![img28.png](img28.png)
+
+We eindigen weer met GET en de url `http://localhost:8080/clients/` om te zien of Fabian veranderd is in Fabiola.
+
+![img29.png](img29.png)
+
+
+
+
+
+
 
 
 
@@ -433,8 +569,6 @@ Vervolgens runnen we weer `http://localhost:8080/clients` in Postman.
 
 
 ### RequestMapping
-
-
 
 - Request method
 - URI path
