@@ -1,7 +1,5 @@
 ## Springboot
 
-Een van Spring Boot's meest krachtige eigenschappen is zijn auto-configuratie. Deze magie is de sleutel tot de conventie-over-configuratie aanpak die een enorme boost in productiviteit heeft gebracht voor Java ontwikkelaars. 
-
 ### Spring initializer
 
 Spring Boot voorziet in een aantal starters die ons toelaten jars toe te voegen in het classpath. Spring Boot ingebouwde starters maken ontwikkeling makkelijker en sneller. Spring Boot Starters zijn de dependency descriptors.
@@ -83,71 +81,215 @@ De file `pom.xml` geeft allerlei informatie die hij nodig heeft.
 Je herkent SpringBoot aan de annotatie @SpringBootApplication
 
 ```java
-@SpringBootApplication
-public class MyApplication {
+package nl.danielle.springbootdemo;
 
-   public static void main(String[] args) {
-      SpringApplication.run(MyApplication.class, args);
-   }
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringbootDemoApplication {
+
+  public static void main(String[] args) {
+    SpringApplication.run(SpringbootDemoApplication.class, args);
+  }
 }
 ```
-
-### Springboot Flow architectuur
-
-![img10.png](img10.png)
-
-- https://www.javatpoint.com/spring-boot-architecture
-
-### Springboot helpers
-
-- tomcat: webserver
-- hibernate: ORM
-- jackson: object ↔ json
-- hikari: datasource, db connection object pool
-
-### Web framework
-
-- HTTP Request & Response
-- Routing
-- ORM – Object Relational Mapping
-- Templating
-
-### MVC
-
-- Model
-- View
-- Controller
-
-![img11.png](img11.png)
-
-- https://www.javatpoint.com/spring-boot-tutorial
-- http://zetcode.com/all/#springboot
-
-### Springboot layers
-
-![img12.png](img12.png)
 
 ### Controller
 
-- @RestController
+We gaan een RestController maken. Deze herken je aan `@RestController`. Door een annotatie toe te voegen maakt hij van de klasse iets anders, in dit geval een Controller. Je hoeft verder geen configuraties te doen.
 
-- Mapping: @GetMapping, @PutMapping, @PostMapping, @DeleteMapping
+Een RestController heeft een mapping nodig. We gebruiken hier een `@GetMapping`. Andere mappings zijn: `@PutMapping`, `@PostMapping` en `@DeleteMapping`.
 
 ```java
+package nl.danielle.springbootdemo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 @SpringBootApplication
 @RestController
-public class HelloWorldApplication {
+public class SpringbootDemoApplication {
+
+  public static void main(String[] args) {
+    SpringApplication.run(SpringbootDemoApplication.class, args);
+  }
+
+  @GetMapping(value = "/")
+  public String getDemo() {
+    return "Hello World!";
+  }
+}
+```
+
+Wat gebeurd er? Als het pad `/` is dan gaat hij de String methode `getDemo` uitvoeren.
+
+Run main applicatie en wanneer je een melding krijgt "Started SpringbootDemoApplication" dan is het goed gegaan.
+
+![img14.png](img14.png)
+
+TomCat (de webserver) heeft de applicatie gestart op port 8080: `Tomcat started on port(s): 8080 (http) with context path ''`. Wanneer je in de webbrowser de volgende url zet `http://localhost:8080/` krijg je `Hello World!` in beeld te zien.
+
+Gefeliciteerd, we hebben nu onze eerste API geschreven.
+
+Met stoppen kun je de server stoppen.
+
+We gaan een andere mapping/endpoint maken, genaamd `/danielle`.
+
+```java
+package nl.danielle.springbootdemo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@SpringBootApplication
+@RestController
+public class SpringbootDemoApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(HelloWorldApplication.class, args);
+        SpringApplication.run(SpringbootDemoApplication.class, args);
     }
 
-    @GetMapping("/")
-    public String say_hello() {
-        return "Hello world!!!";
+    @GetMapping(value = "/")
+    public String getDemo() {
+        return "Hello World!";
+    }
+
+    @GetMapping(value = "/danielle")
+    public String getDanielle() {
+        return "Hoi, mijn naam is Danielle";
     }
 }
 ```
+
+Wanneer je main runt en de server opent in de webbrowser met de link `http://localhost:8080/danielle`, krijg je "Hoi, mijn naam is Danielle".
+
+Je kan deze url ook in postman zetten, zo kun je de endpoints (het adres na /) testen.
+
+![img15.png](img15.png)
+
+### Project structuur
+
+Het project en de structuur hiervan komt er in de loop van deze cursus als volgt uit te zien.
+
+```
+▽ project
+	▽ src
+		▽ main
+			▽ java
+				▽ group
+					▷ config
+					▷ controller
+					▷ exception
+					▷ model
+					▷ repository
+					▷ service
+					▷ util
+					   Application.java
+				 ▽ resources
+					   application.properties
+	 	▽ test
+			▽ java
+				▽ group
+					test classes
+	pom.xml
+```
+	
+Alles wat je onder `group` ziet staan zijn verschillende packages. Bijvoorbeeld de `controller` package. Dit is een plek waar de controllers zich vinden.
+	
+Maak een nieuwe package aan in je project genaamd `controller`.
+
+![img16.png](img16.png)
+
+Binnen deze package maak je een nieuwe java class genaamd `BaseController`. Het idee is dat onder deze package de verschillende controllers komen te staan, zoals bijvoorbeeld klanten controller, een user controller etc, dus allerlei toegang tot je applicatie.
+
+_SpringbootDemoApplication.java_
+
+```java
+package nl.danielle.springbootdemo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringbootDemoApplication {
+
+  public static void main(String[] args) {
+    SpringApplication.run(SpringbootDemoApplication.class, args);
+  }
+}
+```
+
+_BaseController.java_
+
+```java
+package nl.danielle.springbootdemo.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class BaseController {
+
+    @GetMapping(value = "/")
+    public String getDemo() {
+        return "Hello World!";
+    }
+
+    @GetMapping(value = "/danielle")
+    public String getDanielle() {
+        return "Hoi, mijn naam is Danielle";
+    }
+}
+```
+
+We maken een nieuwe controller genaamd `ClientsController.java`. Hierin gaan we clients ophalen met behulp van een List.
+
+![img17.png](img17.png)
+
+```java
+package nl.danielle.springbootdemo.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class ClientsController {
+
+    @GetMapping(value = "/clients")
+    public ResponseEntity<Object> getClients() {
+        
+        List<String> data = new ArrayList<>();
+        data.add("Freckle");
+        data.add("Frummel");
+        data.add("Frizzle");
+
+    return new ResponseEntity<Object>(data, HttpStatus.OK);
+    }
+}
+```
+
+Wanneer je dit runt in Postman krijg je het volgende.
+
+![img18.png](img18.png)
+
+
+
+
+
+
+
+
+
 
 ### ResponseEntity
 
@@ -213,3 +355,48 @@ public class ExceptionController {
     }
 }
 ```
+
+
+
+
+
+
+
+
+
+
+### Springboot Flow architectuur
+
+![img10.png](img10.png)
+
+- https://www.javatpoint.com/spring-boot-architecture
+
+### Springboot helpers
+
+- tomcat: webserver
+- hibernate: ORM
+- jackson: object ↔ json
+- hikari: datasource, db connection object pool
+
+### Web framework
+
+- HTTP Request & Response
+- Routing
+- ORM – Object Relational Mapping
+- Templating
+
+### MVC
+
+- Model
+- View
+- Controller
+
+![img11.png](img11.png)
+
+- https://www.javatpoint.com/spring-boot-tutorial
+- http://zetcode.com/all/#springboot
+
+### Springboot layers
+
+![img12.png](img12.png)
+
