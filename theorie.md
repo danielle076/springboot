@@ -4,7 +4,7 @@
 
 ![img10.png](images/img10.png)
 
-- https://www.javatpoint.com/spring-boot-architecture
+- <a href="https://www.javatpoint.com/spring-boot-architecture" target="_blank">spring-boot-architecture</a>
 
 ### Springboot helpers
 
@@ -28,8 +28,8 @@
 
 ![img11.png](images/img11.png)
 
-- https://www.javatpoint.com/spring-boot-tutorial
-- http://zetcode.com/all/#springboot
+- <a href="https://www.javatpoint.com/spring-boot-tutorial" target="_blank">spring-boot-tutorial</a>
+- <a href="http://zetcode.com/all/#springboot" target="_blank">zetcode.com</a>
 
 ### Springboot layers
 
