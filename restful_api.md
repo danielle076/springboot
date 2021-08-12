@@ -15,21 +15,15 @@ _HTTP Response_
 
 ### HTTP methods
 
-We maken in een restful API gebruik van verschillende HTTP methods: GET, PUT, POST, DELETE.
-Met deze vier methodes kun je al je operaties op je database uitvoeren.
-GET is opvragen (select). 
-PUT is creëren (create, een insert opdracht).
-POST is een update.
-Met DELETE kun je een record mee weghalen.
+We maken in een restful API gebruik van verschillende HTTP methods: GET, PUT, POST, DELETE. Met deze vier methodes kun je al je operaties op je database uitvoeren. GET is opvragen (select). PUT is creëren (create, een insert opdracht). POST is een update. Met DELETE kun je een record weghalen.
 
 Door gebruik te maken van de verschillende HTTP methods heb je de mogelijkheid om de data in je database server aan te spreken.
 
 ### URI
 
-De URL (of URI) die je gebruikt is de manier waarop je aanwijst wat je wilt gaan doen.
-Stel je hebt klanten en je wilt klanten toevoegen, dan zeg je `/klanten` en dan doe je een PUT en in de body geef je de informatie die je daar in wilt zetten.
+De URL (of URI) die je gebruikt is de manier waarop je aanwijst wat je wilt gaan doen. Stel je hebt klanten en je wilt klanten toevoegen, dan zeg je `/klanten`, dan doe je een `PUT` en in de body geef je de informatie die je daar in wilt zetten.
 
-Ander voorbeeld. Stel je houdt je bezig met boeken. Je doet als eerste een GET naar /books (dit is het adres van de API) en dan krijg je terug alle boeken die erin zitten.
+Ander voorbeeld. Stel je houdt je bezig met boeken. Je doet als eerste een `GET` naar `/books` (dit is het adres van de API) en dan krijg je alle boeken terug die erin zitten.
 
 | GET        | /books           | Read many  |
 | ------------- |:-------------:| -----:|
@@ -95,27 +89,16 @@ Whenever a resource conflict would be caused by fulfilling the request. Duplicat
 __500 INTERNAL SERVER ERROR__ <br/>
 Never return this intentionally. The general catch-all error when the server-side throws an exception. Use this only for errors that the consumer cannot address from their end.
 
-De volledige lijst kun je hier terug vinden: https://www.restapitutorial.com/httpstatuscodes.html
+De volledige lijst kun je hier terug vinden: <a href="https://www.restapitutorial.com/httpstatuscodes.html" target="_blank">httpstatuscodes</a>.
 
 ## Restful design
 
-De REST architectuurstijl beschrijft zes voordelen.
+De REST architectuurstijl beschrijft vijf voordelen.
 - Redelijk standaard manier van werken: uniforme interface
-- Iedere request die je doet vanuit de client onafhankelijk is van een volgend request. Dus er gaat een request heen, er komt een antwoord terug en dan is het klaar: stateloos
-- Wanneer ik een API opvraag en een ander doet hetzelfde, krijgen we hetzelfde antwoord. Dus zo'n API url is cachable, hij kan in een soot cache worden opgeslagen om de performance te verbeteren. Cacheerbaar
-- Client-Server
-- Gelaagd systeem
-- Code op aanvraag (optioneel)
-
-## Restful webservice
-
-Naleving van de REST-beperkingen is mogelijk:
-- Schaalbaarheid
-- Eenvoud
-- Wijzigbaarheid
-- Zichtbaarheid
-- Portabiliteit
-- Betrouwbaarheid
+- Er zijn vier zeer belangrijke data transacties in elk REST systeem en HTTP specificatie: POST (aanmaken), GET (lezen en raadplegen), PUT (bewerken) en DELETE.  
+- Iedere request die je doet vanuit de client, is onafhankelijk van een volgend request. Dus er gaat een request heen, er komt een antwoord terug en dan is het klaar: stateloos
+- Wanneer ik een API opvraag en een ander doet hetzelfde, krijgen we hetzelfde antwoord. Dus een API url is cachable, hij kan in een soort cache worden opgeslagen om de performance te verbeteren.
+- Gelaagd systeem. Er is een hiërarchische architectuur tussen de componenten. Elke laag heeft een functionaliteit binnen het REST systeem.
 
 ## Best practices
 
@@ -133,9 +116,9 @@ meervoudige zelfstandige naamwoorden voor URI's die verwijzen naar verzamelingen
 
 ## Bronnen
 
-- https://restcookbook.com
-- https://stackoverflow.blog/2020/03/02/best-practices-for-rest-api-design/
-- https://dzone.com/articles/top-rest-api-best-practices
-- https://docs.microsoft.com/en-us/azure/architecture/best-practices/api-design
-- https://github.com/microsoft/api-guidelines
-- https://mathieu.fenniak.net/the-api-checklist/
+- <a href="https://restcookbook.com" target="_blank">restcookbook.com</a>
+- <a href="https://stackoverflow.blog/2020/03/02/best-practices-for-rest-api-design/" target="_blank">best-practices-for-rest-api-design</a>
+- <a href="https://dzone.com/articles/top-rest-api-best-practices" target="_blank">top-rest-api-best-practices</a>
+- <a href="https://docs.microsoft.com/en-us/azure/architecture/best-practices/api-design" target="_blank">api-design</a>
+- <a href="https://github.com/microsoft/api-guidelines" target="_blank">api-guidelines</a>
+- <a href="https://mathieu.fenniak.net/the-api-checklist/" target="_blank">the-api-checklist/</a>
