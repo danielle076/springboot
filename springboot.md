@@ -1,26 +1,24 @@
-## Springboot
+## Spring Boot
 
-### Spring initializer
+### Spring initializr
 
-Spring Boot voorziet in een aantal starters die ons toelaten jars toe te voegen in het classpath. Spring Boot ingebouwde starters maken ontwikkeling makkelijker en sneller. Spring Boot Starters zijn de dependency descriptors.
+Spring initializr genereert een basis project in Java met Springboot.
 
-- https://start.spring.io
+Ga naar de website <a href="https://start.spring.io" target="_blank">spring.io</a>. De volgende gegevens vul je in voor het eerste Spring Boot project.
 
-Spring initializer genereert een basis project in Java met Springboot.
-
-- Project: Maven Project
-- Language: Java
-- Spring Boot: 2.5.3
+- Project: vink aan `Maven Project`
+- Language: vink aan `Java`
+- Spring Boot: vink aan `2.5.3`
 - Project Metadata: vul informatie in over jouw project
-    - Group: nl.danielle (identifier van de ontwikkelaar)
-    - Artifact: springboot-demo (hoe heet je project)
-    - Name: springboot-demo (hoe heet je project)
-    - Description: Demo project for Spring Boot
+    - Group: `nl.danielle` (identifier van de ontwikkelaar)
+    - Artifact: `springboot-demo` (hoe heet je project)
+    - Name: `springboot-demo` (hoe heet je project)
+    - Description: `Demo project for Spring Boot`
     - Package name: maakt het systeem zelf aan
-    - Packaging: Jar
-    - Java: 8
+    - Packaging: vink aan `Jar`
+    - Java: vink aan `8`
     
-Klik op "Add dependencies" en voeg `Spring Web` toe. 
+Klik op "add dependencies" en voeg `Spring Web` toe. 
 
 Met "generate" wordt er een bestand in jouw download map gezet. Unzip het bestand en open het in Intellij.
 
@@ -30,7 +28,7 @@ Met "generate" wordt er een bestand in jouw download map gezet. Unzip het bestan
 
 Apache Maven is een softwareprojectbeheer- en -begripstool gebaseerd op het concept van een projectobjectmodel (POM).
 
-De file `pom.xml` geeft allerlei informatie die hij nodig heeft.
+De file `pom.xml` geeft allerlei informatie die het project nodig heeft.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -76,9 +74,9 @@ De file `pom.xml` geeft allerlei informatie die hij nodig heeft.
 </project>
 ```
 
-### Springboot applicatie
+### Annotatie @SpringBootApplication
 
-Je herkent SpringBoot aan de annotatie @SpringBootApplication
+Je herkent Spring Boot aan de annotatie `@SpringBootApplication`.
 
 ```java
 package nl.danielle.springbootdemo;
@@ -95,9 +93,9 @@ public class SpringbootDemoApplication {
 }
 ```
 
-### Controller
+### GetMapping
 
-We gaan een RestController maken. Deze herken je aan `@RestController`. Door een annotatie toe te voegen maakt hij van de klasse iets anders, in dit geval een Controller. Je hoeft verder geen configuraties te doen.
+We gaan een RestController maken in `SpringbootDemoApplication.java`. Deze herken je aan `@RestController`. Door een annotatie toe te voegen maakt hij van de klasse iets anders, in dit geval een `Controller`. Je hoeft verder geen configuraties te doen, dit doet Spring Boot voor jou.
 
 Een RestController heeft een mapping nodig. We gebruiken hier een `@GetMapping`. Andere mappings zijn: `@PutMapping`, `@PostMapping` en `@DeleteMapping`.
 
@@ -124,9 +122,9 @@ public class SpringbootDemoApplication {
 }
 ```
 
-Wat gebeurd er? Als het pad `/` is dan gaat hij de String methode `getDemo` uitvoeren.
+Als het path `/` is dan laat hij de tekst "Hello World!" zien. Hij voert dus de String methode `getDemo` uit.
 
-Run main applicatie en wanneer je een melding krijgt "Started SpringbootDemoApplication" dan is het goed gegaan.
+Run de applicatie en wanneer je een melding krijgt `Started SpringbootDemoApplication` dan is het goed gegaan.
 
 ![img14.png](images/img14.png)
 
@@ -166,15 +164,15 @@ public class SpringbootDemoApplication {
 }
 ```
 
-Wanneer je main runt en de server opent in de webbrowser met de link `http://localhost:8080/danielle`, krijg je "Hoi, mijn naam is Danielle".
+Wanneer je de applicatie runt en de server opent in de webbrowser met de link `http://localhost:8080/danielle`, krijg je `Hoi, mijn naam is Danielle`.
 
-Je kan deze url ook in postman zetten, zo kun je de endpoints (het adres na /) testen.
+Je kan deze url ook in Postman zetten. Op dez manier kun je de endpoints (het adres na /) testen.
 
 ![img15.png](images/img15.png)
 
 ### Project structuur
 
-Het project en de structuur hiervan komt er in de loop van deze cursus als volgt uit te zien.
+Het project en de structuur komt in de loop van deze cursus als volgt eruit te zien.
 
 ```
 ▽ project
@@ -200,12 +198,14 @@ Het project en de structuur hiervan komt er in de loop van deze cursus als volgt
 ```
 	
 Alles wat je onder `group` ziet staan zijn verschillende packages. Bijvoorbeeld de `controller` package. Dit is een plek waar de controllers zich vinden.
+
+### BaseController
 	
 Maak een nieuwe package aan in je project genaamd `controller`.
 
 ![img16.png](images/img16.png)
 
-Binnen deze package maak je een nieuwe java class genaamd `BaseController`. Het idee is dat onder deze package de verschillende controllers komen te staan, zoals bijvoorbeeld klanten controller, een user controller etc, dus allerlei toegang tot je applicatie.
+Binnen deze package maak je een nieuwe controller genaamd `BaseController.java`. Het idee is dat onder deze package de verschillende controllers komen te staan, zoals bijvoorbeeld klanten controller, een user controller etc. Dus allerlei toegang tot je applicatie.
 
 _SpringbootDemoApplication.java_
 
@@ -247,7 +247,7 @@ public class BaseController {
 }
 ```
 
-### ResponseEntity
+### ClientsController
 
 We maken een nieuwe controller genaamd `ClientsController.java`. Hierin gaan we clients ophalen met behulp van een List.
 
@@ -284,13 +284,13 @@ Wanneer je dit runt in Postman krijg je het volgende.
 
 ![img18.png](images/img18.png)
 
-Een ResponseEntity bouwt een status code, header en body: `esponseEntity<Object>(data, HttpStatus.OK)`. De data kom in de body en de statuscode kun je kiezen.
+Een `ResponseEntity` vertegenwoordigt het volledige HTTP response: status code, headers, en body: `ResponseEntity<Object>(data, HttpStatus.OK)`. De data kom in de body en de statuscode kun je kiezen.
 
-Wat heel magisch is, is dat we een List hadden, dat we de List `data` hebben meegegeven als argument en dat de ResponseEntity daar zelf JSON van heeft gemaakt (met behulp van de helper jackson).
+Wat heel magisch is, is dat we een List hebben, dat we de List `data` hebben meegegeven als argument en dat de ResponseEntity daar zelf JSON van heeft gemaakt (met behulp van de helper jackson).
 
 ### Instance variabele
 
-Wanneer je meerdere methodes hebt die met dezelfde data werken dan moet je de data niet als een local variabele doen maar als een instance variabele doen binnen de klasse, dus passen we de code aan.
+Wanneer je meerdere methodes hebt die met dezelfde data willen gaan werken dan moet je de data niet als een local variabele doen maar als een instance variabele, dus passen we de code aan.
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -322,9 +322,9 @@ public class ClientsController {
 }
 ```
 
-### Eén id ophalen
+### GetMapping: één id ophalen
 
-We gaan één client ophalen. Dit doe je door `{id}` toe te voegen aan je pad. De id moet opgehaald worden en dat doe je met `@PathVariable("id") Long id`.
+We gaan één client ophalen. Dit doe je door `{id}` toe te voegen aan je path. De id moet opgehaald worden en dat doe je met `@PathVariable("id") Long id`.
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -362,9 +362,7 @@ Wanneer je de URL `http://localhost:8080/clients/2` in Postman zet krijg je het 
 
 ### DeleteMapping
 
-In plaats van een GetMapping wordt het DeleteMapping.
-
-Wanneer je `remove gebruikt`, dan hoef je geen `data` terug te geven. We vullen nu in "Record deleted". Bij het verwijderen wordt vaak `HttpStatus.NO_CONTENT` ipv `HttpStatus.OK` gebruikt. 
+Wanneer je `remove gebruikt`, dan hoef je geen `data` terug te geven. We vullen nu in "Record deleted". Bij het verwijderen wordt vaak `HttpStatus.NO_CONTENT` i.p.v. `HttpStatus.OK` gebruikt. 
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -403,25 +401,25 @@ public class ClientsController {
 }
 ```
 
-Run eerst `http://localhost:8080/clients` in Postman.
+Run eerst `http://localhost:8080/clients` in Postman met `GET`.
 
 ![img20.png](images/img20.png)
 
-Dan runnen we `http://localhost:8080/clients/3` in Postman.
+Dan runnen we `http://localhost:8080/clients/3` in Postman met `DELETE`.
 
 ![img21.png](images/img21.png)
 
-Vervolgens runnen we weer `http://localhost:8080/clients` in Postman.
+Vervolgens runnen we weer `http://localhost:8080/clients` in Postman met `GET`.
 
 ![img22.png](images/img22.png)
 
 ### PostMapping
 
-We gebruiken PostMapping. PostMapping creates een nieuw gegeven.
+PostMapping creëert een nieuw gegeven.
 
 Een naam meegeven doe je in de Body van Postman. Met `@RequestBody String clientName` zorg je ervoor dat je een naam kan toevoegen.
 
-`long maxID = this.data.keySet().stream().max(Comparator.comparing(Long::valueOf)).get();` betekend het volgende: je zet een Set om in een Stream, van die Stream wil je een max hebben en dat vergelijkt hij door value te doen en uiteindelijk wil je dat hebben met een .get (niet zelf verzinnen: google is your friend). Het resultaat is dat je de hoogste id hebt die in de keys zit, ook wanneer deze uitelkaar gaat lopen (wanneer je gegevens verwijderd zal hij hem niet opvullen maar aanvullen).
+`long maxID = this.data.keySet().stream().max(Comparator.comparing(Long::valueOf)).get();` betekend het volgende: je zet een Set om in een Stream, van die Stream wil je een max hebben en dat vergelijkt hij door value te doen en uiteindelijk wil je dat hebben met een .get (niet zelf verzinnen: google is your friend). Het resultaat is dat je de hoogste id hebt die in de keys zit, ook wanneer deze uitelkaar gaat lopen (wanneer je gegevens verwijderd, zal hij hem niet opvullen maar aanvullen).
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -459,7 +457,7 @@ public class ClientsController {
 }
 ```
 
-We beginnen met `http://localhost:8080/clients/` in Postman.
+We beginnen met `http://localhost:8080/clients/` en `GET` in Postman.
 
 ![img23.png](images/img23.png)
 
@@ -467,7 +465,7 @@ Vervolgens gebruiken we `POST` en voegen we Fabian toe aan de body.
 
 ![img24.png](images/img24.png)
 
-Wanneer we weer GET gebruiken met `http://localhost:8080/clients/` krijgen we de toevoeging te zien.
+Wanneer we weer `GET` gebruiken met `http://localhost:8080/clients/` krijgen we de toevoeging te zien.
 
 ![img25.png](images/img25.png)
 
@@ -528,7 +526,7 @@ public class ClientsController {
 }
 ```
 
-We beginnen met `http://localhost:8080/clients/` in Postman.
+We beginnen met `http://localhost:8080/clients/` en `GET` in Postman.
 
 ![img26.png](images/img26.png)
 
@@ -536,11 +534,11 @@ Vervolgens gebruiken we `POST` en voegen we Fabian toe aan de body.
 
 ![img27.png](images/img27.png)
 
-Wanneer we weer PUT gebruiken met `http://localhost:8080/clients/` kunnen we Fabian aanpassen wat post 4 is.
+Wanneer we weer `PUT` gebruiken met `http://localhost:8080/clients/` kunnen we Fabian aanpassen wat post 4 is.
 
 ![img28.png](images/img28.png)
 
-We eindigen weer met GET en de url `http://localhost:8080/clients/` om te zien of Fabian veranderd is in Fabiola.
+We eindigen weer met `GET` en de url `http://localhost:8080/clients/` om te zien of Fabian veranderd is in Fabiola.
 
 ![img29.png](images/img29.png)
 
@@ -599,15 +597,13 @@ public class ClientsController {
 }
 ```
 
-Dit is een soort blauwdruk/template van alle controllers die je gaat maken. 
-
-Wanneer je een nieuwe controller gaat maken dan geef je andere endpoints
+Dit is een soort blauwdruk/template van alle controllers die je gaat maken. Wanneer je een nieuwe controller gaat maken dan geef je andere endpoints en andere methode namen.
 
 ### Error Handler
 
 Wanneer je `http://localhost:8080/clients/9` opvraagt, dan krijg je geen antwoord, want deze bestaat niet. De statuscode staat echter op `200 OK`, maar dit klopt niet, er moet een andere status code komen namelijk `404 NOT FOUND`.
 
-We kunnen kijken of nummer 9 er wel inzit. Dit kun je checken met een if-statement die checked of de id die je opvraagt er wel is `if (this.data.keySet().contains(id));`. Zo ja, dan geef je status 200, zo nee dan krijgt hij status 404.
+We gaan checken of nummer 9 bestaat. Dit kun je controleren met een if-statement die checked of de id die je opvraagt er wel is `if (this.data.keySet().contains(id));`. Zo ja, dan geef je status 200, zo nee dan krijgt hij status 404.
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -647,11 +643,9 @@ Wanneer je in Postman `http://localhost:8080/clients/9` ophaalt krijg je "Record
 
 ### Exception Handler
 
-Hoe wij `ClientsController` hebben beschreven met een if en else statement is niet netjes.
-De controller klasse zou alleen de mapping met path moeten en hebben en dit doorspelen naar een methode die dat afhandeld. 
+Hoe wij de `ClientsController` hebben beschreven met een if en else statement is niet netjes. De controller klasse zou alleen de mapping met path moeten en hebben en dit doorspelen naar een methode die het afhandelt. 
 
-We gaan werken met exceptions. We hebben een nieuwe controller nodig: `ExceptionController`.
-Dit is een @RestController, maar ook een @ControllerAdvice. Wat dit ding doet, is wanneer er een fout/exception is gegenereert wordt zal de exception door deze controller af worden gevangen.
+We gaan werken met exceptions. We hebben een nieuwe controller nodig: `ExceptionController`. Wat dit ding doet, is wanneer er een fout/exception is gegenereerd zal de exception door de controller af worden gevangen.
 
 _ExceptionController.java_
 
@@ -684,13 +678,13 @@ public class RecordNotFoundException extends RuntimeException{
 }
 ```
 
-In de `ClientsController` pas je de if statement aan: 
+In de `ClientsController` pas je de if statement aan.
 
     if (!this.data.keySet().contains(id)) {
     throw new RecordNotFoundException();
     }
 
-Je kunt dit bij alle `{id}` aanpassen. De `ClientsController` zie er als volgt uit.
+Je kunt dit bij alle `{id}` paths aanpassen. De `ClientsController` zie er als volgt uit.
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -755,4 +749,4 @@ public class ClientsController {
 }
 ```
 
-Hij gaat overal kijken of de id er is, bestaat hij niet dan gaat hij naar `RecordNotFoundException`.
+Hij gaat kijken of de gevraagde id er is, bestaat hij niet dan gaat hij naar `RecordNotFoundException`.
