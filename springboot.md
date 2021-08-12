@@ -247,17 +247,6 @@ public class BaseController {
 }
 ```
 
-
-
-
-
-
-
-
-
-
-
-
 ### ResponseEntity
 
 We maken een nieuwe controller genaamd `ClientsController.java`. Hierin gaan we clients ophalen met behulp van een List.
@@ -481,7 +470,6 @@ Vervolgens gebruiken we `POST` en voegen we Fabian toe aan de body.
 Wanneer we weer GET gebruiken met `http://localhost:8080/clients/` krijgen we de toevoeging te zien.
 
 ![img25.png](images/img25.png)
-
 
 ### PutMapping
 
@@ -768,39 +756,3 @@ public class ClientsController {
 ```
 
 Hij gaat overal kijken of de id er is, bestaat hij niet dan gaat hij naar `RecordNotFoundException`.
-
-### Springboot Flow architectuur
-
-![img10.png](images/img10.png)
-
-- https://www.javatpoint.com/spring-boot-architecture
-
-### Springboot helpers
-
-- tomcat (webserver): zorgt ervoor dat hij op localhost 8080 gaat reageren
-- hibernate: ORM
-- jackson (object ↔ json): kan objecten vertalen in JSON
-- hikari: datasource, db connection object pool
-
-### Web framework
-
-- HTTP Request & Response
-- Routing
-- ORM – Object Relational Mapping
-- Templating
-
-### MVC
-
-- Model
-- View
-- Controller
-
-![img11.png](images/img11.png)
-
-- https://www.javatpoint.com/spring-boot-tutorial
-- http://zetcode.com/all/#springboot
-
-### Springboot layers
-
-![img12.png](images/img12.png)
-
