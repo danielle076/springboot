@@ -88,4 +88,25 @@ Open het bestand in IntelliJ.
 
 ![img_6.png](images/img41.png)
 
-De `pom.xml` specificeert welke pakketten je nodig hebt.
+De `pom.xml` (maven dependency manager) specificeert welke pakketten je nodig hebt.
+
+![img.png](images/img42.png)
+
+We moeten nu specificeren hoe `@SpringBootApplication` bij Postgresql kan. De wachtwoorden moeten worden ingesteld, dat doen we in de `application.properties` van IntelliJ. De volgende code zet je in dit bestand.
+
+    # datasource PostgreSQL
+    spring.jpa.database=postgresql
+    spring.datasource.platform=postgres
+    spring.datasource.url=jdbc:postgresql://localhost:5432/springboot
+    spring.datasource.username=springboot
+    spring.datasource.password=springboot
+    spring.datasource.driver-class-name=org.postgresql.Driver
+    spring.jpa.generate-ddl=true
+    spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+    spring.jpa.properties.hibernate.dialect= org.hibernate.dialect.PostgreSQLDialect
+    
+    spring.jpa.show-sql = true
+    
+    spring.jpa.hibernate.ddl-auto=create
+    spring.datasource.initialization-mode=always
+
