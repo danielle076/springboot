@@ -251,4 +251,35 @@ Wanneer je de `LibraryApplication` gaat runnen is het gelukt wanneer je de meldi
 
 Als je nu naar de database gaat in pgAdmin en je kijkt naar de schema's en dan tables zie je dat er ineens een `book` staan en de 5 columns die je hebt gemaakt.
 
--- werkt niet, uitzoeken...
+![img.png](img.png)
+
+Wanneer de connectie met postgresSQL niet werkt kun je ook H2 gebruiken. Het volgende zet je in `application.properties`.
+
+    # datasource H2
+    spring.datasource.driverClassName=org.h2.Driver
+    spring.datasource.username=sa
+    spring.datasource.password=password
+    spring.datasource.url=jdbc:h2:mem:testdb
+    #spring.datasource.url=jdbc:h2:file:./data/testdb
+    spring.datasource.hikari.connectionTimeout=20000
+    spring.datasource.hikari.maximumPoolSize=5
+    spring.h2.console.enabled=true
+    spring.h2.console.path=/h2console/
+    spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+    spring.jpa.hibernate.ddl-auto=create
+
+In de `pom.xml` zet je onder de dependency van `postgresql` de code van `h2`.
+
+    <dependency>
+       <groupId>com.h2database</groupId>
+       <artifactId>h2</artifactId>
+       <scope>runtime</scope>
+    </dependency>
+
+Er verschijnt een `Load Maven Changes` icoon in beeld. Deze moet je aanklikken en dan gaat IntelliJ indexen, zodat het systeem h2 erbij heeft gezet.
+
+Wanneer je de database h2.Driver gebruikt, die is in-memory, dat betekend dat je het verder niet kan zien. Dit is een path die heet h2console en wanneer je naar een browser gaat en tikt in localhost:8080/h2console dan krijg je een soort database, je klikt op `connect` dan zie je je class `book` en de 5 columns staan.
+
+Wanneer de database werkt, gaan we `Book.java` vullen met een aantal zaken zodat we kunnen zien dat er data in de tabel komt. Dit doe je door in de `resources` een nieuw textfile te maken en die noemen we `data.sql`. Dit is een `sql` bestand waarmee we records kunnen toevoegen aan `Book.java`.
+
+--- werkt niet
