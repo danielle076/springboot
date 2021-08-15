@@ -110,3 +110,145 @@ We moeten nu specificeren hoe `@SpringBootApplication` bij Postgresql kan. De wa
     spring.jpa.hibernate.ddl-auto=create
     spring.datasource.initialization-mode=always
 
+We gaan de entities maken die we in ons klassendiagram hebben gezet. We maken een nieuwe package genaamd `model` en een nieuwe klasse genaamd `Book.java` in Java.
+
+![img43.png](images/img43.png)
+
+In `Book.java` maken we de attributen en de getters en setters.
+
+```java
+package com.danielle.library.model;
+
+public class Book {
+    private String title;
+    private String writer;
+    private String isbn;
+    private String publisher;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getWriter() {
+        return writer;
+    }
+
+    public void setWriter(String writer) {
+        this.writer = writer;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+}
+```
+
+Dit is wat ze noemen een POJO: Plain Old Java Object -> simpele klasse met alleen attributen en getters en setters. Hibernate maakt gebruik van de POJO.
+
+Om dit te integreren met Spring Boot gaan we met annotaties werken: `@Entity`.
+
+```java
+import javax.persistence.Entity;
+
+@Entity
+public class Book {
+}
+```
+
+Vervolgens kunnen we van de attributen gaan zeggen, dit is een column: `@Column`.
+
+```java
+import javax.persistence.Column;
+import javax.persistence.Entity;
+
+@Entity
+public class Book {
+
+  @Column
+  private String title;
+  @Column
+  private String writer;
+  @Column
+  private String isbn;
+  @Column
+  private String publisher;
+}
+```
+
+Als laatste maken we een primary key.
+
+```java
+package com.danielle.library.model;
+
+import javax.persistence.*;
+
+@Entity
+public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column
+    private String title;
+    @Column
+    private String writer;
+    @Column
+    private String isbn;
+    @Column
+    private String publisher;
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getWriter() {
+        return writer;
+    }
+
+    public void setWriter(String writer) {
+        this.writer = writer;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+}
+```
+
+Wanneer je de `LibraryApplication` gaat runnen is het gelukt wanneer je de melding `Started LibraryApplication` krijgt.
+
+Als je nu naar de database gaat in pgAdmin en je kijkt naar de schema's en dan tables zie je dat er ineens een `book` staan en de 5 columns die je hebt gemaakt.
+
+-- werkt niet, uitzoeken...
