@@ -2,7 +2,9 @@
 
 Er is een systeem nodig voor een bibliotheek waarin de leden worden bijgehouden. Ook de beschikbare boeken staan in het systeem. Een lid kan een boek lenen voor 3 weken. Het systeem houdt bij welke boeken aanwezig zijn in de bibliotheek.
 
-## Eerste opzet klassendiagram
+## Ontwerp UML
+
+### Eerste opzet klassendiagram
 
 1. Beschrijf de applicatie. Probeer min of meer volledig te zijn zonder al te zeer op de details in te gaan
 2. Markeer alle zelfstandige naamwoorden met een kleur
@@ -10,7 +12,7 @@ Er is een systeem nodig voor een bibliotheek waarin de leden worden bijgehouden.
 4. De zelfstandige naamwoorden zijn kandidaten om in de applicatie classes te worden
 5. De werkwoorden zijn kandidaat methoden
 
-### Voorbeeld tekst
+#### Voorbeeld tekst
 ![img32.png](images/img32.png)
 
 De rode woorden zijn zelfstandige naamwoorden.<br/>
@@ -18,7 +20,7 @@ De groene woorden zijn de werkwoorden.
 
 ![img31.png](images/img31.png)
 
-### Idee
+#### Idee
 
 De zelfstandige namen voor het idee zijn als volgt.
 
@@ -32,7 +34,7 @@ De zelfstandige namen voor het idee zijn als volgt.
 
 Systeem is het alles overkoepelende, dat is juist wat je gaat beschrijven, dus deze gebruiken we niet in de klassendiagram UML.
 
-## UML: klassendiagram
+### UML: klassendiagram
 
 Wanneer klassen iets met elkaar te maken hebben dan zet je een verbinding ertussen.
 
@@ -46,7 +48,7 @@ Wanneer klassen iets met elkaar te maken hebben dan zet je een verbinding ertuss
 
 ![img34.png](images/img34.png)
 
-## Database: postgresql
+## Database Entities ORM
 
 We gaan een nieuwe database maken in pgAdmin genaamd bieb. 
 
@@ -62,7 +64,7 @@ We hebben nu een tabel waar we records in kunnen zetten.
 
 ![img37.png](images/img37.png)
 
-## Hibernate
+### Hibernate
 
 Hoe verbind je van je Java Applicatie naar je Database? Springboot biedt een koppeling tussen de database en Java.
 
@@ -74,7 +76,7 @@ Aan de Java kant heb je ORM: Object Relational Mapping. Een ORM heb je nodig om 
 
 In Springboot heet de ORM Hibernate. Hibernate is de populairste Object Relational Mapping (ORM) voor Java. 
 
-## Springboot
+### Springboot
 
 We gaan de klasses van het klassendiagram in Springboot maken.
 
@@ -324,4 +326,68 @@ Run de applicatie.
 
 >>> De applicatie draait zonder errors, maar de data wordt niet in porgreSQL gezet. Lijkt alsof er iets mis is met `data.sql`.
 
+We gaan verder zonder het bestand `data.sql`.
 
+## Repository
+
+We gaan een controller maken. We maken eerste aan package genaamd `controller` en een bestand genaamd `BookController.java`.
+
+![img48.png](img48.png)
+
+Via `bookRepository` gaan we naar de database. Op hetzelfde nivea als controller maak je een nieuwe package `repository` en daarin een interface bestand genaamd `BookRepository`.
+
+![img49.png](img.49png)
+
+De communicatie met de database gebeurd via een repository, dus BookRepository communiceert straks met de database. Het is een interface die op basis van een bestaande JpaRepository toegang heeft naar `book` op basis van de id wat `Long` is. Hij vertaald in wezen Java in een stukje SQL.
+
+_BookRepository.java_
+
+```java
+package com.danielle.bibliotheek.repository;
+
+import com.danielle.bibliotheek.model.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface BookRepository extends JpaRepository<Book, Long> {
+}
+```
+
+We hebben een `@GetMapping` naar `/books` met een methode `getBooks`, die levert een `ResponseEntity` op en deze bestaat uit `books` en books is een `List` naar type `Book` en om deze boven water te krijgen doen we een bookRepository en find all `bookRepository.findAll();`. De bookRepository hebben we met `@Autowired` gedaan.
+
+_BookController.java_
+
+```java
+package com.danielle.bibliotheek.controller;
+
+import com.danielle.bibliotheek.model.Book;
+import com.danielle.bibliotheek.repository.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+public class BookController {
+    @Autowired
+    private BookRepository bookRepository;
+
+    @GetMapping(value = "/books")
+    public ResponseEntity<Object> getBooks() {
+        List<Book> books = bookRepository.findAll();
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+}
+```
+
+Run de applicatie.
+
+Ga naar Postman en doen een GET naar `http://localhost:8080/books`. Je krijgt een lege array `[]` te zien in de body.
+
+![img50.png](img50.png)
+
+Wanneer je `data.sql` bestand werkt, zie je in de Body het volgende.
+
+![img51.png](img51.png)
