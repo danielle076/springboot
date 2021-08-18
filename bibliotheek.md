@@ -729,3 +729,133 @@ public class Book {
 
 ![img.png](images/img63.png)
 
+### Verschillende soorten repository's
+
+Je hebt verschillende soorten repository's. Alledrie doen ze verschillende dingen, waarbij de Jpa het meeste kan en het zwaarste is.
+- JpaRepository
+- PagingAndSortingRepository
+- CrudRepository
+
+We gaan een `repository method` gebruiken waarbij we willen gaan zoeken/sorteren op id.
+
+We maken een `List` van de type `Book`. De methode noemen we `findAllOrderById()`.
+
+_BookRepository.java_
+
+```java
+package com.danielle.bibliotheek.repository;
+
+import com.danielle.bibliotheek.model.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface BookRepository extends JpaRepository<Book, Long> {
+
+    List<Book> findAllOrderById();
+}
+```
+
+Dit ga je gebruiken in de `BookController.java`. In plaats van `findAll()` gebruiken we `findAllOrderById()`.
+
+
+    @GetMapping(value = "/books")
+    public ResponseEntity<Object> getBooks() {
+      List<Book> books = bookRepository.findAllOrderById();
+      return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
+Nu zal hij altijd je boeken gesorteerd weergeven. 
+
+>>> werkt niet, je moet een argument opgeven
+
+Wanneer je de begin letter wilt gebruiken van de naam om te gaan zoeken, gebruik je `findAllByTitleOrderById` en geven we `String` en `title` mee in de argumenten.
+
+_BookRepository.java_
+
+```java
+package com.danielle.bibliotheek.repository;
+
+import com.danielle.bibliotheek.model.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface BookRepository extends JpaRepository<Book, Long> {
+
+    List<Book> findAllByTitleOrderById(String title);
+}
+```
+
+In de `BookController.java` gaan we dit toevoegen door een nieuwe `@GetMapping`.
+
+```java
+package com.danielle.bibliotheek.controller;
+
+import com.danielle.bibliotheek.model.Book;
+import com.danielle.bibliotheek.repository.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+public class BookController {
+    @Autowired
+    private BookRepository bookRepository;
+
+    @GetMapping(value = "/books")
+    public ResponseEntity<Object> getBooks() {
+        List<Book> books = bookRepository.findAll();
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/books/title/{title}")
+    public ResponseEntity<Object> getBooks(@PathVariable("title") String title) {
+        List<Book> books = bookRepository.findAllByTitleOrderById(title);
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/books/{id}")
+    public ResponseEntity<Optional<Book>> getBook(@PathVariable("id") long id) {
+        return new ResponseEntity<>(bookRepository.findById(id), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/books")
+    public ResponseEntity<Object> createBook(@RequestBody Book book) {
+        bookRepository.save(book);
+        return new ResponseEntity<>("Book created", HttpStatus.CREATED);
+    }
+
+    @DeleteMapping(value = "/books/{id}")
+    public ResponseEntity<Object> deleteBook(@PathVariable("id") long id) {
+        bookRepository.deleteById(id);
+        return new ResponseEntity<>("Book deleted", HttpStatus.OK);
+    }
+}
+```
+
+Run de applicatie.
+
+We hebben vier boeken in Postman gezet.
+
+![img64.png](images/img64.png)
+
+Wanneer je opzoek gaat naar de titel `Book` met url `http://localhost:8080/books/title/Book` krijg je het volgende.
+
+![img65.png](images/img65.png)
+
+We gaan nu zoeken naar de eerste letter van een title met 'findAllByTitleStartingWith'. Dit pas je aan in `BookRepository.java` en `BookController.java`.
+
+In Postman ga je op zoek naar de boeken die beginnen met de letter B `http://localhost:8080/books/title/B`.
+
+![img66.png](images/img66.png)
+
+Je kunt verschillende query's/zoekopdrachten gebruiken, zie onderstaand overzicht.
+
+![img67.png](images/img67.png)
+
+Tip: als gebruiker weet je niet welke query's er worden ondersteund, dus dan kun je een informatie controller maken (als soort van documentatie naar de gebruiker toe). Kijk oo naar HATEOS, die laten zien dat wanneer je iets hebt opgevraagd, hoe je dan verder kan.
