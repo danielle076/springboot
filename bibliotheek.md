@@ -731,7 +731,9 @@ public class Book {
 
 ### Verschillende soorten repository's
 
-Je hebt verschillende soorten repository's. Alledrie doen ze verschillende dingen, waarbij de Jpa het meeste kan en het zwaarste is.
+Je hebt verschillende soorten repository's. Alledrie doen ze verschillende dingen, waarbij de Jpa het meeste kan en het
+zwaarste is.
+
 - JpaRepository
 - PagingAndSortingRepository
 - CrudRepository
@@ -758,18 +760,18 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
 Dit ga je gebruiken in de `BookController.java`. In plaats van `findAll()` gebruiken we `findAllOrderById()`.
 
-
     @GetMapping(value = "/books")
     public ResponseEntity<Object> getBooks() {
       List<Book> books = bookRepository.findAllOrderById();
       return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
-Nu zal hij altijd je boeken gesorteerd weergeven. 
+Nu zal hij altijd je boeken gesorteerd weergeven.
 
->>> werkt niet, je moet een argument opgeven
+> > > werkt niet, je moet een argument opgeven
 
-Wanneer je de begin letter wilt gebruiken van de naam om te gaan zoeken, gebruik je `findAllByTitleOrderById` en geven we `String` en `title` mee in de argumenten.
+Wanneer je de begin letter wilt gebruiken van de naam om te gaan zoeken, gebruik je `findAllByTitleOrderById` en geven
+we `String` en `title` mee in de argumenten.
 
 _BookRepository.java_
 
@@ -848,7 +850,8 @@ Wanneer je opzoek gaat naar de titel `Book` met url `http://localhost:8080/books
 
 ![img65.png](images/img65.png)
 
-We gaan nu zoeken naar de eerste letter van een title met 'findAllByTitleStartingWith'. Dit pas je aan in `BookRepository.java` en `BookController.java`.
+We gaan nu zoeken naar de eerste letter van een title met 'findAllByTitleStartingWith'. Dit pas je aan
+in `BookRepository.java` en `BookController.java`.
 
 In Postman ga je op zoek naar de boeken die beginnen met de letter B `http://localhost:8080/books/title/B`.
 
@@ -858,4 +861,316 @@ Je kunt verschillende query's/zoekopdrachten gebruiken, zie onderstaand overzich
 
 ![img67.png](images/img67.png)
 
-Tip: als gebruiker weet je niet welke query's er worden ondersteund, dus dan kun je een informatie controller maken (als soort van documentatie naar de gebruiker toe). Kijk oo naar HATEOS, die laten zien dat wanneer je iets hebt opgevraagd, hoe je dan verder kan.
+Tip: als gebruiker weet je niet welke query's er worden ondersteund, dus dan kun je een informatie controller maken (als
+soort van documentatie naar de gebruiker toe). Kijk oo naar HATEOS, die laten zien dat wanneer je iets hebt opgevraagd,
+hoe je dan verder kan.
+
+## Service
+
+Spring Boot in een plaatje.
+
+![img68.png](images/img68.png)
+
+De Client praat via HTTPS met de Controller. De controller praat met de Service en de Service praat via de Repository
+met de database en kent dan de Model.
+
+We hebben een `BookController` en vanuit de `BookController` gaan we gelijk naar de `bookRepository`.
+De `BookRepository` is in staat om de sql statements te bouwen en naar de database te sturen. Hiertussen moet een
+service laag.
+
+Een servicelaag daar zit eigenlijk de business intelligentie. De servicelaag is op de hoogte van dingen die van belang
+zijn om door te geven aan de BookRepository. De BookRepository houdt zich alleen bezig met de database. De
+BookController houdt zich alleen bezig met de frontend, met de API. Hiertussen moet een service zitten.
+
+We voegen een nieuwe package toe genaamd `Service` met een nieuwe klasse genaamd `BookService.java`.
+
+![img69.png](images/img69.png)
+
+Traditioneel wordt de Service gescheiden in een Interface en in een Implementatie. In `BookService.java` zet je de
+volgende code voor de Implementatie.
+
+```java
+package com.danielle.bibliotheek.service;
+
+public class BookServiceImpl {
+}
+```
+
+Voor Interface maak je een nieuw bestand aan, binnen de package genaamd `BookService.java`.
+
+![img.png](images/img70.png)
+
+In de Service ga je definieren wat je allemaal met je boeken wilt gaat doen.
+
+We kunnen bijvoorbeeld zeggen, we willen de volgende methodes `getAllBooks()`, `getBook()`, `getBooksTitleStartsWith()`
+, `save()` en een `deleteById()`.
+
+- De getAllBooks() geeft terug een lijst van een boek: `List<Book> getAllBooks();`
+- De getBook() die geeft terug een boek: `Book getBook();`
+- De getBooksTitleStartsWith() geeft een lijst ban boeken terug: `List<Book> getBooksTitleStartsWith()`
+- De save() is een void want die geeft niks terug: `void save();`
+- De deleteById() is een void want geeft niks terug: `void deleteById()`
+
+_BookService.java_
+
+```java
+package com.danielle.bibliotheek.service;
+
+import com.danielle.bibliotheek.model.Book;
+
+import java.util.List;
+
+public interface BookService {
+
+    public List<Book> getAllBooks();
+
+    public Book getBook(long id);
+
+    public List<Book> getBooksTitleStartsWith(String title);
+
+    public void save(Book book);
+
+    public void deleteById(long id);
+}
+```
+
+De interface hoeft alleen maar te benoemen welke methodes je allemaal hebt. Deze methodes moet je implementeren
+in `BookServiceImpl`.
+
+De @Autowired van `BookController` zet je in `BookServiceImpl`. De service praat nu met de bookRepository.
+
+```java
+package com.danielle.bibliotheek.service;
+
+import com.danielle.bibliotheek.model.Book;
+import com.danielle.bibliotheek.repository.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class BookServiceImpl implements BookService {
+    @Autowired
+    private BookRepository bookRepository;
+
+    @Override
+    public List<Book> getAllBooks() {
+        return bookRepository.findAll();
+    }
+
+    @Override
+    public Book getBook(long id) {
+        return bookRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public List<Book> getBooksTitleStartsWith(String title) {
+        return bookRepository.findAllByTitleStartingWith(title);
+    }
+
+    @Override
+    public void save(Book book) {
+        bookRepository.save(book);
+    }
+
+    @Override
+    public void deleteById(long id) {
+        bookRepository.deleteById(id);
+    }
+}
+```
+
+Wat je in de `BookController.java` moet gaan doen, is niet praten met `bookRepository` maar praten
+met `BookService.java`.
+
+_BookController.java_
+
+```java
+package com.danielle.bibliotheek.controller;
+
+import com.danielle.bibliotheek.model.Book;
+import com.danielle.bibliotheek.service.BookService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+public class BookController {
+    @Autowired
+    private BookService bookService;
+
+    @GetMapping(value = "/books")
+    public ResponseEntity<Object> getBooks() {
+        List<Book> books = bookService.getAllBooks();
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/books/title/{title}")
+    public ResponseEntity<Object> getBooks(@PathVariable("title") String title) {
+        List<Book> books = bookService.getBooksTitleStartsWith(title);
+        return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/books/{id}")
+    public ResponseEntity<Object> getBook(@PathVariable("id") long id) {
+        return new ResponseEntity<>(bookService.getBook(id), HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/books")
+    public ResponseEntity<Object> createBook(@RequestBody Book book) {
+        bookService.save(book);
+        return new ResponseEntity<>("Book created", HttpStatus.CREATED);
+    }
+
+    @DeleteMapping(value = "/books/{id}")
+    public ResponseEntity<Object> deleteBook(@PathVariable("id") long id) {
+        bookService.deleteById(id);
+        return new ResponseEntity<>("Book deleted", HttpStatus.OK);
+    }
+}
+```
+
+We hebben nu de bookService ertussen gezet.
+
+In Postman en in postgreSQL kun je nu weer hetzelfde doen als hiervoor, alleen staat de servicelaag ertussen. De
+servicelaag maakt het makkelijker om intelligenter dingen te doen in service.
+
+De BookController moet niet meer zijn dan wat het nu is: die vangt de request, die doet iets naar de service en die
+geeft een response met ResponseEntity. That's it.
+
+De BookService praat met de BookRepository.
+
+De BookRepository is niks anders dan alleen maar de query bouwen naar de database.
+
+### Exception
+
+Wanneer je http://localhost:8080/books/9 opvraagt, dan krijg je geen antwoord, want deze bestaat niet. De statuscode
+staat echter op 200 OK, maar dit klopt niet, er moet een andere status code komen namelijk 404 NOT FOUND.
+
+We gaan dit afvangen in `BookServiceImpl`. We gaan checken of nummer 9 bestaat. Dit kun je controleren met een
+if-statement die checked of de id die je opvraagt er wel is.
+
+```java
+package com.danielle.bibliotheek.service;
+
+import com.danielle.bibliotheek.exception.RecordNotFoundException;
+import com.danielle.bibliotheek.model.Book;
+import com.danielle.bibliotheek.repository.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class BookServiceImpl implements BookService {
+    @Autowired
+    private BookRepository bookRepository;
+
+    @Override
+    public List<Book> getAllBooks() {
+        return bookRepository.findAll();
+    }
+
+    @Override
+    public Book getBook(long id) {
+        if (bookRepository.existsById(id)) {
+            return bookRepository.findById(id).get();
+        } else {
+            throw new RecordNotFoundException("No book with id " + id);
+        }
+    }
+
+    @Override
+    public List<Book> getBooksTitleStartsWith(String title) {
+        return bookRepository.findAllByTitleStartingWith(title);
+    }
+
+    @Override
+    public void save(Book book) {
+        bookRepository.save(book);
+    }
+
+    @Override
+    public void deleteById(long id) {
+        if (bookRepository.existsById(id)) {
+            bookRepository.deleteById(id);
+        } else {
+            throw new RecordNotFoundException("No book with id " + id);
+        }
+    }
+}
+```
+
+We maken een nieuwe package `exception` en daarin maken we nieuwe files `RecordNotFoundException.java` en `NotAuthorizedException.java`.
+
+_RecordNotFoundException.java_
+
+```java
+package com.danielle.bibliotheek.exception;
+
+public class RecordNotFoundException extends RuntimeException {
+    public RecordNotFoundException() {
+        super();
+    }
+
+    public RecordNotFoundException(String message) {
+        super(message);
+    }
+}
+```
+
+_NotAuthorizedException.java_
+
+```java
+package com.danielle.bibliotheek.exception;
+
+public class NotAuthorizedException extends RuntimeException {
+
+    public NotAuthorizedException() {
+        super();
+    }
+
+    public NotAuthorizedException(String message) {
+        super(message);
+    }
+}
+```
+
+In de package controller maken we een file `ExceptionController.java`.
+
+```java
+package com.danielle.bibliotheek.controller;
+
+import com.danielle.bibliotheek.exception.NotAuthorizedException;
+import com.danielle.bibliotheek.exception.RecordNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@ControllerAdvice
+
+public class ExceptionController {
+    @ExceptionHandler(value = RecordNotFoundException.class)
+    public ResponseEntity<Object> exception(RecordNotFoundException exception) {
+        String message = exception.getMessage();
+        return new ResponseEntity<>(message, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(value = NotAuthorizedException.class)
+    public ResponseEntity<Object> exception(NotAuthorizedException exception) {
+        String message = exception.getMessage();
+        return new ResponseEntity<>(message, HttpStatus.UNAUTHORIZED);
+    }
+}
+```
+
+In Postman wanneer je naar boek 8 zoekt met GET en url `http://localhost:8080/books/8`, krijg je de melding `No book with id 8`.
+
+![img71.png](images/img71.png)
