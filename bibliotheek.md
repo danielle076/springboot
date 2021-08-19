@@ -1105,7 +1105,8 @@ public class BookServiceImpl implements BookService {
 }
 ```
 
-We maken een nieuwe package `exception` en daarin maken we nieuwe files `RecordNotFoundException.java` en `NotAuthorizedException.java`.
+We maken een nieuwe package `exception` en daarin maken we nieuwe files `RecordNotFoundException.java`
+en `NotAuthorizedException.java`.
 
 _RecordNotFoundException.java_
 
@@ -1171,6 +1172,188 @@ public class ExceptionController {
 }
 ```
 
-In Postman wanneer je naar boek 8 zoekt met GET en url `http://localhost:8080/books/8`, krijg je de melding `No book with id 8`.
+In Postman wanneer je naar boek 8 zoekt met GET en url `http://localhost:8080/books/8`, krijg je de
+melding `No book with id 8`.
 
 ![img71.png](images/img71.png)
+
+## Associatie
+
+Book is gedaan en we gaan verder met exemplaar. In de map `model` maak je een nieuwe file aan `copy,java`.
+
+```java
+package com.danielle.bibliotheek.model;
+
+import javax.persistence.*;
+
+@Entity
+public class Copy {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column
+    private String nr;
+    @Column
+    private String status;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getNr() {
+        return nr;
+    }
+
+    public void setNr(String nr) {
+        this.nr = nr;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+}
+```
+
+We willen de associatie tussen Boek en Exemplaar zoals beschreven in de klassendiagram: één boek heeft meerdere exemplaren. Dit is een one-to-many relatie.
+
+Meestal zal het voorkomen dat in `exemplaar` een `foreign key` staat die verwijst naar `book_id`.
+
+Deze foreign key moet je in Spring Boot zetten. We werken niet met id's, maar met `Book book; ` en we geven hem de annotatie `@ManyToOne`.
+
+_Copy.java_
+
+```java
+package com.danielle.bibliotheek.model;
+
+import javax.persistence.*;
+
+@Entity
+public class Copy {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column
+    private String nr;
+    @Column
+    private String status;
+
+    @ManyToOne
+    Book book;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getNr() {
+        return nr;
+    }
+
+    public void setNr(String nr) {
+        this.nr = nr;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+}
+```
+
+In Book.java kun je afvragen, weet deze Book welke exemplaren er allemaal zijn. Dit kun je doen door annotatie `OneToMany`. We hebben het dan niet over één exemplaar, maar we hebben het over een List.
+
+```java
+package com.danielle.bibliotheek.model;
+
+import javax.persistence.*;
+import java.util.List;
+
+@Entity
+public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column
+    private String title;
+    @Column
+    private String writer;
+    @Column
+    private String isbn;
+    @Column
+    private String publisher;
+
+    @OneToMany
+    List<Copy> copies;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getWriter() {
+        return writer;
+    }
+
+    public void setWriter(String writer) {
+        this.writer = writer;
+    }
+
+    public String getIsbn() {
+        return isbn;
+    }
+
+    public void setIsbn(String isbn) {
+        this.isbn = isbn;
+    }
+
+    public String getPublisher() {
+        return publisher;
+    }
+
+    public void setPublisher(String publisher) {
+        this.publisher = publisher;
+    }
+}
+```
+
+We hebben het nu aan elkaar gekoppeld.
+
+Run de applicaties.
+
+In postgreSQL zie je dat tabel `copy` erin staat, maar hij heeft ook zelf een associatie tabel gemaakt genaamd `book_copies`.
+
+![img72.png](img72.png)
+
+Je hebt verschillende annotaties voor koppelingen tussen klassen.
+- @OneToOne
+- @OneToMany
+- @ManyToOne
+- @ManyToMany
