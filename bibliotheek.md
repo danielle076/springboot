@@ -70,12 +70,12 @@ We hebben nu een tabel waar we records in kunnen zetten.
 
 ### Hibernate
 
-Hoe verbind je van je Java Applicatie naar je Database? Springboot biedt een koppeling tussen de database en Java.
+Hoe verbind je de Java Applicatie naar je Database? Spring Boot biedt een koppeling tussen de database en Java.
 
 In Java heb je het over klasses, objecten etc. In een database hebben we het over tabellen. Een verbinding tussen een
-klasse en een tabel is niet altijd even 1 op 1. In een klasse kun je bijvoorbeeld werken met lijsten, met een reeks, in
-een database kan dit niet. In een database werk je altijd met een primary key en foreign keys en dit hoef je niet altijd
-in je klasses te doen.
+klasse en een tabel is niet altijd 1 op 1. In een klasse kun je bijvoorbeeld werken met lijsten, met een reeks, in een
+database kan dit niet. In een database werk je altijd met een primary key en foreign keys en dit hoef je niet altijd in
+je klasses te doen.
 
 Aan de Java kant heb je ORM: Object Relational Mapping. Een ORM heb je nodig om de verbinding te maken.
 
@@ -97,12 +97,14 @@ Open het bestand in IntelliJ.
 
 ![img41.png](images/img41.png)
 
-De `pom.xml` (maven dependency manager) specificeert welke pakketten je nodig hebt.
+De `pom.xml` (maven dependency manager) specificeert welke pakketten je nodig hebt. De onderstaande heb je
+geïnstalleerd.
 
 ![img42.png](images/img42.png)
 
-We moeten nu specificeren hoe `@SpringBootApplication` bij Postgresql kan. De wachtwoorden moeten worden ingesteld, dat
-doen we in de `application.properties` van IntelliJ. De volgende code zet je in dit bestand.
+We moeten specificeren hoe `@SpringBootApplication` bij Postgresql kan. De wachtwoorden moeten worden ingesteld, dat
+doen we in de `application.properties` van IntelliJ. De volgende code zet je in dit bestand. De `url` is de database
+naam in postgreSQL, de `username` is jouw username in postgreSQL en `password` is jouw wachtwoord in postgreSQL.
 
     # datasource PostgreSQL
     spring.jpa.database=postgresql
@@ -225,6 +227,14 @@ public class Book {
     @Column
     private String publisher;
 
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public String getTitle() {
         return title;
     }
@@ -259,7 +269,7 @@ public class Book {
 }
 ```
 
-Wanneer je de `LibraryApplication` gaat runnen is het gelukt wanneer je de melding `Started LibraryApplication` krijgt.
+Wanneer je de `LibraryApplication` runt, is het gelukt wanneer je de melding `Started LibraryApplication` krijgt.
 
 Als je nu naar de database gaat in pgAdmin en je kijkt naar de schema's en dan tables zie je dat er ineens een `book`
 staan en de 5 columns die je hebt gemaakt.
@@ -268,7 +278,7 @@ staan en de 5 columns die je hebt gemaakt.
 
 #### H2
 
-Wanneer de connectie met postgresSQL niet werkt kun je ook H2 gebruiken. Het volgende zet je in `application.properties`
+Wanneer de connectie met postgresSQL niet werkt kun je H2 gebruiken. Het volgende zet je in `application.properties`
 .
 
     # datasource H2
@@ -297,9 +307,9 @@ systeem h2 erbij heeft gezet.
 
 Run de applicatie.
 
-Wanneer je de database h2.Driver gebruikt, die is in-memory, dat betekend dat je het verder niet kan zien. Dit is een
+Wanneer je de database h2.Driver gebruikt is dit in-memory, dat betekend dat je het verder niet kan zien. Dit is een
 path die heet h2console en wanneer je naar een browser gaat en tikt in `localhost:8080/h2console` dan krijg je een soort
-database, je klikt op `connect` dan zie je je class `book` en de 5 columns staan.
+database, je klikt op `connect` en dan zie je je class `book` en de 5 columns staan.
 
 ![img_1.png](images/img46.png)
 
@@ -315,8 +325,6 @@ In dit bestand zet je de volgende code voor H2.
 
     insert into book (title) values 'Harry Potter';
     insert into book (title) values 'Swiebertje';
-
-> > > zodra er data.sql in IntelliJ wordt gezet krijg je geen `Started BibliotheekApplication` meer te zien, alleen maar errors.
 
 Voor postgreSQL geldt het volgende.
 
@@ -345,9 +353,9 @@ betreffende inspections opzoeken in de lijst en het vinkje weer aanzetten.
 
 Run de applicatie.
 
-> > > De applicatie draait zonder errors, maar de data wordt niet in porgreSQL gezet. Lijkt alsof er iets mis is met `data.sql`.
+In postgreSQL krijg je de gegevens te zien die je in de `data.sql` heb gezet via book > view/edit data > all rows.
 
-We gaan verder zonder het bestand `data.sql`.
+![img73.png](images/img73.png)
 
 ## Repository
 
@@ -411,19 +419,15 @@ public class BookController {
 
 Run de applicatie.
 
-Ga naar Postman en doe een GET naar `http://localhost:8080/books`. Je krijgt een lege array `[]` te zien in de body.
+Ga naar Postman en doe een GET naar `http://localhost:8080/books`. Je krijgt de data te zien uit `data.sql` in de body.
 
 ![img50.png](images/img50.png)
-
-Wanneer je `data.sql` bestand werkt, zie je in de Body het volgende.
-
-![img51.png](images/img51.png)
 
 In de terminal zie je allerlei opdrachten en daar staat `hibernate` tussen. Je ziet `select .... from book` staan en dit
 is de sql statement die hibernate heeft gegenereerd op basis van wat hij weet van de entity. Doordat wij
 de `BookRepository.java` hebben toegevoegd, die eigenlijk niks doet, maar hij weet wel dat hij Book kan ophalen met een
-Long id: `JpaRepository<Book, Long>` en wanneer je deze repository gaat gebruiken je een `findAll()` kan doen die staat
-in `BookController`.
+Long id: `JpaRepository<Book, Long>` en wanneer je deze repository gaat gebruiken je een `findAll()` kan doen die
+in `BookController` staat.
 
 ![img52.png](images/img52.png)
 
@@ -466,13 +470,12 @@ public class BookController {
 }
 ```
 
-We hebben nu een `@GetMapping` voor een specifieke `{id}`. Deze gaat naar de bookRepository and die doet
-niet `findAll()` maar `findfById(id)`.
+We hebben nu een `@GetMapping` voor een specifiek `{id}`. Deze gaat naar de bookRepository en die doet niet `findAll()`
+maar `findfById(id)`.
 
 Run de applicatie.
 
-Wanneer je in Postman `http://localhost:8080/books/2` en GET doe dan krijg je het boek "Swiebertje" in de body (wanneer
-de `data.sql` werkt).
+Wanneer je in Postman `http://localhost:8080/books/2` en GET doe dan krijg je het boek "Swiebertje" in de body.
 
 ![img53.png](images/img53.png)
 
@@ -519,7 +522,7 @@ public class BookController {
 }
 ```
 
-`bookRepository` is de poort en `save` het boek die we krijgen: `bookRepository.save(book);`.
+`bookRepository` is de poort en `.save` is het boek die we krijgen: `bookRepository.save(book);`.
 
 Run de applicatie.
 
@@ -527,11 +530,11 @@ In Postman gebruik je `POST` en de url `http://localhost:8080/books/` om boeken 
 
 ![img54.png](images/img54.png)
 
-Het toevoegen van boeken doe je in de `body` en druk je op `send`. Je krijgt ene melding `Book created`.
+Het toevoegen van boeken doe je in de `body` en dan drukken op `send`. Je krijgt een melding `Book created`.
 
 ![img55.png](images/img55.png)
 
-Wanneer je nu `GET` selecteer en de url `http://localhost:8080/books/` krijg je het boek dat je hebt toegevoegd in de
+Wanneer je nu `GET` selecteer en de url `http://localhost:8080/books/`, krijg je het boek dat je hebt toegevoegd in de
 body.
 
 ![img56.png](images/img56.png)
@@ -588,7 +591,7 @@ public class BookController {
 }
 ```
 
-We voegen we data toe aan `POST` en url `http://localhost:8080/books/`.
+We voegen data toe aan `POST` en url `http://localhost:8080/books/`.
 
 ```json
 [
@@ -632,102 +635,6 @@ Wanneer je alle boeken ophaalt in Postman met GET en `http://localhost:8080/book
 In postgreQSL is dit boek ook verdwenen.
 
 ![img62.png](images/img62.png)
-
-### id toevoegen
-
-Hierboven geeft de data de id niet terug, deze zou je handmatig kunnen toevoegen wanneer je records toevoegt in Postman.
-
-```json
-[
-  {
-    "id": 1,
-    "title": "Demo Schrift",
-    "writer": "Frummel",
-    "isbn": "364957364583927",
-    "publisher": null
-  },
-  {
-    "id": 2,
-    "title": "Demo Tijdschrift",
-    "writer": "Freckle",
-    "isbn": "92516374635404",
-    "publisher": null
-  },
-  {
-    "id": 3,
-    "title": "Demo Book",
-    "writer": "Frizzle",
-    "isbn": "253446547384",
-    "publisher": null
-  }
-]
-```
-
-Of je kan de getters en setters aanmaken voor de `id` in Spring Boot `Book.java`.
-
-```java
-package com.danielle.bibliotheek.model;
-
-import javax.persistence.*;
-
-@Entity
-public class Book {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-
-    @Column
-    private String title;
-    @Column
-    private String writer;
-    @Column
-    private String isbn;
-    @Column
-    private String publisher;
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getWriter() {
-        return writer;
-    }
-
-    public void setWriter(String writer) {
-        this.writer = writer;
-    }
-
-    public String getIsbn() {
-        return isbn;
-    }
-
-    public void setIsbn(String isbn) {
-        this.isbn = isbn;
-    }
-
-    public String getPublisher() {
-        return publisher;
-    }
-
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-}
-```
-
-![img.png](images/img63.png)
 
 ### Verschillende soorten repository's
 
@@ -1354,7 +1261,7 @@ Run de applicaties.
 In postgreSQL zie je dat tabel `copy` erin staat, maar hij heeft ook zelf een associatie tabel gemaakt
 genaamd `book_copies`.
 
-![img72.png](img72.png)
+![img72.png](images/img72.png)
 
 Je hebt verschillende annotaties voor koppelingen tussen klassen.
 
@@ -1424,14 +1331,17 @@ public class Book {
 
 `@Autowired` wordt gebruikt in de Controller naar de Service te wijzen en om in de Service naar de Repository te wijzen.
 
-`@AutoWired` is een onderdeel van Spring Boot die ervoor zorgt dat er onder de motorkap koppelingen allemaal worden gelegd. Je hoeft dus niet nieuwe instanties te maken van een repository en elke keer opnieuw te moeten initialiseren. Hij weet door de AutoWired dat je dat nodig hebt en gebruikt een efficiente manier om dit te doen.
+`@AutoWired` is een onderdeel van Spring Boot die ervoor zorgt dat er onder de motorkap koppelingen allemaal worden
+gelegd. Je hoeft dus niet nieuwe instanties te maken van een repository en elke keer opnieuw te moeten initialiseren.
+Hij weet door de AutoWired dat je dat nodig hebt en gebruikt een efficiente manier om dit te doen.
 
 In BookController.java` gebruiken we AutoWired.
 
     @Autowired
     private BookService bookService;
 
-Dit zorgt ervoor dat hij meteen `bookService` heeft geintialiseerd, zodat je deze gelijk kan gaan gebruiken in de bijvoorbeeld de @GetMapping.
+Dit zorgt ervoor dat hij meteen `bookService` heeft geintialiseerd, zodat je deze gelijk kan gaan gebruiken in de
+bijvoorbeeld de @GetMapping.
 
 Hetzelfde geldt voor `BookServiceImpl`.
 
