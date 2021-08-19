@@ -1223,11 +1223,13 @@ public class Copy {
 }
 ```
 
-We willen de associatie tussen Boek en Exemplaar zoals beschreven in de klassendiagram: één boek heeft meerdere exemplaren. Dit is een one-to-many relatie.
+We willen de associatie tussen Boek en Exemplaar zoals beschreven in de klassendiagram: één boek heeft meerdere
+exemplaren. Dit is een one-to-many relatie.
 
 Meestal zal het voorkomen dat in `exemplaar` een `foreign key` staat die verwijst naar `book_id`.
 
-Deze foreign key moet je in Spring Boot zetten. We werken niet met id's, maar met `Book book; ` en we geven hem de annotatie `@ManyToOne`.
+Deze foreign key moet je in Spring Boot zetten. We werken niet met id's, maar met `Book book; ` en we geven hem de
+annotatie `@ManyToOne`.
 
 _Copy.java_
 
@@ -1276,7 +1278,8 @@ public class Copy {
 }
 ```
 
-In Book.java kun je afvragen, weet deze Book welke exemplaren er allemaal zijn. Dit kun je doen door annotatie `OneToMany`. We hebben het dan niet over één exemplaar, maar we hebben het over een List.
+In Book.java kun je afvragen, weet deze Book welke exemplaren er allemaal zijn. Dit kun je doen door
+annotatie `OneToMany`. We hebben het dan niet over één exemplaar, maar we hebben het over een List.
 
 ```java
 package com.danielle.bibliotheek.model;
@@ -1348,12 +1351,91 @@ We hebben het nu aan elkaar gekoppeld.
 
 Run de applicaties.
 
-In postgreSQL zie je dat tabel `copy` erin staat, maar hij heeft ook zelf een associatie tabel gemaakt genaamd `book_copies`.
+In postgreSQL zie je dat tabel `copy` erin staat, maar hij heeft ook zelf een associatie tabel gemaakt
+genaamd `book_copies`.
 
 ![img72.png](img72.png)
 
 Je hebt verschillende annotaties voor koppelingen tussen klassen.
+
 - @OneToOne
 - @OneToMany
 - @ManyToOne
 - @ManyToMany
+
+## Configurerern
+
+De `class Book` wordt bijgehouden in een tabel die heeft `books` in de database.
+
+```java
+
+@Entity
+@Table(name = "books")
+public class Book {
+}
+```
+
+Een column kun je ook configureren: hoe iets in de database gaat heten.
+
+```java
+
+@Entity
+@Table(name = "books")
+public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column(name = "the_title")
+    private String title;
+    @Column(name = "the_writer")
+    private String writer;
+    @Column(name = "the_isbn")
+    private String isbn;
+    @Column(name = "the_publisher")
+    private String publisher;
+}
+```
+
+Nasst dat je een column een naam kan geven, kun hem ook definieren met een bepaalde lengte en eventueel of hij wel of
+niet nul mag zijn.
+
+```java
+
+@Entity
+@Table(name = "books")
+public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column(name = "the_title", length = 255, nullable = false)
+    private String title;
+    @Column(name = "the_writer", length = 255, nullable = false)
+    private String writer;
+    @Column(name = "the_isbn", length = 255, nullable = true)
+    private String isbn;
+    @Column(name = "the_publisher", length = 255, nullable = true)
+    private String publisher;
+}
+```
+
+## AutoWired
+
+`@Autowired` wordt gebruikt in de Controller naar de Service te wijzen en om in de Service naar de Repository te wijzen.
+
+`@AutoWired` is een onderdeel van Spring Boot die ervoor zorgt dat er onder de motorkap koppelingen allemaal worden gelegd. Je hoeft dus niet nieuwe instanties te maken van een repository en elke keer opnieuw te moeten initialiseren. Hij weet door de AutoWired dat je dat nodig hebt en gebruikt een efficiente manier om dit te doen.
+
+In BookController.java` gebruiken we AutoWired.
+
+    @Autowired
+    private BookService bookService;
+
+Dit zorgt ervoor dat hij meteen `bookService` heeft geintialiseerd, zodat je deze gelijk kan gaan gebruiken in de bijvoorbeeld de @GetMapping.
+
+Hetzelfde geldt voor `BookServiceImpl`.
+
+    @Autowired
+    private BookRepository bookRepository;
+
+De `bookRepository` is ook helemaal klaar gemaakt om gelijk gebruikt te worden in de verschillende methodes.
