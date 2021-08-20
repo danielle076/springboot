@@ -1349,3 +1349,44 @@ Hetzelfde geldt voor `BookServiceImpl`.
     private BookRepository bookRepository;
 
 De `bookRepository` is ook helemaal klaar gemaakt om gelijk gebruikt te worden in de verschillende methodes.
+
+## Herhaling
+
+#### BookController.java
+
+BookController is in staat om de endpoints te koppelen aan de methodes die erachter staan. In die methodes kun je dingen
+gaan ophalen. Bijv. `getAllBooks` dat moet je ergens anders uit je applicatie halen. Het is de bedoeling dat dit uit een database komt.
+
+    @GetMapping(value = "/books")
+    public ResponseEntity<Object> getBooks() {
+      List<Book> books = bookService.getAllBooks();
+      return new ResponseEntity<>(books, HttpStatus.OK);
+    }
+
+We willen voorkomen dat in de Controller andere dingen staan dan de dingen die alleen met de Controller te maken hebben.
+
+#### ExceptionController.java
+
+Als er een fout/exception optreed dan komt hij er uit bij deze Controllers. Er wordt een ResponseEntity teruggegeven in de vorm van een message + HttpStatus.
+
+#### NotAuthorizedException.java + RecordNotFoundException.java
+
+De exceptions zijn heel basaal gemaakt. Het gaat alleen maar over een Exception die een subklasse is van een standaard java `RunTimeException`. De eigen gemaakte exceptions zijn `class NotAuthorizedException` en `class RecordNotFoundException`.
+
+Daarin zitten twee controllers. De ene controller zonder message en de ander met een String message, die de super klasse aanspoort.
+
+Het aardige is dat we twee eigen exceptions hebben gegenereerd die we kunnen gebruiken in de ExceptionController.
+
+#### Map model
+
+In de map model staat een simpele klasse (POJO). We noemen een `Book` en dit boek is een `@Entity.` Je kan met `@Table(name = "")` aangeven in welke tabel hij terecht moet komen, doe je dit net dan neemt hij de naam van de klasse `Book` (met lowercase).
+
+De `class Book` gaat gemapped worden op je tabel in je database. Dan zie je dat je het kan hebben over `@Column`'s. Dit zijn allemaal dingen die je kan toevoegen. Hij neemt gewoon het attribuut die er naast staat en zet het in een column van je tabel in de database.
+
+In de database heb je altijd een primary key nodig. Dat geef je aan met `@Id`. Het is daarnaast handig om `@GeneratedValue` toe te voegen, zodat de primary key voor elke nieuwe record automatisch wordt opgehoogd.
+
+Mapping is onderdeel van Hibernate. Mapping van klasse in jouw applicatie naar een tabel in je database.
+
+#### application.properties
+
+Wanneer je de applicatie heb gestart, gaat hij automatisch werken met de application.properties.
