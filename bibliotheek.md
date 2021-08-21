@@ -1355,7 +1355,8 @@ De `bookRepository` is ook helemaal klaar gemaakt om gelijk gebruikt te worden i
 #### BookController.java
 
 BookController is in staat om de endpoints te koppelen aan de methodes die erachter staan. In die methodes kun je dingen
-gaan ophalen. Bijv. `getAllBooks` dat moet je ergens anders uit je applicatie halen. Het is de bedoeling dat dit uit een database komt.
+gaan ophalen. Bijv. `getAllBooks` dat moet je ergens anders uit je applicatie halen. Het is de bedoeling dat dit uit een
+database komt.
 
     @GetMapping(value = "/books")
     public ResponseEntity<Object> getBooks() {
@@ -1367,26 +1368,147 @@ We willen voorkomen dat in de Controller andere dingen staan dan de dingen die a
 
 #### ExceptionController.java
 
-Als er een fout/exception optreed dan komt hij er uit bij deze Controllers. Er wordt een ResponseEntity teruggegeven in de vorm van een message + HttpStatus.
+Als er een fout/exception optreed dan komt hij er uit bij deze Controllers. Er wordt een ResponseEntity teruggegeven in
+de vorm van een message + HttpStatus.
 
 #### NotAuthorizedException.java + RecordNotFoundException.java
 
-De exceptions zijn heel basaal gemaakt. Het gaat alleen maar over een Exception die een subklasse is van een standaard java `RunTimeException`. De eigen gemaakte exceptions zijn `class NotAuthorizedException` en `class RecordNotFoundException`.
+De exceptions zijn heel basaal gemaakt. Het gaat alleen maar over een Exception die een subklasse is van een standaard
+java `RunTimeException`. De eigen gemaakte exceptions zijn `class NotAuthorizedException`
+en `class RecordNotFoundException`.
 
-Daarin zitten twee controllers. De ene controller zonder message en de ander met een String message, die de super klasse aanspoort.
+Daarin zitten twee controllers. De ene controller zonder message en de ander met een String message, die de super klasse
+aanspoort.
 
 Het aardige is dat we twee eigen exceptions hebben gegenereerd die we kunnen gebruiken in de ExceptionController.
 
 #### Map model
 
-In de map model staat een simpele klasse (POJO). We noemen een `Book` en dit boek is een `@Entity.` Je kan met `@Table(name = "")` aangeven in welke tabel hij terecht moet komen, doe je dit net dan neemt hij de naam van de klasse `Book` (met lowercase).
+In de map model staan simpele klasses (POJO). ook wel entity klasses genoemd. Bijvoorbeeld `Book.java`. We noemen een `Book` en dit boek is een `@Entity.` Je kan
+met `@Table(name = "")` aangeven in welke tabel hij terecht moet komen, doe je dit net dan neemt hij de naam van de
+klasse `Book` (met lowercase).
 
-De `class Book` gaat gemapped worden op je tabel in je database. Dan zie je dat je het kan hebben over `@Column`'s. Dit zijn allemaal dingen die je kan toevoegen. Hij neemt gewoon het attribuut die er naast staat en zet het in een column van je tabel in de database.
+De `class Book` gaat gemapped worden op je tabel in je database. Dan zie je dat je het kan hebben over `@Column`'s. Dit
+zijn allemaal dingen die je kan toevoegen. Hij neemt gewoon het attribuut die er naast staat en zet het in een column
+van je tabel in de database.
 
-In de database heb je altijd een primary key nodig. Dat geef je aan met `@Id`. Het is daarnaast handig om `@GeneratedValue` toe te voegen, zodat de primary key voor elke nieuwe record automatisch wordt opgehoogd.
+In de database heb je altijd een primary key nodig. Dat geef je aan met `@Id`. Het is daarnaast handig
+om `@GeneratedValue` toe te voegen, zodat de primary key voor elke nieuwe record automatisch wordt opgehoogd.
 
 Mapping is onderdeel van Hibernate. Mapping van klasse in jouw applicatie naar een tabel in je database.
 
+#### annotaties column
+
+In de map `model` heb je de POJO's `Book.java` en `Copy.java` staan en deze hebben naast een tabel annotatie ook column annotaties. De @column kun je een titel geven zodat deze wordt gebruikt in de database maar je kan hem meer eigenschappen geven. bijvoorbeeld.
+
+```
+@Column({ primary: true })
+id: number;
+
+@Column({ type: "varchar", length: 200, unique: true })
+firstName: string;
+
+@Column({ nullable: true })
+lastName: string;
+
+@Column({ default: false })
+isActive: boolean;
+```
+
 #### application.properties
 
-Wanneer je de applicatie heb gestart, gaat hij automatisch werken met de application.properties.
+Wanneer je de applicatie `LibraryApplication` heb gestart, gaat hij automatisch werken met de application.properties.
+
+We hebben gewerkt met twee soorten databases: `postgreSQL` en `H2`.
+
+Je hebt een aantal instellingen in deze file staan en voor de postgreSQL moet je er een paar aanpassen: datasource url,
+username en password. Deze moeten hetzelfde zijn als jouw database instellingen.
+
+`datasource.initialization-mode` staat op always, dat betekent dat hij altijd je datasource gaat initialiseren.
+
+`hibernate.ddl-auto` staat op create, dat betekent dat hibernate de tabellen gaat maken op basis van de modellen die je
+hebt.
+
+#### pom.xml
+
+In pom.xml staan een aantal dependencies.
+- spring-boot-starter-data-jpa
+- spring-boot-starter-web
+- postgresql of h2
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <dependency>
+        <groupId>org.postgresql</groupId>
+        <artifactId>postgresql</artifactId>
+        <scope>runtime</scope>
+    </dependency>
+    <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <scope>runtime</scope>
+    </dependency>    
+</dependencies>
+```
+
+#### data.sql
+
+De data.sql is een conventie. Als je hem zo noemt dan herkent de database dit bestand. Wanneer de applicatie gerund wordt dan worden de gegevens (sql statements) in de database geladen.
+
+#### postgreSQL
+
+Wanneer je de applicatie `LibraryApplication` heb gestart in IntelliJ komen de gegevens in postgreSQL te staan. Hibernate zorgt ervoor dat de java aal omgezet wordt in sql.
+
+#### Repository
+
+De repository doet heel veel onder de motorkap. Doordat je zegt `extends JpaRepository`, maak je gebruik van de SpringBoot klasse JpaRepository. Dit is een interface, dus je hoeft alleen op te geven wat de naam en de argumenten zijn van de methodes (Book, Long). 
+
+Op het moment dat Spring Boot wordt opgestart herkent hij dat het een repository (BookRepository) is op basis van een JpaRepository en hij weet ook dat het over de Entity Book gaat en dat de id een Long moet zijn.
+
+De JpaRepository maakt zonder dat je er iets voor hoeft te doen methodes aan die je kunt gebruiken. Bijvoorbeeld methode `findAll()`.
+
+Je hebt 3 soorten repositories (van licht naar zwaar):
+
+
+Je hebt eigenlijk alleen de volgende code nodig.
+
+```java
+package com.danielle.library.model.repository;
+
+import com.danielle.library.model.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface BookRepository extends JpaRepository<Book, Long> {
+}
+```
+
+Conclusie: de repository is de gateway tot de database.
+
+Je kan verschillende query's in de repository zetten die je wilt hebben. Bijvoorbeeld, we willen een List van een book teruggeven `List<Book>` met een methode `findAllByTitle()`. In de methode komt een String en een title. De methode kun je in de controller, of in de service definieren.
+
+```java
+package com.danielle.library.repository;
+
+import com.danielle.library.model.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface BookRepository extends JpaRepository<Book, Long> {
+
+    List<Book> findAllByTitle(String title);
+}
+```
+
+De magic is dat op basis van de naam van de methode, dat hij weet hoe hij een sql query moet bouwen. Hij doet het volgende: SELECT * FROM book WHERE title = %title%
