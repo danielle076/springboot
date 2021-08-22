@@ -1366,6 +1366,8 @@ database komt.
 
 We willen voorkomen dat in de Controller andere dingen staan dan de dingen die alleen met de Controller te maken hebben.
 
+Conclusie: de controller gaat alleen over het ophalen van een request en het teruggeven van een response. 
+
 #### ExceptionController.java
 
 Als er een fout/exception optreed dan komt hij er uit bij deze Controllers. Er wordt een ResponseEntity teruggegeven in
@@ -1511,4 +1513,82 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 }
 ```
 
-De magic is dat op basis van de naam van de methode, dat hij weet hoe hij een sql query moet bouwen. Hij doet het volgende: SELECT * FROM book WHERE title = %title%
+De magic is dat op basis van de naam van de methode, dat hij weet hoe hij automatisch hoe hij een sql query moet bouwen. Hij doet het volgende: `SELECT * FROM book WHERE title = %title%`.
+Op deze manier kun je in de repository allerlei query's bouwen.
+
+Conlusie: in de repsoitory ben je bezig met hoe bevraag ik mijn database.
+
+#### Service
+
+Tussen de Controller en de Repository moet je een service hebben. Een Service is waar de intelligentie plaats vind. Daar mag je als developer gaan nadenken over velden die gevuld moeten worden, of over een combinatie van verschillende query's op de database die je wilt samenvoegen, voordat je dat weer teruggeeft aan de controller. Dus in plaats van dat je vanaf de Controller meteen naar de Repository gaat, moeten we vanuit de Controller naar de Service en vanuit de Service naar de Repository.
+
+In de Service heb je een simpele mapping. Bijvoorbeeld als je tegen de Service zeg `getAllBooks()`, dan gaat hij naar de Repository `bookRepository` en doet hij de query `getAllBooks()` en dan krijg je ze allemaal met methode `findAll`. Heb je bijvoorbeeld methode `findByOrderByTitle` dan worden ze geordend op title.
+
+    @Override
+    public List<Book> getAllBooks() {
+      return bookRepository.findAll();
+    }
+
+Een ander stuk Service is het volgende.
+
+    @Override
+    public Book getBook(long id) {
+      if (bookRepository.existsById(id)) {
+        return bookRepository.findById(id).get();
+      }
+      else {
+        throw new RecordNotFoundException("No book with id " + id);
+      }
+    }
+
+Hij kijkt of `long id` bestaat met de if-statement. Zowel `bookRepository.existsById(id)` dan geeft hij terug het boek wat hij gevonden heeft.
+
+Deze intelligentie hoef je niet in de Controller te doen, de Controller zegt gewoon `getBook(long id)`. En Service zegt, okay dat wil ik wel doen, maar ik ga eerst checken of hij bestaat. Zoja dan krijg je hem terug. Zo nee dan genereert hij een `RecordNotFoundException`, met een eventuele melding dat het boek niet bestaat.
+
+In Service kun je wat meer doen. Hetzelfde geldt voor `deleteById`.
+
+    @Override
+    public void deleteById(long id) {
+      if (bookRepository.existsById(id)) {
+        bookRepository.deleteById(id);
+      }
+      else {
+        throw new RecordNotFoundException("No book with id " + id);
+      }
+    }
+
+Je wilt de `id` hebben, hij gaat eerst kijken of deze bestaat, zoja dan gaat hij hem deleten en zo nee genereert hij een `RecordNotFoundException`.
+
+Bij `save` zou je kunnen controleren of dat book wel een titel heeft of een isbn. En zo niet dan zou je kunnen teruggeven met een foutmelding incompleet record. Hier is ook specifiek de Service voor. Maar dit kun je ook al opgeven in het model (@Column (required=true)), dat deze gegevens ingevuld moeten zijn. Eigenlijk is op beide plekken deze controle inbouwen het beste.
+
+De Service zou er zo uit kunnen zien. Hij slaat hem dan pas op wanneer de gegevens compleet zijn.
+
+    @Override
+    public void save(Book book) {
+        if (book.getTitle() == null)
+            throw new IncompleteRecordException("No book with title");
+        bookRepository.save(book);
+    }
+
+In de Service ga je als het ware nadenken over zo'n boek en wat kun je ermee doen. 
+
+De Service is de in between waarbij je de logica gaat loslaten op je Entities voordat je naar de Repository gaat. Dus het is echt de business logica.
+
+##### BookServiceImpl
+
+Je ziet dat we een `BookServiceImpl.java` hebben gemaakt. Daarnaast is het goed gebruik ook voor het testen om gebruik te maken van een interface. De interface `BookService.java` is niks anders dan een beschrijving van de methodes die je in je `BookServiceImpl.java` hebt staan. Je ziet dat we de naam van de methode, de return type en de argumenten erin hebben staan.
+
+    public interface BookService {
+      public List<Book> getAllBooks();
+      public Book getBook(long id);
+      public List<Book> getBooksTitleStartsWith(String title);
+      public void save(Book book);
+      public void deleteById(long id);
+    }
+
+Dit wordt gebruikt om verder te werken. Je ziet in de Controllers dat er wordt verwezen naar een BookService.
+
+    @Autowired
+    private BookService bookService;
+
+We weten dat `BookService` een interface is en Spring Boot doet onder de oppervlakte zodra hij opstart dat hij een `bookService` instantie maakt. Door `@Autowired` kun je dat meteen binnenhalen en gebruiken in je methode in `BookController.java`.
