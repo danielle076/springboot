@@ -43,7 +43,7 @@ Wanneer klassen iets met elkaar te maken hebben dan zet je een verbinding ertuss
 
 - Een bibliotheek heeft een X aantal exemplaren (aggregatie - open diamant)
 - Een bibliotheek heeft een X aantal leden (aggregatie - open diamant)
-- Examplaar heeft een relatie met een boek (associatie - lijn)
+- Exemplaar heeft een relatie met een boek (associatie - lijn)
     - een boek kan meerdere exemplaren hebben
     - ieder exemplaar gaat over 1 boek
 - Lid kan een exemplaar lenen (associatie - lijn)
@@ -72,10 +72,10 @@ We hebben nu een tabel waar we records in kunnen zetten.
 
 Hoe verbind je de Java Applicatie naar je Database? Spring Boot biedt een koppeling tussen de database en Java.
 
-In Java heb je het over klasses, objecten etc. In een database hebben we het over tabellen. Een verbinding tussen een
+In Java heb je het over classes, objecten etc. In een database hebben we het over tabellen. Een verbinding tussen een
 klasse en een tabel is niet altijd 1 op 1. In een klasse kun je bijvoorbeeld werken met lijsten, met een reeks, in een
 database kan dit niet. In een database werk je altijd met een primary key en foreign keys en dit hoef je niet altijd in
-je klasses te doen.
+je classes te doen.
 
 Aan de Java kant heb je ORM: Object Relational Mapping. Een ORM heb je nodig om de verbinding te maken.
 
@@ -85,7 +85,7 @@ In Springboot heet de ORM Hibernate. Hibernate is de populairste Object Relation
 
 ### Springboot
 
-We gaan de klasses van het klassendiagram in Springboot maken.
+We gaan de classes van het klassendiagram in Springboot maken.
 
 We beginnen met een Spring Initializr https://start.spring.io/ project.
 
@@ -318,7 +318,7 @@ database, je klikt op `connect` en dan zie je je class `book` en de 5 columns st
 #### data.sql
 
 Wanneer de database werkt, gaan we `Book.java` vullen met een aantal zaken zodat we kunnen zien dat er data in de tabel
-komt. Dit doe je door in de `resources` een nieuw textfile te maken en die noemen we `data.sql`. Dit is een `sql`
+komt. Dit doe je door in de `resources` een nieuw txt-file te maken en die noemen we `data.sql`. Dit is een `sql`
 bestand waarmee we records kunnen toevoegen aan `Book.java`.
 
 In dit bestand zet je de volgende code voor H2.
@@ -364,7 +364,7 @@ genaamd `BookController.java`.
 
 ![img48.png](images/img48.png)
 
-Via `bookRepository` gaan we naar de database. Op hetzelfde nivea als controller maak je een nieuwe package `repository`
+Via `bookRepository` gaan we naar de database. Op hetzelfde niveau als controller maak je een nieuwe package `repository`
 en daarin een interface bestand genaamd `BookRepository`.
 
 ![img49.png](images/img.49png)
@@ -632,13 +632,13 @@ Wanneer je alle boeken ophaalt in Postman met GET en `http://localhost:8080/book
 
 ![img61.png](images/img61.png)
 
-In postgreQSL is dit boek ook verdwenen.
+In postgreSQL is dit boek ook verdwenen.
 
 ![img62.png](images/img62.png)
 
 ### Verschillende soorten repository's
 
-Je hebt verschillende soorten repository's. Alledrie doen ze verschillende dingen, waarbij de Jpa het meeste kan en het
+Je hebt verschillende soorten repository's. Alle drie doen ze verschillende dingen, waarbij de Jpa het meeste kan en het
 zwaarste is.
 
 - JpaRepository
@@ -769,7 +769,7 @@ Je kunt verschillende query's/zoekopdrachten gebruiken, zie onderstaand overzich
 ![img67.png](images/img67.png)
 
 Tip: als gebruiker weet je niet welke query's er worden ondersteund, dus dan kun je een informatie controller maken (als
-soort van documentatie naar de gebruiker toe). Kijk oo naar HATEOS, die laten zien dat wanneer je iets hebt opgevraagd,
+soort van documentatie naar de gebruiker toe). Kijk ook naar HATEOS, die laten zien dat wanneer je iets hebt opgevraagd,
 hoe je dan verder kan.
 
 ## Service
@@ -807,14 +807,14 @@ Voor Interface maak je een nieuw bestand aan, binnen de package genaamd `BookSer
 
 ![img.png](images/img70.png)
 
-In de Service ga je definieren wat je allemaal met je boeken wilt gaat doen.
+In de Service ga je definiëren wat je allemaal met je boeken wilt gaat doen.
 
 We kunnen bijvoorbeeld zeggen, we willen de volgende methodes `getAllBooks()`, `getBook()`, `getBooksTitleStartsWith()`
 , `save()` en een `deleteById()`.
 
 - De getAllBooks() geeft terug een lijst van een boek: `List<Book> getAllBooks();`
 - De getBook() die geeft terug een boek: `Book getBook();`
-- De getBooksTitleStartsWith() geeft een lijst ban boeken terug: `List<Book> getBooksTitleStartsWith()`
+- De getBooksTitleStartsWith() geeft een lijst van boeken terug: `List<Book> getBooksTitleStartsWith()`
 - De save() is een void want die geeft niks terug: `void save();`
 - De deleteById() is een void want geeft niks terug: `void deleteById()`
 
@@ -943,8 +943,8 @@ public class BookController {
 
 We hebben nu de bookService ertussen gezet.
 
-In Postman en in postgreSQL kun je nu weer hetzelfde doen als hiervoor, alleen staat de servicelaag ertussen. De
-servicelaag maakt het makkelijker om intelligenter dingen te doen in service.
+In Postman en in postgreSQL kun je nu weer hetzelfde doen als hiervoor, alleen staat de service laag ertussen. De
+service laag maakt het makkelijker om intelligenter dingen te doen in service.
 
 De BookController moet niet meer zijn dan wat het nu is: die vangt de request, die doet iets naar de service en die
 geeft een response met ResponseEntity. That's it.
@@ -1304,7 +1304,7 @@ public class Book {
 }
 ```
 
-Nasst dat je een column een naam kan geven, kun hem ook definieren met een bepaalde lengte en eventueel of hij wel of
+Naast dat je een column een naam kan geven, kun hem ook definiëren met een bepaalde lengte en eventueel of hij wel of
 niet nul mag zijn.
 
 ```java
@@ -1333,14 +1333,14 @@ public class Book {
 
 `@AutoWired` is een onderdeel van Spring Boot die ervoor zorgt dat er onder de motorkap koppelingen allemaal worden
 gelegd. Je hoeft dus niet nieuwe instanties te maken van een repository en elke keer opnieuw te moeten initialiseren.
-Hij weet door de AutoWired dat je dat nodig hebt en gebruikt een efficiente manier om dit te doen.
+Hij weet door de AutoWired dat je dat nodig hebt en gebruikt een efficiënte manier om dit te doen.
 
 In BookController.java` gebruiken we AutoWired.
 
     @Autowired
     private BookService bookService;
 
-Dit zorgt ervoor dat hij meteen `bookService` heeft geintialiseerd, zodat je deze gelijk kan gaan gebruiken in de
+Dit zorgt ervoor dat hij meteen `bookService` heeft geïnitialiseerd, zodat je deze gelijk kan gaan gebruiken in de
 bijvoorbeeld de @GetMapping.
 
 Hetzelfde geldt voor `BookServiceImpl`.
@@ -1386,7 +1386,7 @@ Het aardige is dat we twee eigen exceptions hebben gegenereerd die we kunnen geb
 
 #### Map model
 
-In de map model staan simpele klasses (POJO). ook wel entity klasses genoemd. Bijvoorbeeld `Book.java`. We noemen een `Book` en dit boek is een `@Entity.` Je kan
+In de map model staan simpele classes (POJO). ook wel entity classes genoemd. Bijvoorbeeld `Book.java`. We noemen een `Book` en dit boek is een `@Entity.` Je kan
 met `@Table(name = "")` aangeven in welke tabel hij terecht moet komen, doe je dit net dan neemt hij de naam van de
 klasse `Book` (met lowercase).
 
@@ -1468,7 +1468,7 @@ De data.sql is een conventie. Als je hem zo noemt dan herkent de database dit be
 
 #### postgreSQL
 
-Wanneer je de applicatie `LibraryApplication` heb gestart in IntelliJ komen de gegevens in postgreSQL te staan. Hibernate zorgt ervoor dat de java aal omgezet wordt in sql.
+Wanneer je de applicatie `LibraryApplication` heb gestart in IntelliJ komen de gegevens in postgreSQL te staan. Hibernate zorgt ervoor dat de java taal omgezet wordt in sql.
 
 #### Repository
 
