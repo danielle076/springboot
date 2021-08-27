@@ -1,32 +1,31 @@
-## Het idee
+## Stap 1: Het idee
 
-Er is een systeem nodig voor een bibliotheek waarin de leden worden bijgehouden. Ook de beschikbare boeken staan in het
-systeem. Een lid kan een boek lenen voor 3 weken. Het systeem houdt bij welke boeken aanwezig zijn in de bibliotheek.
+Beschrijf de applicatie. Probeer min of meer volledig te zijn zonder al te zeer op de details in te gaan.
 
-## Ontwerp UML
+    Voor een bibliotheek hebben we een systeem nodig waarin leden worden bijgehouden. In dit systeem staan ook de beschikbare boeken. Een lid kan een boek lenen voor 3 weken. Het systeem houdt bij welke boeken aanwezig zijn in de bibliotheek.
 
-### Eerste opzet klassendiagram
+## Stap 2: Ontwerp UML
 
-1. Beschrijf de applicatie. Probeer min of meer volledig te zijn zonder al te zeer op de details in te gaan
-2. Markeer alle zelfstandige naamwoorden met een kleur
-3. Markeer alle werkwoorden met een andere kleur
-4. De zelfstandige naamwoorden zijn kandidaten om in de applicatie classes te worden
-5. De werkwoorden zijn kandidaat methoden
+### Stap 2a: eerste opzet
 
-#### Voorbeeld tekst
+1. Markeer alle `zelfstandige naamwoorden` met een kleur
+2. Markeer alle `werkwoorden` met een andere kleur
+3. De zelfstandige naamwoorden zijn kandidaten om in de applicatie `classes` te worden
+4. De werkwoorden zijn kandidaat `methoden`
+
+#### Voorbeeld
 
 ![img32.png](images/img32.png)
 
-De rode woorden zijn zelfstandige naamwoorden.<br/>
-De groene woorden zijn de werkwoorden.
+De rode woorden zijn zelfstandige naamwoorden, de groene woorden zijn de werkwoorden.
 
 ![img31.png](images/img31.png)
 
-#### Idee
+#### Bibliotheek
 
-De zelfstandige namen voor het idee zijn als volgt.
+De zelfstandige naamwoorden voor het idee zijn als volgt.
 
-![img.png](images/img33.png)
+![img33.png](images/img33.png)
 
 - Systeem
 - Bibliotheek
@@ -34,23 +33,23 @@ De zelfstandige namen voor het idee zijn als volgt.
 - Boek
 - Leenperiode (=weken)
 
-Systeem is het alles overkoepelende, dat is juist wat je gaat beschrijven, dus deze gebruiken we niet in de
-klassendiagram UML.
+Systeem is het alles overkoepelende, dat is wat je gaat beschrijven, dus deze gebruiken we niet in het klassendiagram.
 
-### UML: klassendiagram
+### Stap 2b: klassendiagram
 
-Wanneer klassen iets met elkaar te maken hebben dan zet je een verbinding ertussen.
+Je kunt een klassendiagram met <a href="https://www.diagrams.net/" target="_blank">diagrams.net</a> maken.
+
+![img.png](images/img34.png)
+
+Wanneer klassen iets met elkaar te maken hebben dan zet je er een verbinding tussen (een lijn).
 
 - Een bibliotheek heeft een X aantal exemplaren (aggregatie - open diamant)
 - Een bibliotheek heeft een X aantal leden (aggregatie - open diamant)
 - Exemplaar heeft een relatie met een boek (associatie - lijn)
-    - een boek kan meerdere exemplaren hebben
-    - ieder exemplaar gaat over 1 boek
-- Lid kan een exemplaar lenen (associatie - lijn)
-- Leenperiode: het exemplaar is geleend voor een periode door een lid. Leenperiode is een soort koppeling tussen
+    - een boek kan meerdere exemplaren hebben (1..*)
+    - ieder exemplaar gaat over 1 boek (1)
+- Leenperiode: het exemplaar is geleend voor een periode door een lid. Leenperiode is een koppeling tussen
   exemplaar en lid (associatie - lijn)
-
-![img34.png](images/img34.png)
 
 ## Database Entities ORM
 
