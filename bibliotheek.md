@@ -51,15 +51,17 @@ Wanneer klassen iets met elkaar te maken hebben dan zet je er een verbinding tus
 - Leenperiode: het exemplaar is geleend voor een periode door een lid. Leenperiode is een koppeling tussen
   exemplaar en lid (associatie - lijn)
 
-## Database Entities ORM
+## Stap 3: database 
 
-We gaan een nieuwe database maken in pgAdmin genaamd bieb.
+### pgAdmin
 
-Ga naar schemas > tables en rechts klik om een nieuwe tabel `books` te maken.
+De database die we gebruiken is pgAdmin. Hierin maken we een nieuwe database aan via Servers > PostgreSQL > Databases > rechts klikken > Create > Database en noemen hem `test_bibliotheek`.
+
+Ga binnen de database `test_bibliotheek` naar Schemas > Tables > rechts klikken > Create > Table en maak een nieuwe tabel `books`.
 
 ![img35.png](images/img35.png)
 
-In de tab `columns` gaan we de kolommen zetten en slaan we hem op.
+In de tab `columns` gaan we de kolommen erin zetten en slaan we hem op.
 
 ![img36.png](images/img36.png)
 
@@ -69,41 +71,44 @@ We hebben nu een tabel waar we records in kunnen zetten.
 
 ### Hibernate
 
-Hoe verbind je de Java Applicatie naar je Database? Spring Boot biedt een koppeling tussen de database en Java.
-
 In Java heb je het over classes, objecten etc. In een database hebben we het over tabellen. Een verbinding tussen een
 klasse en een tabel is niet altijd 1 op 1. In een klasse kun je bijvoorbeeld werken met lijsten, met een reeks, in een
-database kan dit niet. In een database werk je altijd met een primary key en foreign keys en dit hoef je niet altijd in
-je classes te doen.
+database kan dit niet. In een database werk je altijd met een primary key en foreign keys en dit hoef je niet altijd in je classes te doen.
 
-Aan de Java kant heb je ORM: Object Relational Mapping. Een ORM heb je nodig om de verbinding te maken.
+Spring Boot biedt een koppeling tussen de database en Java. Aan de Java kant heb je ORM: Object Relational Mapping. Een ORM heb je nodig om de koppeling/verbinding te maken.
 
 ![img38.png](images/img38.png)
 
-In Springboot heet de ORM Hibernate. Hibernate is de populairste Object Relational Mapping (ORM) voor Java.
+In Spring Boot heet de ORM `Hibernate`. Hibernate is de populairste Object Relational Mapping (ORM) voor Java.
 
 ### Springboot
 
-We gaan de classes van het klassendiagram in Springboot maken.
+We gaan de classes van het klassendiagram uit stap 2b in Springboot maken.
 
-We beginnen met een Spring Initializr https://start.spring.io/ project.
+#### Spring Initializr
+
+We beginnen met een <a href="https://start.spring.io/" target="_blank">Spring Initializr</a> project.
 
 ![img39.png](images/img39.png)
 
 ![img40.png](images/img40.png)
 
-Open het bestand in IntelliJ.
+Open het bestand in IntelliJ en load de Maven script (melding krijg je rechts onderin).
 
 ![img41.png](images/img41.png)
+
+#### pom.xml
 
 De `pom.xml` (maven dependency manager) specificeert welke pakketten je nodig hebt. De onderstaande heb je
 geïnstalleerd.
 
 ![img42.png](images/img42.png)
 
-We moeten specificeren hoe `@SpringBootApplication` bij Postgresql kan. De wachtwoorden moeten worden ingesteld, dat
-doen we in de `application.properties` van IntelliJ. De volgende code zet je in dit bestand. De `url` is de database
-naam in postgreSQL, de `username` is jouw username in postgreSQL en `password` is jouw wachtwoord in postgreSQL.
+Wanneer je in `pom.xml` een foutmelding krijgt bij de `version` van `parent`, zet je `<version>2.4.3</version>` erin.
+
+#### application.properties
+
+`@SpringBootApplication` moet gaan communiceren met postgreSQL. Om dit voorelkaar te krijgen moet je in het project van IntelliJ naar `resources` gaan en dan `application.properties`. De gegevens van postgreSQL worden aan de hand van de code die je daar inzet gekoppeld met de database. 
 
     # datasource PostgreSQL
     spring.jpa.database=postgresql
@@ -121,8 +126,14 @@ naam in postgreSQL, de `username` is jouw username in postgreSQL en `password` i
     spring.jpa.hibernate.ddl-auto=create
     spring.datasource.initialization-mode=always
 
+- `url` is de database naam in pgAdmin
+- `username` is jouw username in pgAdmin 
+- `password` is jouw wachtwoord in pgAdmin
+
+#### model
+
 We gaan de entities maken die we in ons klassendiagram hebben gezet. We maken een nieuwe package genaamd `model` en een
-nieuwe klasse genaamd `Book.java` in Java.
+nieuwe klasse genaamd `Book.java` in IntelliJ.
 
 ![img43.png](images/img43.png)
 
@@ -171,8 +182,7 @@ public class Book {
 }
 ```
 
-Dit is wat ze noemen een POJO: Plain Old Java Object -> simpele klasse met alleen attributen en getters en setters.
-Hibernate maakt gebruik van de POJO.
+Dit is wat ze noemen een POJO: Plain Old Java Object. Een simpele klasse met alleen attributen en getters en setters. Hibernate maakt gebruik van de POJO.
 
 Om dit te integreren met Spring Boot gaan we met annotaties werken: `@Entity`.
 
@@ -184,7 +194,7 @@ public class Book {
 }
 ```
 
-Vervolgens kunnen we van de attributen gaan zeggen, dit is een column: `@Column`.
+Daarnaast geven we de attributen een annotatie `@Column`.
 
 ```java
 import javax.persistence.Column;
@@ -268,17 +278,15 @@ public class Book {
 }
 ```
 
-Wanneer je de `LibraryApplication` runt, is het gelukt wanneer je de melding `Started LibraryApplication` krijgt.
+We gaan de applicatie `LibraryApplication` runnen. Wanneer het is gelukt krijg je de melding `Started LibraryApplication` in de terminal van IntelliJ..
 
-Als je nu naar de database gaat in pgAdmin en je kijkt naar de schema's en dan tables zie je dat er ineens een `book`
-staan en de 5 columns die je hebt gemaakt.
+Ga naar de database in pgAdmin. In Schemas > Tables zie je dat er een `book` tables staat en er zijn 5 columns gemaakt.
 
 ![img44.png](images/img44.png)
 
-#### H2
+#### Database H2
 
-Wanneer de connectie met postgresSQL niet werkt kun je H2 gebruiken. Het volgende zet je in `application.properties`
-.
+Wanneer de connectie met postgresSQL niet werkt kun je H2 gebruiken. Het volgende zet je in `application.properties`.
 
     # datasource H2
     spring.datasource.driverClassName=org.h2.Driver
@@ -301,14 +309,11 @@ In de `pom.xml` zet je onder de dependency van `postgresql` de code van `h2`.
        <scope>runtime</scope>
     </dependency>
 
-Er verschijnt een `Load Maven Changes` icoon in beeld. Deze moet je aanklikken en dan gaat IntelliJ indexen, zodat het
-systeem h2 erbij heeft gezet.
+Er verschijnt een `Load Maven Changes` icoon in beeld. Deze klik je aan, zodat IntelliJ kan indexen. 
 
 Run de applicatie.
 
-Wanneer je de database h2.Driver gebruikt is dit in-memory, dat betekend dat je het verder niet kan zien. Dit is een
-path die heet h2console en wanneer je naar een browser gaat en tikt in `localhost:8080/h2console` dan krijg je een soort
-database, je klikt op `connect` en dan zie je je class `book` en de 5 columns staan.
+De database H2 is in-memory. Je gaat naar de broswer en zoekt naar `localhost:8080/h2console`. Vervolgens krijg je in de browser een soort database te zien. Klik op `connect` en dan zie je de class `book` en de 5 columns staan.
 
 ![img_1.png](images/img46.png)
 
@@ -316,9 +321,9 @@ database, je klikt op `connect` en dan zie je je class `book` en de 5 columns st
 
 #### data.sql
 
-Wanneer de database werkt, gaan we `Book.java` vullen met een aantal zaken zodat we kunnen zien dat er data in de tabel
-komt. Dit doe je door in de `resources` een nieuw txt-file te maken en die noemen we `data.sql`. Dit is een `sql`
-bestand waarmee we records kunnen toevoegen aan `Book.java`.
+Wanneer de database werkt, gaan we `Book` vullen met een aantal zaken zodat we kunnen zien dat er data in de tabel
+komt. Dit doe je door in de `resources` een nieuw file te maken en die noemen we `data.sql`. Dit is een `sql`
+bestand waarmee we records kunnen toevoegen aan `Book`.
 
 In dit bestand zet je de volgende code voor H2.
 
@@ -330,7 +335,7 @@ Voor postgreSQL geldt het volgende.
     insert into book (title) values ('Harry Potter');
     insert into book (title) values ('Swiebertje');
 
-Je krijgt het volgende in IntelliJ te zien.
+Wanneer je IntelliJ Ultimate heb krijg je het volgende te zien.
 
 ![img45.png](images/img45.png)
 
@@ -339,10 +344,8 @@ suggesties te doen. Deze Inspections kunnen aan of uit worden gezet.
 
 Bij het creëren van een .sql bestand zoals `data.sql` worden onder de volgende inspections geactiveerd:
 
-- __SQL dialect detection__ Hiermee wordt de syntax van SQL gecontroleerd volgens een aangegeven SQL dialect.
-
-- __No data sources configured__ IntelliJ Ultimate biedt de mogelijkheid datasources te configureren. Hartstikke leuk
-  maar die optie gebruiken we niet in de springboot projecten
+- __SQL dialect detection__ Hiermee wordt de syntax van SQL gecontroleerd volgens een aangegeven SQL dialect
+- __No data sources configured__ IntelliJ Ultimate biedt de mogelijkheid datasources te configureren. Leuk maar die optie gebruiken we niet in de Spring Boot projecten
 
 Je kan de inspectie meldingen die in de gele balken verschijnen negeren, maar je kunt ze ook uitzetten. In de balk zie
 je een instellingen icon (een radertje) met in de pulldown menu de optie `Disable inspection`.
@@ -352,9 +355,14 @@ betreffende inspections opzoeken in de lijst en het vinkje weer aanzetten.
 
 Run de applicatie.
 
-In postgreSQL krijg je de gegevens te zien die je in de `data.sql` heb gezet via book > view/edit data > all rows.
+In postgreSQL krijg je de gegevens te zien die je in de `data.sql` heb gezet via book > View/Edit Data > All Rows.
 
 ![img73.png](images/img73.png)
+
+
+
+
+
 
 ## Repository
 
