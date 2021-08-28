@@ -51,7 +51,7 @@ Wanneer klassen iets met elkaar te maken hebben dan zet je er een verbinding tus
 - Leenperiode: het exemplaar is geleend voor een periode door een lid. Leenperiode is een koppeling tussen
   exemplaar en lid (associatie - lijn)
 
-## Stap 3: database 
+## Stap 3: database en Spring Boot
 
 ### pgAdmin
 
@@ -97,7 +97,7 @@ Open het bestand in IntelliJ en load de Maven script (melding krijg je rechts on
 
 ![img41.png](images/img41.png)
 
-#### pom.xml
+#### Bestand pom.xml
 
 De `pom.xml` (maven dependency manager) specificeert welke pakketten je nodig hebt. De onderstaande heb je
 geïnstalleerd.
@@ -106,7 +106,7 @@ geïnstalleerd.
 
 Wanneer je in `pom.xml` een foutmelding krijgt bij de `version` van `parent`, zet je `<version>2.4.3</version>` erin.
 
-#### application.properties
+#### Bestand application.properties
 
 `@SpringBootApplication` moet gaan communiceren met postgreSQL. Om dit voorelkaar te krijgen moet je in het project van IntelliJ naar `resources` gaan en dan `application.properties`. De gegevens van postgreSQL worden aan de hand van de code die je daar inzet gekoppeld met de database. 
 
@@ -130,7 +130,7 @@ Wanneer je in `pom.xml` een foutmelding krijgt bij de `version` van `parent`, ze
 - `username` is jouw username in pgAdmin 
 - `password` is jouw wachtwoord in pgAdmin
 
-#### model
+#### Bestand model
 
 We gaan de entities maken die we in ons klassendiagram hebben gezet. We maken een nieuwe package genaamd `model` en een
 nieuwe klasse genaamd `Book.java` in IntelliJ.
@@ -319,7 +319,7 @@ De database H2 is in-memory. Je gaat naar de broswer en zoekt naar `localhost:80
 
 ![img.png](images/img47.png)
 
-#### data.sql
+#### Bestand data.sql
 
 Wanneer de database werkt, gaan we `Book` vullen met een aantal zaken zodat we kunnen zien dat er data in de tabel
 komt. Dit doe je door in de `resources` een nieuw file te maken en die noemen we `data.sql`. Dit is een `sql`
@@ -359,26 +359,18 @@ In postgreSQL krijg je de gegevens te zien die je in de `data.sql` heb gezet via
 
 ![img73.png](images/img73.png)
 
+### Repository
 
-
-
-
-
-## Repository
-
-We gaan een controller maken. We maken eerste aan package genaamd `controller` en een bestand
-genaamd `BookController.java`.
+We gaan een controller maken in het project van IntelliJ. We maken eerste aan package genaamd `controller` en een bestand genaamd `BookController.java`.
 
 ![img48.png](images/img48.png)
 
-Via `bookRepository` gaan we naar de database. Op hetzelfde niveau als controller maak je een nieuwe package `repository`
-en daarin een interface bestand genaamd `BookRepository`.
+Op hetzelfde niveau als controller maak je een nieuwe package `repository`
+en daarin een interface bestand genaamd `BookRepository`. Via `bookRepository` gaan we naar de database.
 
 ![img49.png](images/img.49png)
 
-De communicatie met de database gebeurd via een repository, dus BookRepository communiceert straks met de database. Het
-is een interface die op basis van een bestaande JpaRepository toegang heeft naar `book` op basis van de id wat `Long`
-is. Hij vertaald in wezen Java in een stukje SQL.
+De communicatie met de database gebeurd via een repository, dus BookRepository communiceert straks met de database. Het is een interface die op basis van een bestaande JpaRepository toegang heeft naar `book` op basis van de id wat `Long` is. Hij vertaald Java in SQL.
 
 _BookRepository.java_
 
@@ -391,10 +383,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface BookRepository extends JpaRepository<Book, Long> {
 }
 ```
-
-We hebben een `@GetMapping` naar `/books` met een methode `getBooks`, die levert een `ResponseEntity` op en deze bestaat
-uit `books` en books is een `List` naar type `Book` en om deze boven water te krijgen doen we een bookRepository en find
-all `bookRepository.findAll();`. De bookRepository hebben we met `@Autowired` gedaan.
 
 _BookController.java_
 
@@ -424,21 +412,24 @@ public class BookController {
 }
 ```
 
+We hebben een `@GetMapping` naar `/books` met een methode `getBooks`, die levert een `ResponseEntity` op en deze bestaat
+uit `books` en books is een `List` naar type `Book`. Om deze boven water te krijgen doen we een bookRepository en `findAll();`. De bookRepository hebben we met `@Autowired` gedaan.
+
 Run de applicatie.
 
-Ga naar Postman en doe een GET naar `http://localhost:8080/books`. Je krijgt de data te zien uit `data.sql` in de body.
+Ga naar Postman en doe een `GET` naar `http://localhost:8080/books`. Je krijgt de data te zien uit `data.sql` in de body.
 
 ![img50.png](images/img50.png)
 
-In de terminal zie je allerlei opdrachten en daar staat `hibernate` tussen. Je ziet `select .... from book` staan en dit
+In de terminal van IntelliJ zie je allerlei opdrachten en daartussen staat `hibernate`. Je ziet `select .... from book` staan en dit
 is de sql statement die hibernate heeft gegenereerd op basis van wat hij weet van de entity. Doordat wij
-de `BookRepository.java` hebben toegevoegd, die eigenlijk niks doet, maar hij weet wel dat hij Book kan ophalen met een
+de `BookRepository.java` hebben toegevoegd (die eigenlijk niks doet) weet hij dat hij Book kan ophalen met een
 Long id: `JpaRepository<Book, Long>` en wanneer je deze repository gaat gebruiken je een `findAll()` kan doen die
 in `BookController` staat.
 
 ![img52.png](images/img52.png)
 
-### Endpoint /id
+### Endpoint: /id
 
 We gaan op basis van `/books` een `{id}` ophalen.
 
@@ -471,24 +462,24 @@ public class BookController {
     }
 
     @GetMapping(value = "/books/{id}")
-    public ResponseEntity<Optional<Book>> getBook(@PathVariable("id") long id) {
+    public ResponseEntity<Object> getBook(@PathVariable("id") long id) {
         return new ResponseEntity<>(bookRepository.findById(id), HttpStatus.OK);
     }
 }
 ```
 
-We hebben nu een `@GetMapping` voor een specifiek `{id}`. Deze gaat naar de bookRepository en die doet niet `findAll()`
+We hebben een `@GetMapping` voor een specifiek `{id}`. Deze gaat naar de bookRepository en die doet niet `findAll()`
 maar `findfById(id)`.
 
 Run de applicatie.
 
-Wanneer je in Postman `http://localhost:8080/books/2` en GET doe dan krijg je het boek "Swiebertje" in de body.
+Wanneer je in Postman `http://localhost:8080/books/2` en `GET` doe dan krijg je het boek "Swiebertje" in de body.
 
 ![img53.png](images/img53.png)
 
 ### Toevoegen boeken
 
-Met @PostMapping voegen we boeken toe.
+Met `@PostMapping` voegen we boeken toe.
 
 _BookController.java_
 
@@ -517,7 +508,7 @@ public class BookController {
     }
 
     @GetMapping(value = "/books/{id}")
-    public ResponseEntity<Optional<Book>> getBook(@PathVariable("id") long id) {
+    public ResponseEntity<Object> getBook(@PathVariable("id") long id) {
         return new ResponseEntity<>(bookRepository.findById(id), HttpStatus.OK);
     }
 
@@ -529,7 +520,7 @@ public class BookController {
 }
 ```
 
-`bookRepository` is de poort en `.save` is het boek die we krijgen: `bookRepository.save(book);`.
+In de `@Postmapping` code is de `bookRepository` de poort en `.save` is het book die we krijgen: `bookRepository.save(book);`.
 
 Run de applicatie.
 
@@ -537,23 +528,23 @@ In Postman gebruik je `POST` en de url `http://localhost:8080/books/` om boeken 
 
 ![img54.png](images/img54.png)
 
-Het toevoegen van boeken doe je in de `body` en dan drukken op `send`. Je krijgt een melding `Book created`.
+Het toevoegen van boeken doe je in de `body` en dan druk je op `send` om hem toe te voegen. Je krijgt een melding `Book created`.
 
 ![img55.png](images/img55.png)
 
-Wanneer je nu `GET` selecteer en de url `http://localhost:8080/books/`, krijg je het boek dat je hebt toegevoegd in de
+Wanneer je `GET` selecteer en de url `http://localhost:8080/books/`, krijg je het boek dat je hebt toegevoegd in de
 body.
 
 ![img56.png](images/img56.png)
 
-Wanneer je in postgreSQL kijkt, dan staat het boek toegevoegd in de database: schemas > tables > book > rechts klikken >
-view/edit data > all rows
+Wanneer je in postgreSQL kijkt, dan staat het boek toegevoegd in de database: Schemas > Tables > book > rechts klikken >
+View/Edit Data > All Rows
 
-![img.png](images/img57.png)
+![img57.png](images/img57.png)
 
 ### Delete boeken
 
-Het verwijderen van boeken doen we met @DeleteMapping.
+Het verwijderen van boeken doen we met `@DeleteMapping`.
 
 ```java
 package com.danielle.bibliotheek.controller;
@@ -580,7 +571,7 @@ public class BookController {
     }
 
     @GetMapping(value = "/books/{id}")
-    public ResponseEntity<Optional<Book>> getBook(@PathVariable("id") long id) {
+    public ResponseEntity<Object> getBook(@PathVariable("id") long id) {
         return new ResponseEntity<>(bookRepository.findById(id), HttpStatus.OK);
     }
 
@@ -597,6 +588,8 @@ public class BookController {
     }
 }
 ```
+
+Run de applicatie.
 
 We voegen data toe aan `POST` en url `http://localhost:8080/books/`.
 
@@ -635,7 +628,7 @@ Het deleten van een book doe je in Postman met `DELETE` en url `http://localhost
 
 ![img60.png](images/img60.png)
 
-Wanneer je alle boeken ophaalt in Postman met GET en `http://localhost:8080/books/` krijg je het volgende.
+Wanneer je alle boeken ophaalt in Postman met `GET` en `http://localhost:8080/books/` krijg je het volgende.
 
 ![img61.png](images/img61.png)
 
