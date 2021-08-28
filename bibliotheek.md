@@ -2,7 +2,10 @@
 
 Beschrijf de applicatie. Probeer min of meer volledig te zijn zonder al te zeer op de details in te gaan.
 
-    Voor een bibliotheek hebben we een systeem nodig waarin leden worden bijgehouden. In dit systeem staan ook de beschikbare boeken. Een lid kan een boek lenen voor 3 weken. Het systeem houdt bij welke boeken aanwezig zijn in de bibliotheek.
+    Voor een bibliotheek hebben we een systeem nodig waarin leden worden bijgehouden. 
+    In dit systeem staan ook de beschikbare boeken. 
+    Een lid kan een boek lenen voor 3 weken. 
+    Het systeem houdt bij welke boeken aanwezig zijn in de bibliotheek.
 
 ## Stap 2: Ontwerp UML
 
@@ -368,7 +371,7 @@ We gaan een controller maken in het project van IntelliJ. We maken eerste aan pa
 Op hetzelfde niveau als controller maak je een nieuwe package `repository`
 en daarin een interface bestand genaamd `BookRepository`. Via `bookRepository` gaan we naar de database.
 
-![img49.png](images/img.49png)
+![img49.png](images/img49.png)
 
 De communicatie met de database gebeurd via een repository, dus BookRepository communiceert straks met de database. Het is een interface die op basis van een bestaande JpaRepository toegang heeft naar `book` op basis van de id wat `Long` is. Hij vertaald Java in SQL.
 
@@ -641,44 +644,11 @@ In postgreSQL is dit boek ook verdwenen.
 Je hebt verschillende soorten repository's. Alle drie doen ze verschillende dingen, waarbij de Jpa het meeste kan en het
 zwaarste is.
 
-- JpaRepository
-- PagingAndSortingRepository
 - CrudRepository
+- PagingAndSortingRepository
+- JpaRepository
 
-We gaan een `repository method` gebruiken waarbij we willen gaan zoeken/sorteren op id.
-
-We maken een `List` van de type `Book`. De methode noemen we `findAllOrderById()`.
-
-_BookRepository.java_
-
-```java
-package com.danielle.bibliotheek.repository;
-
-import com.danielle.bibliotheek.model.Book;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
-
-public interface BookRepository extends JpaRepository<Book, Long> {
-
-    List<Book> findAllOrderById();
-}
-```
-
-Dit ga je gebruiken in de `BookController.java`. In plaats van `findAll()` gebruiken we `findAllOrderById()`.
-
-    @GetMapping(value = "/books")
-    public ResponseEntity<Object> getBooks() {
-      List<Book> books = bookRepository.findAllOrderById();
-      return new ResponseEntity<>(books, HttpStatus.OK);
-    }
-
-Nu zal hij altijd je boeken gesorteerd weergeven.
-
-> > > werkt niet, je moet een argument opgeven
-
-Wanneer je de begin letter wilt gebruiken van de naam om te gaan zoeken, gebruik je `findAllByTitleOrderById` en geven
-we `String` en `title` mee in de argumenten.
+We gaan een `repository method` gebruiken waarbij we willen gaan zoeken naar een titel. We gebruiken `findAllByTitle` en geven `String` en `title` mee in de argumenten.
 
 _BookRepository.java_
 
@@ -692,11 +662,11 @@ import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book, Long> {
 
-    List<Book> findAllByTitleOrderById(String title);
+    List<Book> findAllByTitle(String title);
 }
 ```
 
-In de `BookController.java` gaan we dit toevoegen door een nieuwe `@GetMapping`.
+In de `BookController.java` gaan we dit toevoegen door een nieuwe `@GetMapping` en gebruiken `findAllByTitle`.
 
 ```java
 package com.danielle.bibliotheek.controller;
@@ -724,12 +694,12 @@ public class BookController {
 
     @GetMapping(value = "/books/title/{title}")
     public ResponseEntity<Object> getBooks(@PathVariable("title") String title) {
-        List<Book> books = bookRepository.findAllByTitleOrderById(title);
+        List<Book> books = bookRepository.findAllByTitle(title);
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
     @GetMapping(value = "/books/{id}")
-    public ResponseEntity<Optional<Book>> getBook(@PathVariable("id") long id) {
+    public ResponseEntity<Object> getBook(@PathVariable("id") long id) {
         return new ResponseEntity<>(bookRepository.findById(id), HttpStatus.OK);
     }
 
@@ -757,20 +727,20 @@ Wanneer je opzoek gaat naar de titel `Book` met url `http://localhost:8080/books
 
 ![img65.png](images/img65.png)
 
-We gaan nu zoeken naar de eerste letter van een title met 'findAllByTitleStartingWith'. Dit pas je aan
-in `BookRepository.java` en `BookController.java`.
+We gaan een `repository method` maken waarbij je alleen de eerste letter van de titel gebruikt om te zoeken. Vervang in `BookRepository.java` en `BookController.java` `findAllByTitle` voor `findAllByTitleStartingWith`.
 
-In Postman ga je op zoek naar de boeken die beginnen met de letter B `http://localhost:8080/books/title/B`.
+Run de applicatie.
+
+In Postman ga je op zoek naar de boeken die beginnen met de letter B met url `http://localhost:8080/books/title/B`.
 
 ![img66.png](images/img66.png)
 
-Je kunt verschillende query's/zoekopdrachten gebruiken, zie onderstaand overzicht.
+Naast deze twee zoekopdrachten kun je verschillende query's gebruiken. Zie onderstaand overzicht.
 
 ![img67.png](images/img67.png)
 
-Tip: als gebruiker weet je niet welke query's er worden ondersteund, dus dan kun je een informatie controller maken (als
-soort van documentatie naar de gebruiker toe). Kijk ook naar HATEOS, die laten zien dat wanneer je iets hebt opgevraagd,
-hoe je dan verder kan.
+_Tip_: de gebruiker weet niet welke query's er worden ondersteund, dus kun je een informatie controller maken (als
+soort van documentatie naar de gebruiker toe). Kijk ook naar HATEOS, wanneer je iets heb opgevraagd, laat hij zien hoe je verder kan.
 
 ## Service
 
