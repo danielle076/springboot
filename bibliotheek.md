@@ -742,38 +742,17 @@ Naast deze twee zoekopdrachten kun je verschillende query's gebruiken. Zie onder
 _Tip_: de gebruiker weet niet welke query's er worden ondersteund, dus kun je een informatie controller maken (als
 soort van documentatie naar de gebruiker toe). Kijk ook naar HATEOS, wanneer je iets heb opgevraagd, laat hij zien hoe je verder kan.
 
-## Service
+### Service
 
-Spring Boot in een plaatje.
+De Client praat via HTTPS met de Controller. De Controller praat met de Service en de Service praat via de Repository met de Database en kent Model.
 
 ![img68.png](images/img68.png)
 
-De Client praat via HTTPS met de Controller. De controller praat met de Service en de Service praat via de Repository
-met de database en kent dan de Model.
-
-We hebben een `BookController` en vanuit de `BookController` gaan we gelijk naar de `bookRepository`.
-De `BookRepository` is in staat om de sql statements te bouwen en naar de database te sturen. Hiertussen moet een
-service laag.
-
-Een servicelaag daar zit eigenlijk de business intelligentie. De servicelaag is op de hoogte van dingen die van belang
+In een Service zit de business intelligentie. De Service is op de hoogte van dingen die van belang
 zijn om door te geven aan de BookRepository. De BookRepository houdt zich alleen bezig met de database. De
-BookController houdt zich alleen bezig met de frontend, met de API. Hiertussen moet een service zitten.
+BookController houdt zich alleen bezig met de frontend, met de API. Hiertussen moet een Service zitten.
 
-We voegen een nieuwe package toe genaamd `Service` met een nieuwe klasse genaamd `BookService.java`.
-
-![img69.png](images/img69.png)
-
-Traditioneel wordt de Service gescheiden in een Interface en in een Implementatie. In `BookService.java` zet je de
-volgende code voor de Implementatie.
-
-```java
-package com.danielle.bibliotheek.service;
-
-public class BookServiceImpl {
-}
-```
-
-Voor Interface maak je een nieuw bestand aan, binnen de package genaamd `BookService.java`.
+We voegen een nieuwe package toe genaamd `Service` met een nieuwe interface genaamd `BookService.java` en een klasse `BookServiceImpl.java`. Traditioneel wordt de Service gescheiden in een Interface en in een Implementatie.
 
 ![img.png](images/img70.png)
 
@@ -794,19 +773,14 @@ _BookService.java_
 package com.danielle.bibliotheek.service;
 
 import com.danielle.bibliotheek.model.Book;
-
 import java.util.List;
 
 public interface BookService {
 
     public List<Book> getAllBooks();
-
     public Book getBook(long id);
-
     public List<Book> getBooksTitleStartsWith(String title);
-
     public void save(Book book);
-
     public void deleteById(long id);
 }
 ```
@@ -859,7 +833,7 @@ public class BookServiceImpl implements BookService {
 ```
 
 Wat je in de `BookController.java` moet gaan doen, is niet praten met `bookRepository` maar praten
-met `BookService.java`.
+met `bookService`.
 
 _BookController.java_
 
@@ -913,10 +887,10 @@ public class BookController {
 
 We hebben nu de bookService ertussen gezet.
 
-In Postman en in postgreSQL kun je nu weer hetzelfde doen als hiervoor, alleen staat de service laag ertussen. De
-service laag maakt het makkelijker om intelligenter dingen te doen in service.
+In Postman en in postgreSQL kun je hetzelfde doen als hiervoor, alleen staat de servicelaag ertussen. De
+servicelaag maakt het makkelijker om intelligenter dingen te doen in Service.
 
-De BookController moet niet meer zijn dan wat het nu is: die vangt de request, die doet iets naar de service en die
+BookController moet niet meer zijn dan wat het nu is: die vangt de request, die doet iets naar de Service en die
 geeft een response met ResponseEntity. That's it.
 
 De BookService praat met de BookRepository.
@@ -1054,7 +1028,7 @@ melding `No book with id 8`.
 
 ![img71.png](images/img71.png)
 
-## Associatie
+### Associatie
 
 Book is gedaan en we gaan verder met exemplaar. In de map `model` maak je een nieuwe file aan `copy,java`.
 
@@ -1240,7 +1214,7 @@ Je hebt verschillende annotaties voor koppelingen tussen klassen.
 - @ManyToOne
 - @ManyToMany
 
-## Configurerern
+### Configureren
 
 De `class Book` wordt bijgehouden in een tabel die heeft `books` in de database.
 
@@ -1297,7 +1271,7 @@ public class Book {
 }
 ```
 
-## AutoWired
+### AutoWired
 
 `@Autowired` wordt gebruikt in de Controller naar de Service te wijzen en om in de Service naar de Repository te wijzen.
 
