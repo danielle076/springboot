@@ -899,11 +899,11 @@ De BookRepository is niks anders dan alleen maar de query bouwen naar de databas
 
 ### Exception
 
-Wanneer je http://localhost:8080/books/9 opvraagt, dan krijg je geen antwoord, want deze bestaat niet. De statuscode
-staat echter op 200 OK, maar dit klopt niet, er moet een andere status code komen namelijk 404 NOT FOUND.
+Wanneer je `http://localhost:8080/books/9` opvraagt in Postman, dan krijg je geen antwoord, want deze bestaat niet. De statuscode
+staat echter op `200 OK`, maar dit klopt niet, dit moet status code `404 NOT FOUND` zijn.
 
 We gaan dit afvangen in `BookServiceImpl`. We gaan checken of nummer 9 bestaat. Dit kun je controleren met een
-if-statement die checked of de id die je opvraagt er wel is.
+if-statement die checked of de `id` die je opvraagt er wel is.
 
 ```java
 package com.danielle.bibliotheek.service;
@@ -1023,14 +1023,16 @@ public class ExceptionController {
 }
 ```
 
-In Postman wanneer je naar boek 8 zoekt met GET en url `http://localhost:8080/books/8`, krijg je de
+Run de applicatie.
+
+In Postman wanneer je naar boek 8 zoekt met `GET` en url `http://localhost:8080/books/8`, krijg je de
 melding `No book with id 8`.
 
 ![img71.png](images/img71.png)
 
 ### Associatie
 
-Book is gedaan en we gaan verder met exemplaar. In de map `model` maak je een nieuwe file aan `copy,java`.
+Book is gedaan en we gaan verder met exemplaar. In de map `model` maak je een nieuwe file aan `Copy.java`.
 
 ```java
 package com.danielle.bibliotheek.model;
@@ -1074,7 +1076,7 @@ public class Copy {
 }
 ```
 
-We willen de associatie tussen Boek en Exemplaar zoals beschreven in de klassendiagram: één boek heeft meerdere
+We willen de associatie tussen Boek en Exemplaar zoals beschreven in het klassendiagram: één boek heeft meerdere
 exemplaren. Dit is een one-to-many relatie.
 
 Meestal zal het voorkomen dat in `exemplaar` een `foreign key` staat die verwijst naar `book_id`.
@@ -1129,8 +1131,8 @@ public class Copy {
 }
 ```
 
-In Book.java kun je afvragen, weet deze Book welke exemplaren er allemaal zijn. Dit kun je doen door
-annotatie `OneToMany`. We hebben het dan niet over één exemplaar, maar we hebben het over een List.
+In `Book.java` kun je afvragen: weet `Book` welke exemplaren er allemaal zijn. Dit kun je doen door de 
+annotatie `@OneToMany`. We hebben het dan niet over één exemplaar, maar we hebben het over een `List`.
 
 ```java
 package com.danielle.bibliotheek.model;
@@ -1198,9 +1200,9 @@ public class Book {
 }
 ```
 
-We hebben het nu aan elkaar gekoppeld.
+We hebben `Book.java` en `Copy.java` aan elkaar gekoppeld.
 
-Run de applicaties.
+Run de applicatie.
 
 In postgreSQL zie je dat tabel `copy` erin staat, maar hij heeft ook zelf een associatie tabel gemaakt
 genaamd `book_copies`.
@@ -1209,10 +1211,10 @@ genaamd `book_copies`.
 
 Je hebt verschillende annotaties voor koppelingen tussen klassen.
 
-- @OneToOne
-- @OneToMany
-- @ManyToOne
-- @ManyToMany
+- `@OneToOne`
+- `@OneToMany`
+- `@ManyToOne`
+- `@ManyToMany`
 
 ### Configureren
 
