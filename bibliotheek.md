@@ -1216,9 +1216,9 @@ Je hebt verschillende annotaties voor koppelingen tussen klassen.
 - `@ManyToOne`
 - `@ManyToMany`
 
-### Configureren
+### Decorateurs referentie
 
-De `class Book` wordt bijgehouden in een tabel die heeft `books` in de database.
+Je kan in Java met `@Table(name = "books")` aangeven dat de tabel naam `books` moet zijn in de database. 
 
 ```java
 
@@ -1228,7 +1228,7 @@ public class Book {
 }
 ```
 
-Een column kun je ook configureren: hoe iets in de database gaat heten.
+Een column kun je ook een naam meegeven met `@Column(name = "the_title")`.
 
 ```java
 
@@ -1250,7 +1250,7 @@ public class Book {
 }
 ```
 
-Naast dat je een column een naam kan geven, kun hem ook definiëren met een bepaalde lengte en eventueel of hij wel of
+Naast dat je een column een naam kan geven, kun je hem ook definiëren met een bepaalde lengte en eventueel of hij wel of
 niet nul mag zijn.
 
 ```java
@@ -1273,28 +1273,28 @@ public class Book {
 }
 ```
 
+Bron: <a href="https://orkhan.gitbook.io/typeorm/docs/decorator-reference" target="_blank">decorator-reference</a> 
+
 ### AutoWired
 
-`@Autowired` wordt gebruikt in de Controller naar de Service te wijzen en om in de Service naar de Repository te wijzen.
+`@AutoWired` is een onderdeel van Spring Boot die ervoor zorgt dat er onder de motorkap koppelingen  worden gelegd. Je hoeft dus niet nieuwe instanties te maken van een repository en elke keer opnieuw initialiseren. Hij weet door de AutoWired dat je dat nodig hebt en gebruikt een efficiënte manier om dit te doen.
 
-`@AutoWired` is een onderdeel van Spring Boot die ervoor zorgt dat er onder de motorkap koppelingen allemaal worden
-gelegd. Je hoeft dus niet nieuwe instanties te maken van een repository en elke keer opnieuw te moeten initialiseren.
-Hij weet door de AutoWired dat je dat nodig hebt en gebruikt een efficiënte manier om dit te doen.
+`@Autowired` wordt gebruikt in de Controller om naar de Service te wijzen en om in de Service naar de Repository te wijzen.
 
-In BookController.java` gebruiken we AutoWired.
+In `BookController.java` gebruiken we AutoWired.
 
     @Autowired
     private BookService bookService;
 
-Dit zorgt ervoor dat hij meteen `bookService` heeft geïnitialiseerd, zodat je deze gelijk kan gaan gebruiken in de
-bijvoorbeeld de @GetMapping.
+Dit zorgt ervoor dat hij `bookService` heeft geïnitialiseerd, zodat je deze gelijk kan gaan gebruiken in de
+bijvoorbeeld de `@GetMapping`.
 
 Hetzelfde geldt voor `BookServiceImpl`.
 
     @Autowired
     private BookRepository bookRepository;
 
-De `bookRepository` is ook helemaal klaar gemaakt om gelijk gebruikt te worden in de verschillende methodes.
+De `bookRepository` is klaar gemaakt om gelijk gebruikt te worden in de verschillende methodes.
 
 ## Herhaling
 
