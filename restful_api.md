@@ -93,9 +93,6 @@ De volledige lijst kun je hier terug vinden: <a href="https://www.restapitutoria
 
 ## Bronnen
 
-- <a href="https://restcookbook.com" target="_blank">restcookbook.com</a>
-- <a href="https://stackoverflow.blog/2020/03/02/best-practices-for-rest-api-design/" target="_blank">best-practices-for-rest-api-design</a>
-- <a href="https://dzone.com/articles/top-rest-api-best-practices" target="_blank">top-rest-api-best-practices</a>
 - <a href="https://docs.microsoft.com/en-us/azure/architecture/best-practices/api-design" target="_blank">api-design</a>
-- <a href="https://github.com/microsoft/api-guidelines" target="_blank">api-guidelines</a>
-- <a href="https://mathieu.fenniak.net/the-api-checklist/" target="_blank">the-api-checklist/</a>
+- <a href="https://restcookbook.com" target="_blank">restcookbook.com</a>
+- <a href="https://dzone.com/articles/top-rest-api-best-practices" target="_blank">top-rest-api-best-practices</a>
