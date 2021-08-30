@@ -1,9 +1,6 @@
-## SpringBoot
+## Spring Boot
 
-### Wat is SpringBoot?
-Spring Boot is een spraakmakende, eenvoudig te starten toevoeging aan het Spring platform - zeer nuttig voor het maken van stand-alone, productie-grade applicaties met minimale inspanning.
-
-Je gebruikt SpringBoot als webframework om je websites te beheren die in Java zijn geschreven.
+Je gebruikt Spring Boot als webframework om je websites te beheren die in Java zijn geschreven.
 
 In deze training gaan we niet zomaar een website bouwen, maar we gaan een webservice maken.
 
@@ -27,21 +24,21 @@ Een RESTful API is een architectuurstijl voor een toepassingsprogramma-interface
 
 Leer meer over Restful API [hier](restful_api.md).
 
-### Getting started: eerste Springboot applicatie
+### Getting started: eerste Spring Boot applicatie
 
-Om een Springboot applicatie te maken hebben je het volgende nodig.
+Om een Spring Boot applicatie te maken hebben je het volgende nodig.
 
 - IDE IntelliJ
 - JDK version >= 11
-- Springboot Initializer
+- Spring Boot Initializer
 - Maven
     - pom.xml
 - Project Structure
-- Springboot Application
+- Spring Boot Application
     - @SpringBootApplication
 
-[Hier](springboot.md) kun je je eerste Springboot applicatie maken.
+[Hier](springboot.md) kun je je eerste Spring Boot applicatie maken.
 
-### Springboot theorie
+### Project bibliotheek
 
-Lees [hier](theorie.md) meer over de theorie van Springboot.
+De theorie over Spring Boot, Postman en Database is in praktijk toegepast met het project [bibliotheek](bibliotheek.md). Het project voor de IDE vindt je [hier](https://github.com/danielle076/library_springboot).
