@@ -91,29 +91,6 @@ Never return this intentionally. The general catch-all error when the server-sid
 
 De volledige lijst kun je hier terug vinden: <a href="https://www.restapitutorial.com/httpstatuscodes.html" target="_blank">httpstatuscodes</a>.
 
-## Restful design
-
-De REST architectuurstijl beschrijft vijf voordelen.
-- Redelijk standaard manier van werken: uniforme interface
-- Er zijn vier zeer belangrijke data transacties in elk REST systeem en HTTP specificatie: POST (aanmaken), GET (lezen en raadplegen), PUT (bewerken) en DELETE.  
-- Iedere request die je doet vanuit de client, is onafhankelijk van een volgend request. Dus er gaat een request heen, er komt een antwoord terug en dan is het klaar: stateloos
-- Wanneer ik een API opvraag en een ander doet hetzelfde, krijgen we hetzelfde antwoord. Dus een API url is cachable, hij kan in een soort cache worden opgeslagen om de performance te verbeteren.
-- Gelaagd systeem. Er is een hiërarchische architectuur tussen de componenten. Elke laag heeft een functionaliteit binnen het REST systeem.
-
-## Best practices
-
-- stateless
-- https & basis of digest authenticatie
-- versiebeheer
-- hypermedia links die in de representatie zijn opgenomen - HATEOAS
-meervoudige zelfstandige naamwoorden voor URI's die verwijzen naar verzamelingen
-- http statuscodes
-- filteren, sorteren, pagineren
-- voorkomen dat resource URI's nodig zijn die complexer zijn dan collection/item/collection.
-- de web-API hoeft niet elke tabel als een verzameling bronnen weer te geven
-- JSON en/of XML body
-- Querystring parameters
-
 ## Bronnen
 
 - <a href="https://restcookbook.com" target="_blank">restcookbook.com</a>
