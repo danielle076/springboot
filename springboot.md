@@ -30,7 +30,7 @@ Ga naar File > Project Structure en zet `Project SDK` op 11. Klik op apply.
 
 ### Spring Boot errors
 
-![img.png](img74.png)
+![img.png](images/img74.png)
 
 Klik op "Trust project..." in de gele balk.
 
