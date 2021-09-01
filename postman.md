@@ -4,16 +4,6 @@ Download Postman.
 
 - https://www.postman.com/downloads/
 
-### API
-
-We gaan een API schrijven, een webservice. Dit is een voorbeeld van een API url.
-
-- http://api.openweathermap.org/data/2.5/weather?appid='idnummerhier'aff&units=metric&mode=json&q=Breda
-
-![img.png](images/img.png)
-
-Een API is een manier om data op te vragen. JSON is de taal die we gebruiken, deze taal kan makkelijk om worden gezet voor de gebruiker (bijvoorbeeld de gebruiker JavaScript).
-
 ### Voorbeeld Postman
 
 In Postman maak je een nieuwe Workspace (of je blijft in My Workspace) en daarin maak je een nieuwe collection aan met het plusje. Nadat je een nieuwe collection hebt gemaakt klik je op "add a request" en die geef je ook een naam.

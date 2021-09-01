@@ -1,16 +1,31 @@
 ## Spring Boot
 
-Je gebruikt Spring Boot als webframework om je websites te beheren die in Java zijn geschreven.
+Je gebruikt Spring Boot als webframework om je websites te beheren die in Java zijn geschreven. Spring Boot is een pakket dat draait bovenop Java.
 
-In deze training gaan we niet zomaar een website bouwen, maar we gaan een webservice maken.
+In deze training gaan we niet een website bouwen, maar een webservice maken. De bedoeling is dat voor je eindopdracht een API/WebService bouwt.
 
 ### Bronnen
 
 - <a href="https://www.baeldung.com/" target="_blank">baeldung.com</a>
+- <a href="https://www.youtube.com/watch?v=9SGDpanrc8U" target="_blank">youtube spring boot tutorial</a>
 - <a href="https://spring.io/" target="_blank">spring.io</a>
 - <a href="https://www.tutorialspoint.com/spring_boot/index.htm" target="_blank">tutorialspoint.com</a>
 - <a href="https://www.javatpoint.com/spring-boot-tutorial" target="_blank">javatpoint.com</a>
 - <a href="https://zetcode.com/all/#springboot" target="_blank">zetcode.com</a>
+
+### Restful WebService
+
+Een webservice is een API die via Internet communiceert. Dit is een voorbeeld van een WebService url.
+
+- http://api.openweathermap.org/data/2.5/weather?appid='idnummerhier'aff&units=metric&mode=json&q=Breda
+
+Het volgende geeft hij terug.
+
+![img.png](images/img.png)
+
+Een API is een manier om data op te vragen. JSON is de taal die we gebruiken. Deze taal is gangbaar voor bijvoorbeeld JavaScript om mee samen te werken op de Frontend.
+
+Leer meer over Restful WebService [hier](restful_api.md).
 
 ### Postman
 
@@ -18,11 +33,7 @@ Postman is een API client die het voor ontwikkelaars makkelijk maakt om API's te
 
 Lees [hier](postman.md) meer over hoe je met Postman moet werken.
 
-### Restful API
 
-Een RESTful API is een architectuurstijl voor een toepassingsprogramma-interface (API) die gebruik maakt van HTTP-verzoeken om toegang te krijgen tot gegevens en deze te gebruiken. Die gegevens kunnen worden gebruikt voor de gegevenstypen GET, PUT, POST en DELETE, waarmee het lezen (reading), bijwerken (updating), creëren (creating) en verwijderen (deleting) van bewerkingen met betrekking tot bronnen wordt bedoeld.
-
-Leer meer over Restful API [hier](restful_api.md).
 
 ### Getting started: eerste Spring Boot applicatie
 

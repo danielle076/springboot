@@ -1,4 +1,6 @@
-## Restful API
+## Restful API/WebService
+
+Een RESTful API is een architectuurstijl voor een toepassingsprogramma-interface (API) die gebruik maakt van HTTP-verzoeken om toegang te krijgen tot gegevens en deze te gebruiken. Die gegevens kunnen worden gebruikt voor de gegevenstypen GET, PUT, POST en DELETE, waarmee het lezen (reading), bijwerken (updating), creëren (creating) en verwijderen (deleting) van bewerkingen met betrekking tot bronnen wordt bedoeld.
 
 Wanneer je een API gaat maken heb je het vaak over een Restful API. Deze draait om dezelfde techniek van een HTTP request en een HTTP response.
 
