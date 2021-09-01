@@ -2,27 +2,39 @@
 
 ### Spring initializr
 
-Spring initializr genereert een basis project in Java met Springboot.
+Spring initializr genereert een basis project in Java met Spring Boot.
 
 Ga naar de website <a href="https://start.spring.io" target="_blank">spring.io</a>. De volgende gegevens vul je in voor het eerste Spring Boot project.
 
 - Project: vink aan `Maven Project`
 - Language: vink aan `Java`
-- Spring Boot: vink aan `2.5.3`
+- Spring Boot: vink aan `2.5.4` (laatste versie)
 - Project Metadata: vul informatie in over jouw project
     - Group: `nl.danielle` (identifier van de ontwikkelaar)
-    - Artifact: `springboot-demo` (hoe heet je project)
-    - Name: `springboot-demo` (hoe heet je project)
+    - Artifact: `demo_springboot` (hoe heet je project)
+    - Name: `demo_springboot` (hoe heet je project)
     - Description: `Demo project for Spring Boot`
     - Package name: maakt het systeem zelf aan
     - Packaging: vink aan `Jar`
-    - Java: vink aan `8`
+    - Java: vink aan `11`
     
 Klik op "add dependencies" en voeg `Spring Web` toe. 
 
 Met "generate" wordt er een bestand in jouw download map gezet. Unzip het bestand en open het in Intellij.
 
+Klik vervolgens rechtsonder in IntelliJ op `Load`.
+
 ![img13.png](images/img13.png)
+
+Ga naar File > Project Structure en zet `Project SDK` op 11. Klik op apply.
+
+### Spring Boot errors
+
+![img.png](img74.png)
+
+Klik op "Trust project..." in de gele balk.
+
+Wanneer de error niet weg is klik je op File > Invalidate Caches > Invalidate and Restart.
 
 ### Maven
 
@@ -33,43 +45,43 @@ De file `pom.xml` geeft allerlei informatie die het project nodig heeft.
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<groupId>org.springframework.boot</groupId>
-		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.5.3</version>
-		<relativePath/> <!-- lookup parent from repository -->
-	</parent>
-	<groupId>nl.danielle</groupId>
-	<artifactId>springboot-demo</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>springboot-demo</name>
-	<description>Demo project for Spring Boot</description>
-	<properties>
-		<java.version>1.8</java.version>
-	</properties>
-	<dependencies>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>2.5.4</version>
+    <relativePath/> <!-- lookup parent from repository -->
+  </parent>
+  <groupId>com.danielle</groupId>
+  <artifactId>demo_springboot</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <name>demo_springboot</name>
+  <description>Demo project for Spring Boot</description>
+  <properties>
+    <java.version>11</java.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
 
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>
 ```
@@ -92,6 +104,14 @@ public class SpringbootDemoApplication {
   }
 }
 ```
+
+### Andere port kiezen
+
+Standaard kiest het systeem port `8080` om mee te werken. Wanneer deze port niet beschikbaar is kun je aangeven om te werken met een andere port.
+
+In application.properties kun je allerlei properties instellen, waaronder de server port kiezen. Ga naar resources > application.properties en voer de volgende code in.
+
+    server.port=8081
 
 ### GetMapping
 

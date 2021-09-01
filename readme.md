@@ -33,8 +33,6 @@ Postman is een API client die het voor ontwikkelaars makkelijk maakt om API's te
 
 Lees [hier](postman.md) meer over hoe je met Postman moet werken.
 
-
-
 ### Getting started: eerste Spring Boot applicatie
 
 Om een Spring Boot applicatie te maken hebben je het volgende nodig.
