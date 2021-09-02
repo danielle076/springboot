@@ -1,19 +1,11 @@
 ## Restful API/WebService
 
-Een RESTful API is een architectuurstijl voor een toepassingsprogramma-interface (API) die gebruik maakt van HTTP-verzoeken om toegang te krijgen tot gegevens en deze te gebruiken. Die gegevens kunnen worden gebruikt voor de gegevenstypen GET, PUT, POST en DELETE, waarmee het lezen (reading), bijwerken (updating), creëren (creating) en verwijderen (deleting) van bewerkingen met betrekking tot bronnen wordt bedoeld.
+Er zijn een aantal regels die voor een Restful WebService gelden.
 
-Wanneer je een API gaat maken heb je het vaak over een Restful API. Deze draait om dezelfde techniek van een HTTP request en een HTTP response.
-
-_HTTP Request_
-- URL
-- Method
-- Header
-- Body
-
-_HTTP Response_
-- Status code
-- Header
-- Body
+1. De HTTP methodes: GET, PUT, POST en DELETE
+2. De URI of de URL wordt het adres of je identificatie van wat je zou willen hebben. Welke resource, wat wil je doen
+3. In zowel de request als in de response heb je een body. In request voeg je data toe en in response krijg je data
+4. Er is sprake van een HTTP response status code
 
 ### HTTP methods
 
@@ -54,6 +46,12 @@ Je kan een boek verwijderen met DELETE.
 
 | DELETE        | /books/{id}           | Delete  |
 | ------------- |:-------------:| -----:|
+
+### Body
+
+In de eerste `Body` kun je data toevoegen. De tweede `Body` geeft de data terug die in Spring Boot staat.
+
+![img78.png](images/img78.png)
 
 ### Status code
 
