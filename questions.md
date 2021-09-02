@@ -441,3 +441,4 @@ In de webbrowser kun je de hele collectie opvragen met `http://localhost:8080/qu
 #### Gebruik static
 
 In `DemoSpringbootApplication.java` moet het static zijn omdat het een static klasse is, in de `BaseController.java` hoeft de static er niet in te zitten. Deze mag je weglaten (het is beter om het niet te doen).
+
