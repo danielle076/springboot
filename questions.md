@@ -438,7 +438,299 @@ In de webbrowser kun je de hele collectie opvragen met `http://localhost:8080/qu
 
 ![img77.png](images/img77.png)
 
-#### Gebruik static
+##### Gebruik static
 
-In `DemoSpringbootApplication.java` moet het static zijn omdat het een static klasse is, in de `BaseController.java` hoeft de static er niet in te zitten. Deze mag je weglaten (het is beter om het niet te doen).
+In `DemoSpringbootApplication.java` moet het static zijn omdat het een static klasse is, in de `BaseController.java`
+hoeft de static er niet in te zitten. Deze mag je weglaten (het is beter om het niet te doen).
 
+Wanneer je static gebruikt, hoort dit bij de instantie en niet bij de klasse.
+
+### Query String
+
+Stel je wilt met een query string `?name=Danielle` ervoor zorgen dat het systeem zegt "Hello Danielle!".
+
+_BaseController.java_
+
+    @GetMapping("/name")
+    public String getName(@RequestParam String name) {
+      return "Hello " + name + "!";
+    }
+
+Ga naar de browser met de volgende url `http://localhost:8080/name/?name=danielle`. Hij laat "Hello Danielle!" zien.
+
+Als de naam leeg is, hebben we een probleem. We maken een if-statement.
+
+    @GetMapping("/name")
+    public String getName(@RequestParam(required = false) String name) {
+      if (name == null) {
+        return "Hello you!";
+      } else {
+        return "Hello " + name + "!";
+      }
+    }
+
+### PersoonController
+
+We gaan een collectie maken die we kunnen aanpassen. Java arrays kunnen niet veranderd worden, die maak je een keer en
+die kunnen niet meer groeien. Dus hier heb je iets anders voor nodig, namelijk een ArrayList.
+
+We maken een nieuwe controller: `PersonController.java`.
+
+We gaan een ArrayList van personen maken.
+
+```java
+package com.danielle.demo_springboot.controller;
+
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class PersonController {
+    private static List<String> personen = new ArrayList<>();
+}
+```
+
+We gaan opvragen hoe dit eruit ziet met een `@GetMapping` en endpoint `/personen`.
+
+```java
+package com.danielle.demo_springboot.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class PersonController {
+    private static List<String> personen = new ArrayList<>();
+
+    @GetMapping(value = "/personen")
+    public ResponseEntity getPersonen() {
+        return ResponseEntity.ok(personen);
+    }
+}
+```
+
+We gebruiken in plaats van `String` een `ResponseEntity`, omdat hier meer informatie inzit en hij is flexibeler. In een
+response zit een statuscode, een header en een body. De body is `(personen)` en de statuscode is `ok`.
+
+Hetzelfde doen we voor een `{nr}` (of id).
+
+```java
+package com.danielle.demo_springboot.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class PersonController {
+    private static List<String> personen = new ArrayList<>();
+
+    @GetMapping(value = "/personen")
+    public ResponseEntity getPersonen() {
+        return ResponseEntity.ok(personen);
+    }
+
+    @GetMapping(value = "/personen/{nr}")
+    public ResponseEntity getPerson(@PathVariable int nr) {
+        return ResponseEntity.ok(personen.get(nr));
+    }
+}
+```
+
+`(personen.get(nr))`: de ArrayList `personen` heeft een methode `.get` en daar kun je een `nr` mee opvragen.
+
+### @PostMapping
+
+In de ArrayList zit nog niets, maar dat gaan we toevoegen in Postman. We maken een `@PostMapping` op de collectie, dus
+op `/personen`.
+
+```java
+package com.danielle.demo_springboot.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class PersonController {
+    private static List<String> personen = new ArrayList<>();
+
+    @GetMapping(value = "/personen")
+    public ResponseEntity getPersonen() {
+        return ResponseEntity.ok(personen);
+    }
+
+    @GetMapping(value = "/personen/{nr}")
+    public ResponseEntity getPerson(@PathVariable int nr) {
+        return ResponseEntity.ok(personen.get(nr));
+    }
+
+    @PostMapping(value = "/personen")
+    public ResponseEntity addPerson(@RequestBody String persoon) {
+        personen.add(persoon);
+        return ResponseEntity.ok("Toegevoegd");
+    }
+}
+```
+
+De methode `addPerson` heeft informatie over wat voor person je wilt meegeven, dat zit in een `@RequestBody`. Dus in de
+body gaan we een String meegeven van een persoon en deze persoon moet toegevoegd worden aan een lijst en dat doe je
+met `personen.add(persoon)`. Wanneer hij is toegevoegd krijg je een melding `Toegevoegd` en statuscode `ok`.
+
+Run de applicatie.
+
+Wanneer je in Postman zoekt naar url `http://localhost:8080/personen` met `GET` krijg je een lege array `[]`.
+
+![img79.png](images/img79.png)
+
+Aan personen gaan we een naam toevoegen, dit doe je in Postman met `POST` en in de body van request.
+
+![img80.png](images/img80.png)
+
+Je ziet in de body van response een melding "Toegevoegd" en je krijgt status code 200 `OK`.
+
+Wanneer je url `http://localhost:8080/personen` met `GET` doet is de naam toegevoegd aan de array.
+
+![img81.png](images/img81.png)
+
+### @DeleteMapping
+
+We gaan een `@DeleteMapping` maken zodat we namen kunnen verwijderen.
+
+Met `personen.remove(nr);` verwijderen we de naam die is gelinkt aan het nummer die je verwijderd.
+
+```java
+package com.danielle.demo_springboot.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class PersonController {
+    private static List<String> personen = new ArrayList<>();
+
+    @GetMapping(value = "/personen")
+    public ResponseEntity getPersonen() {
+        return ResponseEntity.ok(personen);
+    }
+
+    @GetMapping(value = "/personen/{nr}")
+    public ResponseEntity getPerson(@PathVariable int nr) {
+        return ResponseEntity.ok(personen.get(nr));
+    }
+
+    @PostMapping(value = "/personen")
+    public ResponseEntity addPerson(@RequestBody String persoon) {
+        personen.add(persoon);
+        return ResponseEntity.ok("Toegevoegd");
+    }
+
+    @DeleteMapping(value = "/personen/{nr}")
+    public ResponseEntity deletePerson(@PathVariable int nr) {
+        personen.remove(nr);
+        return ResponseEntity.ok("Verwijderd");
+    }
+}
+```
+
+Run de applicatie.
+
+We voegen een paar namen toe in Postman: Frummel, Freckle en Frizzle.
+
+![img82.png](images/img82.png)
+
+Vul url `http://localhost:8080/personen/1` in met `DELETE`.
+
+![img83.png](images/img83.png)
+
+Je ziet in de body van response een melding "Verwijderd" en je krijgt status code 200 `OK`.
+
+Wanneer je nu `GET` met url `http://localhost:8080/personen/` doet zie je dat `Frummel` is verdwenen.
+
+![img.png](images/img84.png)
+
+### @PutMapping
+
+We gaan een naam updaten met `@PutMapping`. Naast dat je een nummer meegeeft, geef je ook een nieuwe naam mee dus gebruiken
+we `@RequestBody`.
+
+```java
+package com.danielle.demo_springboot.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class PersonController {
+    private static List<String> personen = new ArrayList<>();
+
+    @GetMapping(value = "/personen")
+    public ResponseEntity getPersonen() {
+        return ResponseEntity.ok(personen);
+    }
+
+    @GetMapping(value = "/personen/{nr}")
+    public ResponseEntity getPerson(@PathVariable int nr) {
+        return ResponseEntity.ok(personen.get(nr));
+    }
+
+    @PostMapping(value = "/personen")
+    public ResponseEntity addPerson(@RequestBody String persoon) {
+        personen.add(persoon);
+        return ResponseEntity.ok("Toegevoegd");
+    }
+
+    @DeleteMapping(value = "/personen/{nr}")
+    public ResponseEntity deletePerson(@PathVariable int nr) {
+        personen.remove(nr);
+        return ResponseEntity.ok("Verwijderd");
+    }
+
+    @PutMapping(value = "/personen/{nr}")
+    public ResponseEntity updatePerson(@PathVariable int nr, @RequestBody String persoon) {
+        personen.set(nr, persoon);
+        return ResponseEntity.ok("Updated");
+    }
+}
+```
+
+Run applicatie.
+
+We voegen een paar namen toe in Postman: Frummel, Freckle en Frizzle.
+
+We bekijken met `http://localhost:8080/personen/` en `GET` welke namen in de array staan.
+
+![img86.png](images/img86.png)
+
+Wanneer we `PUT` gebruiken met `http://localhost:8080/personen/1` kunnen we Freckle aanpassen wat post 1 is.
+
+![img87.png](images/img87.png)
+
+We gaan terug naar `http://localhost:8080/personen/` en `GET` en zien dat Freckle is geupdate naar Fabian.
+
+![img88.png](images/img88.png)
+
+### Postman overzicht
+
+Om overzicht te houden in Postman is het handig om voor elke methode en aparte request te hebben, zodat je niet elke
+keer de url hoeft te veranderen.
+
+![img85.png](images/img85.png)
