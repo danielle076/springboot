@@ -109,7 +109,7 @@ public class SpringbootDemoApplication {
 
 Standaard kiest het systeem port `8080` om mee te werken. Wanneer deze port niet beschikbaar is kun je aangeven om te werken met een andere port.
 
-In application.properties kun je allerlei properties instellen, waaronder de server port kiezen. Ga naar resources > application.properties en voer de volgende code in.
+De application.properties is een bestand waarin je allerlei eigenschappen van je project kwijt kunt. Bijvoorbeeld de settings, verbinding naar de database en een andere server port. Ga naar resources > application.properties en voer de volgende code in.
 
     server.port=8081
 
