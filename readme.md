@@ -15,7 +15,9 @@ In deze training gaan we niet een website bouwen, maar een webservice maken. De 
 
 ### Restful WebService
 
-Een webservice is een API die via Internet communiceert. Dit is een voorbeeld van een WebService url.
+Een webservice wordt ook wel API (Application Programming Interface) genoemd.
+
+Bij een webservice ontvangt de client geen HTML met CSS en JavaScript. In plaats daarvan worden gegevens ontvangen: data. Dit is een voorbeeld van een WebService url.
 
 - http://api.openweathermap.org/data/2.5/weather?appid='idnummerhier'aff&units=metric&mode=json&q=Breda
 
@@ -23,7 +25,7 @@ Het volgende geeft hij terug.
 
 ![img.png](images/img.png)
 
-Een API is een manier om data op te vragen. JSON is de taal die we gebruiken. Deze taal is gangbaar voor bijvoorbeeld JavaScript om mee samen te werken op de Frontend.
+In plaats van HTML worden de gegevens bij een webservice in een daarvoor geschikte formaat naar de client verstuurd. Meestal is dit XML of JSON. JSON is de taal die we gaan gebruiken. Deze taal is gangbaar voor bijvoorbeeld JavaScript om mee samen te werken op de Frontend.
 
 Leer meer over Restful WebService [hier](restful_api.md).
 
@@ -46,9 +48,9 @@ Om een Spring Boot applicatie te maken hebben je het volgende nodig.
 - Spring Boot Application
     - @SpringBootApplication
 
-[Hier](springboot.md) kun je je eerste Spring Boot applicatie maken.
+[Hier](springboot.md) kun je je eerste Spring Boot applicatie stap voor stap maken.
 
-Tweede Spring Boot applicatie genaamd questions vindt je [hier](questions.md).
+Een tweede Spring Boot applicatie genaamd questions vindt je [hier](questions.md).
 
 ### Project bibliotheek
 
