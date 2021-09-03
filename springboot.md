@@ -88,7 +88,12 @@ De file `pom.xml` geeft allerlei informatie die het project nodig heeft.
 
 ### Annotatie @SpringBootApplication
 
-Je herkent Spring Boot aan de annotatie `@SpringBootApplication`.
+Een Spring Boot applicatie heeft net als elke java applicatie een main klasse met daarin een main
+methode. Ook bij Spring Boot is dit de startlocatie van de applicatie.
+
+Je herkent Spring Boot aan de annotatie `@SpringBootApplication`. Dat is wat ervoor zorgt dat Spring Boot wordt
+geactiveerd. Onder de motorkap gaat Spring Boot aan de gang om het project te configureren en op
+te starten.
 
 ```java
 package nl.danielle.springbootdemo;
@@ -105,9 +110,13 @@ public class SpringbootDemoApplication {
 }
 ```
 
-### Andere port kiezen
+### Server port
 
 Standaard kiest het systeem port `8080` om mee te werken. Wanneer deze port niet beschikbaar is kun je aangeven om te werken met een andere port.
+
+Spring Boot werkt volgens een "convention over configuration" aanpak. Spring Boot detecteert tijdens
+het opstarten van de applicatie een bestand met de naam application.properties in de
+`src/main/resources` directory. 
 
 De application.properties is een bestand waarin je allerlei eigenschappen van je project kwijt kunt. Bijvoorbeeld de settings, verbinding naar de database en een andere server port. Ga naar resources > application.properties en voer de volgende code in.
 
@@ -192,7 +201,8 @@ Je kan deze url ook in Postman zetten. Op dez manier kun je de endpoints (het ad
 
 ### Project structuur
 
-Het project en de structuur komt in de loop van deze cursus als volgt eruit te zien.
+Het is "good practice" om met behulp van packages een standaard indeling van het project op te
+zetten. Het project en de structuur komt in de loop van deze cursus als volgt eruit te zien.
 
 ```
 ▽ project
@@ -220,6 +230,8 @@ Het project en de structuur komt in de loop van deze cursus als volgt eruit te z
 Alles wat je onder `group` ziet staan zijn verschillende packages. Bijvoorbeeld de `controller` package. Dit is een plek waar de controllers zich vinden.
 
 ### BaseController
+
+Een webservice kan verschillende requests ontvangen en bijbehorende responses teruggeven. In eerste instantie worden de requests opgevangen door een controller. Een controller vangt een bepaalde HTTP request op en geeft een relevante HTTP response. Voor iedere endpoint zal er een aparte controller worden gemaakt. Al deze controllers plaatsen we in het project in een package "controller". Zo houden we alle controllers netjes bij elkaar.
 	
 Maak een nieuwe package aan in je project genaamd `controller`.
 
@@ -271,6 +283,9 @@ public class BaseController {
 
 We maken een nieuwe controller genaamd `ClientsController.java`. Hierin gaan we clients ophalen met behulp van een List.
 
+Het is belangrijk de juiste naamgevingsconventie te gebruiken. Een enkele resource wordt geschreven
+als enkelvoud. Een collectie van items als meervoud.
+
 ![img17.png](images/img17.png)
 
 ```java
@@ -305,6 +320,10 @@ Wanneer je dit runt in Postman krijg je het volgende.
 ![img18.png](images/img18.png)
 
 Een `ResponseEntity` vertegenwoordigt het volledige HTTP response: status code, headers, en body: `ResponseEntity<Object>(data, HttpStatus.OK)`. De data kom in de body en de statuscode kun je kiezen.
+
+Iedere response gaat vergezeld van een status code die aan de client laat weten of de request
+succesvol is afgehandeld. Bij een GET request wordt er een 200 OK status code teruggegeven als de
+operatie is gelukt. Afhankelijk van de reden waarom een request niet is geslaagd kan een andere status code worden teruggegeven.
 
 Wat heel magisch is, is dat we een List hebben, dat we de List `data` hebben meegegeven als argument en dat de ResponseEntity daar zelf JSON van heeft gemaakt (met behulp van de helper jackson).
 
@@ -344,7 +363,10 @@ public class ClientsController {
 
 ### GetMapping: één id ophalen
 
-We gaan één client ophalen. Dit doe je door `{id}` toe te voegen aan je path. De id moet opgehaald worden en dat doe je met `@PathVariable("id") Long id`.
+Soms willen we niet alle items uit de aangegeven resource terugkrijgen maar slechts één item. Dit item
+heeft een id.
+
+We gaan één client ophalen. Dit doe je door `{id}` toe te voegen aan je path. Een id moet opgehaald worden en dat doe je met `@PathVariable("id") Long id`.
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -382,7 +404,10 @@ Wanneer je de URL `http://localhost:8080/clients/2` in Postman zet krijg je het 
 
 ### DeleteMapping
 
-Wanneer je `remove gebruikt`, dan hoef je geen `data` terug te geven. We vullen nu in "Record deleted". Bij het verwijderen wordt vaak `HttpStatus.NO_CONTENT` i.p.v. `HttpStatus.OK` gebruikt. 
+Bij een delete request geef je aan dat het betreffende item uit de collectie moet worden
+verwijderd, je hoeft geen `data` terug te geven. In de URL wordt de id meegegeven van het item dat moet worden verwijderd.
+
+Bij het verwijderen wordt vaak `HttpStatus.NO_CONTENT` i.p.v. `HttpStatus.OK` gebruikt. 
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -491,7 +516,7 @@ Wanneer we weer `GET` gebruiken met `http://localhost:8080/clients/` krijgen we 
 
 ### PutMapping
 
-We gaan de naam updaten met PUT.
+Een `PUT` request wordt gebruikt om een aangegeven item te vervangen met een nieuw item. De gegevens van het nieuwe item worden net als bij een `POST` request meegegeven in de `@RequestBody`.
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -665,9 +690,22 @@ Wanneer je in Postman `http://localhost:8080/clients/9` ophaalt krijg je "Record
 
 Hoe wij de `ClientsController` hebben beschreven met een if en else statement is niet netjes. De controller klasse zou alleen de mapping met path moeten en hebben en dit doorspelen naar een methode die het afhandelt. 
 
-We gaan werken met exceptions. We hebben een nieuwe controller nodig: `ExceptionController`. Wat dit ding doet, is wanneer er een fout/exception is gegenereerd zal de exception door de controller af worden gevangen.
+In de code kan hiervoor exceptions worden gebruikt. Het is wenselijk eigen exceptions klassen te
+definiëren. Als zich een onwenselijke situatie voordoet dan kan een exception worden gegeneerd.
+Spring Boot heeft een annotatie `@ControllerAdvice` waarmee een speciale exception controller kan
+worden aangegeven. Een exception eindigt in een controller methode die als response de juiste
+status code teruggeeft.
 
-_ExceptionController.java_
+We maken een nieuwe package `exception` en hierbinnen een file `RecordNotFoundException.java` met de volgende code.
+
+```java
+package nl.danielle.springbootdemo.exception;
+
+public class RecordNotFoundException extends RuntimeException{
+}
+```
+
+Vervolgens maken we een bestand in de map controller genaamd `ExceptionController.java`.
 
 ```java
 package nl.danielle.springbootdemo.controller;
@@ -686,15 +724,6 @@ public class ExceptionController {
     public ResponseEntity<Object> exception(RecordNotFoundException exception) {
         return ResponseEntity.notFound().build();
     }
-}
-```
-
-We maken een nieuwe package `exception` en hierbinnen een file `RecordNotFoundException.java` met de volgende code.
-
-```java
-package nl.danielle.springbootdemo.exception;
-
-public class RecordNotFoundException extends RuntimeException{
 }
 ```
 

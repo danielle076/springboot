@@ -39,7 +39,11 @@ Wanneer de error niet weg is klik je op File > Invalidate Caches > Invalidate an
 
 ### Annotatie @SpringBootApplication
 
-Je herkent Spring Boot aan de annotatie `@SpringBootApplication`.
+Een Spring Boot applicatie heeft net als elke java applicatie een main klasse met daarin een main methode. Ook bij
+Spring Boot is dit de startlocatie van de applicatie.
+
+Je herkent Spring Boot aan de annotatie `@SpringBootApplication`. Dat is wat ervoor zorgt dat Spring Boot wordt
+geactiveerd. Onder de motorkap gaat Spring Boot aan de gang om het project te configureren en op te starten.
 
 ```java
 package com.danielle.demo_springboot;
@@ -68,8 +72,13 @@ Stop de applicatie.
 Standaard kiest het systeem port `8080` om mee te werken. Wanneer deze port niet beschikbaar is kun je aangeven om te
 werken met een andere port.
 
-In application.properties kun je allerlei properties instellen, waaronder de server port kiezen. Ga naar resources >
-application.properties en voer de volgende code in.
+Spring Boot werkt volgens een "convention over configuration" aanpak. Spring Boot detecteert tijdens het opstarten van
+de applicatie een bestand met de naam application.properties in de
+`src/main/resources` directory.
+
+De application.properties is een bestand waarin je allerlei eigenschappen van je project kwijt kunt. Bijvoorbeeld de
+settings, verbinding naar de database en een andere server port. Ga naar resources > application.properties en voer de
+volgende code in.
 
     server.port=8081
 
@@ -157,6 +166,11 @@ alles in packages te zetten.
 
 ### BaseController
 
+Een webservice kan verschillende requests ontvangen en bijbehorende responses teruggeven. In eerste instantie worden de
+requests opgevangen door een controller. Een controller vangt een bepaalde HTTP request op en geeft een relevante HTTP
+response. Voor iedere endpoint zal er een aparte controller worden gemaakt. Al deze controllers plaatsen we in het
+project in een package "controller". Zo houden we alle controllers netjes bij elkaar.
+
 We maken een nieuwe package genaamd `controller`. In deze controller maken we een bestand aan `BaseController.java`.
 
 Alles wat we in `DemoSpringbootApplication.java` hebben gedaan, zetten we in `BaseController.java`.
@@ -209,9 +223,9 @@ We maken een nieuwe controller: `QuestionsController.java`.
 
 ![img76.png](images/img76.png)
 
-Meestal zijn je endpoints een collection. Een collection is bijvoorbeeld een aantal vragen. Je endpoint wordt
-dan `/questions` in meervoud. Dus als je meerdere vragen hebt, of meerdere klanten, dan gaat het vaak over een
-collection en dan moet je het in meervoud neerzetten.
+Meestal zijn endpoints een collection. Een collection is bijvoorbeeld een aantal vragen. Je endpoint wordt `/questions`.
+Het is belangrijk de juiste naamgevingsconventie te gebruiken. Een enkele resource wordt geschreven als enkelvoud. Een
+collectie van items als meervoud.
 
 ```java
 package com.danielle.demo_springboot.controller;
@@ -518,6 +532,10 @@ public class PersonController {
 We gebruiken in plaats van `String` een `ResponseEntity`, omdat hier meer informatie inzit en hij is flexibeler. In een
 response zit een statuscode, een header en een body. De body is `(personen)` en de statuscode is `ok`.
 
+Iedere response gaat vergezeld van een status code die aan de client laat weten of de request succesvol is afgehandeld.
+Bij een GET request wordt er een 200 OK status code teruggegeven als de operatie is gelukt. Afhankelijk van de reden
+waarom een request niet is geslaagd kan een andere status code worden teruggegeven.
+
 Hetzelfde doen we voor een `{nr}` (of id).
 
 ```java
@@ -607,9 +625,12 @@ Wanneer je url `http://localhost:8080/personen` met `GET` doet is de naam toegev
 
 ### @DeleteMapping
 
-We gaan een `@DeleteMapping` maken zodat we namen kunnen verwijderen.
+Bij een delete request geef je aan dat het betreffende item uit de collectie moet worden verwijderd, je hoeft
+geen `data` terug te geven. In de URL wordt het nr meegegeven van het item dat moet worden verwijderd.
 
 Met `personen.remove(nr);` verwijderen we de naam die is gelinkt aan het nummer die je verwijderd.
+
+Bij het verwijderen wordt vaak de status `NO_CONTENT` i.p.v. `OK` gebruikt.
 
 ```java
 package com.danielle.demo_springboot.controller;
@@ -666,8 +687,8 @@ Wanneer je nu `GET` met url `http://localhost:8080/personen/` doet zie je dat `F
 
 ### @PutMapping
 
-We gaan een naam updaten met `@PutMapping`. Naast dat je een nummer meegeeft, geef je ook een nieuwe naam mee dus gebruiken
-we `@RequestBody`.
+Een `PUT` request wordt gebruikt om een aangegeven item te vervangen met een nieuw item. De gegevens van het nieuwe item
+worden net als bij een `POST` request meegegeven in de `@RequestBody`.
 
 ```java
 package com.danielle.demo_springboot.controller;
@@ -734,3 +755,70 @@ Om overzicht te houden in Postman is het handig om voor elke methode en aparte r
 keer de url hoeft te veranderen.
 
 ![img85.png](images/img85.png)
+
+### Exception Handler
+
+Het kan gebeuren dat een request niet slaagt. Er is bijvoorbeeld een niet bestaand id meegegeven of je bent als
+gebruiker niet geauthoriseerd om de operatie uit te voeren. In die gevallen wordt een 4xx status code teruggegeven.
+
+In de code van webservice kan dit worden afgevangen bijvoorbeeld door eerst te kijken of de betreffend id wel bestaat.
+Zo niet, dan kan er 404 Not Found status code worden teruggegeven.
+
+In de code kan hiervoor exceptions worden gebruikt. Het is wenselijk eigen exceptions klassen te definiëren. Als zich
+een onwenselijke situatie voordoet dan kan een exception worden gegeneerd. Spring Boot heeft een
+annotatie `@ControllerAdvice` waarmee een speciale exception controller kan worden aangegeven. Een exception eindigt in
+een controller methode die als response de juiste status code teruggeeft.
+
+We maken een nieuwe package `exception` en hierbinnen een file `RecordNotFoundException.java` met de volgende code.
+
+```java
+package com.danielle.demo_springboot.exception;
+
+public class RecordNotFoundException extends RuntimeException {
+    private static final long serialVersionUID = 1L;
+
+    public RecordNotFoundException() {
+        super();
+    }
+
+    public RecordNotFoundException(String message) {
+        super(message);
+    }
+}
+```
+
+Vervolgens maken we een bestand in de map controller genaamd `ExceptionController.java`.
+
+```java
+package com.danielle.demo_springboot.controller;
+
+import com.danielle.demo_springboot.exception.RecordNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@ControllerAdvice
+public class ExceptionController {
+    @ExceptionHandler(value = RecordNotFoundException.class)
+    public ResponseEntity<Object> exception(RecordNotFoundException exception) {
+        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+}
+```
+
+>>> werkt niet > uitzoeken
+
+In de `QuestionsController` voeg je een if statement toe.
+
+
+
+Je kunt dit bij alle `{nr}` paths aanpassen. De `QuestionsController` zie er als volgt uit.
+
+```java
+
+```
+
+Hij gaat kijken of de gevraagde id er is, bestaat hij niet dan gaat hij naar `RecordNotFoundException`.
