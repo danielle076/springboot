@@ -275,9 +275,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 Run de applicatie.
 
-Ga in de webbrowser naar `http://localhost:8080/info`. Dit werkt, want je hebt niet aangegeven dat de admin hier voor hoeft in te loggen. Wanneer je naar `http://localhost:8080/admin` gaat, dan moet je inloggen.
+Ga in de webbrowser naar `http://localhost:8080/info`. Dit werkt, want je hebt niet aangegeven dat de admin hier voor
+hoeft in te loggen. Wanneer je naar `http://localhost:8080/admin` gaat, dan moet je inloggen.
 
-![img92.png](img92.png)
+![img92.png](images/img92.png)
 
 Inloggen doe je met gebruikersnaam `admin` en wachtwoord `password`.
 
@@ -285,10 +286,256 @@ Je komt op de admin pagina met de tekst "/admin endpoint available for ADMIN onl
 
 ### Postman
 
-Vul de url `http://localhost:8080/admin` in, ga naar authorization en klik op `Basic Auth`. 
+Vul de url `http://localhost:8080/admin` in, ga naar authorization en klik op `Basic Auth`.
 
-![img93.png](img93.png)
+![img93.png](images/img93.png)
 
 Vul de username en password in en druk op send.
 
-![img94.png](img94.png)
+![img94.png](images/img94.png)
+
+### HTTPS
+
+Het grote nadeel van basic authentication is dat alles openbaar is. Gebruik daarom geen http, maar https.
+
+_Maak een zelfondertekend certificaat_
+
+Voer in IntelliJ terminal of de opdrachtprompt de volgende commando uit:
+
+    keytool -genkey -keyalg RSA -alias certificate -keystore certificate.jks -storepass password -validity 365 -keysize 4096 -storetype pkcs12
+
+Beantwoord de vragen.
+
+Er is een nieuw bestand in gemaakt `certificate.jks`. Zet dit bestand in de map `resources`.
+
+![img96.png](images/img96.png)
+
+_Toevoegen aan applicatie-eigenschappen_
+
+    server.ssl.key-store=classpath:certificate.jks
+    server.ssl.key-store-type=pkcs12
+    server.ssl.key-store-password=password
+    server.ssl.key-password=password
+    server.ssl.key-alias=certificate
+    server.port=8443
+
+_Postman_
+
+In Postman gebruik je de url `https://localhost:8443/info`. Zorg ervoor dat je bij de settings het zelfondertekende
+certificaat toestaat.
+
+![img95.png](images/img95.png)
+
+### Security met aangepaste gebruikers tabel
+
+Het nadeel van bovenstaande code in `SpringSecurityConfig.java` is dat we de users hard hebben geprogrammeerd. Dit
+noemen ze ook de `inMemoryAuthentication`. Wat we eigenlijk willen is een user tabel in onze database, waarbij we users
+kunnen toevoegen, verwijderen, rollen kunnen geven en wachtwoorden kunnen opslaan.
+
+We maken een nieuw IntelliJ project en gebruiken dezelfde stappen in de Initializr.
+
+Maak een nieuwe map aan `controller` met daarin 4 bestanden: `AdminController.java`, `AuthenticatedController.java`
+, `BaseController.java` en `CustomersController.java`
+
+_AdminController.java_
+
+```java
+package nl.danielle.demo_second_security.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class AdminController {
+
+    @RequestMapping(value = "/admin")
+    public ResponseEntity<Object> getMessage() {
+        return new ResponseEntity<>("SECURED REST endpoint: /admin", HttpStatus.OK);
+    }
+}
+```
+
+_AuthenticatedController.java_
+
+```java
+package nl.danielle.demo_second_security.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.security.Principal;
+
+@RestController
+@RequestMapping(value = "/authenticated")
+public class AuthenticatedController {
+
+    @GetMapping(value = "")
+    public ResponseEntity<Object> authenticated(Authentication authentication, Principal principal) {
+        return ResponseEntity.ok().body(principal);
+    }
+}
+```
+
+_BaseController.java_
+
+```java
+package nl.danielle.demo_second_security.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class BaseController {
+
+    @RequestMapping(value = "/")
+    @ResponseStatus(HttpStatus.OK)
+    public String hello() {
+        return "Hello World";
+    }
+}
+```
+
+_CustomersController.java_
+
+```java
+package nl.danielle.demo_second_security.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class CustomersController {
+
+    @RequestMapping(value = "/customers")
+    public ResponseEntity<Object> getMessage() {
+        return new ResponseEntity<>("SECURED REST endpoint: /customers", HttpStatus.OK);
+    }
+}
+```
+
+Maak een map `config` aan met een bestand `SpringSecurityConfig.java`.
+
+```java
+package nl.danielle.demo_second_security.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import javax.sql.DataSource;
+
+@Configuration
+@EnableWebSecurity
+public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private DataSource dataSource;
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+
+        auth.jdbcAuthentication().dataSource(dataSource)
+                .usersByUsernameQuery("SELECT username, password, enabled FROM my_users WHERE username=?")
+                .authoritiesByUsernameQuery("SELECT username, authority FROM my_authorities AS a WHERE username=?");
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    // Secure the endpoins with HTTP Basic authentication
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+
+        http
+                //HTTP Basic authentication
+                .httpBasic()
+                .and()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/customers/**").hasRole("USER")
+                .antMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/authenticated/**").authenticated()
+                .anyRequest().permitAll()
+                .and()
+                .csrf().disable()
+                .formLogin().disable();
+    }
+}
+```
+
+Een `jdbcAuthentication` werkt op basis van een query naar een database (datasource).
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception
+    {    
+      auth.jdbcAuthentication().dataSource(dataSource)
+        .usersByUsernameQuery("SELECT username, password, enabled FROM my_users WHERE username=?")
+        .authoritiesByUsernameQuery("SELECT username, authority FROM my_authorities AS a WHERE username=?");    
+    }
+
+- We moeten de volgende tabellen krijgen: `my_users` en `my_authorities`.
+- We kunnen zoeken op `username`
+- Bij `my_users` krijgen we op basis van `username` een `username`, `password`, `enabled` terug
+- Bij `my_authorities` krijgen we op basis van `username` de `username` en `authority` (de rol) terug
+
+In `schema.sql` creeër je de tabellen voor in de database.
+
+```sql
+drop index if exists ix_auth_username;
+drop table if exists my_authorities;
+drop table if exists my_users;
+
+create table my_users
+(
+    username varchar(50)  not null,
+    password varchar(255) not null,
+    enabled  boolean      not null,
+    primary key (username)
+);
+
+create table my_authorities
+(
+    username  varchar(50) not null,
+    authority varchar(50) not null,
+    primary key (username, authority),
+    foreign key (username) references my_users (username)
+);
+
+create unique index ix_auth_username on my_authorities (username, authority);
+```
+
+In `data.sql` voegen we records toe.
+
+```sql
+INSERT INTO my_users (username, password, enabled)
+VALUES ('user', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
+INSERT INTO my_users (username, password, enabled)
+VALUES ('admin', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
+
+INSERT INTO my_authorities (username, authority)
+VALUES ('user', 'ROLE_USER');
+INSERT INTO my_authorities (username, authority)
+VALUES ('admin', 'ROLE_USER');
+INSERT INTO my_authorities (username, authority)
+VALUES ('admin', 'ROLE_ADMIN');
+```
+
