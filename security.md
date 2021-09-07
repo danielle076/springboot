@@ -326,13 +326,13 @@ certificaat toestaat.
 
 ![img95.png](images/img95.png)
 
-### Security met aangepaste gebruikers tabel
+## Security met aangepaste gebruikers tabel
 
 Het nadeel van bovenstaande code in `SpringSecurityConfig.java` is dat we de users hard hebben geprogrammeerd. Dit
 noemen ze ook de `inMemoryAuthentication`. Wat we eigenlijk willen is een user tabel in onze database, waarbij we users
 kunnen toevoegen, verwijderen, rollen kunnen geven en wachtwoorden kunnen opslaan.
 
-We maken een nieuw IntelliJ project en gebruiken dezelfde stappen in de Initializr.
+We maken een nieuw IntelliJ project in de Initializr.
 
 Maak een nieuwe map aan `controller` met daarin 4 bestanden: `AdminController.java`, `AuthenticatedController.java`
 , `BaseController.java` en `CustomersController.java`
@@ -497,6 +497,13 @@ Een `jdbcAuthentication` werkt op basis van een query naar een database (datasou
 - Bij `my_users` krijgen we op basis van `username` een `username`, `password`, `enabled` terug
 - Bij `my_authorities` krijgen we op basis van `username` de `username` en `authority` (de rol) terug
 
+De endpoints die we hebben zijn: `/customers`, `/admin `en `/authenticated`.
+
+Bij de `.antMatchers` zie je `HttpMethod.GET` staan. Dit hoef je niet te specificeren, dat mag je weglaten, dan geldt
+het voor alle HTTP methods. Je kunt specificeren dat bijvoorbeeld als je ingelogd ben, dat je mag veranderen.
+
+`"/authenticated/**").authenticated()` is hetzelfde als `hasRole` maar is voor iedere user die is ingelogd.
+
 In `schema.sql` creeër je de tabellen voor in de database.
 
 ```sql
@@ -537,5 +544,406 @@ INSERT INTO my_authorities (username, authority)
 VALUES ('admin', 'ROLE_USER');
 INSERT INTO my_authorities (username, authority)
 VALUES ('admin', 'ROLE_ADMIN');
+```
+
+Run de applicatie.
+
+Ga naar PostgreSQL en kijk in de tabel `demo_second_security`.
+
+De applicatie heeft twee tabellen gemaakt: `my_users` en `my_authorities`
+
+![img97.png](images/img97.png)
+
+![img98.png](images/img98.png)
+
+Bij `my_users` staan de twee users die je hebt gemaakt er ook in.
+
+![img99.png](images/img99.png)
+
+Bij `my_authorities` staan de rollen van de users erin.
+
+![img100.png](images/img100.png)
+
+Ga naar Postman en vul de url `http://localhost:8080/admin` in met als username `user`.
+
+![img101.png](images/img101.png)
+
+Je krijgt een status code `403 forbidden`.
+
+Doe hetzelfde maar dan met user `admin`.
+
+![img102.png](images/img102.png)
+
+##### Authenticated
+
+Authenticated in `SpringSecurityConfig.java` gaat naar de endoint `/authenticated`, die in
+de `AuthenticatedController.java` zit.
+
+```java
+package nl.danielle.demo_second_security.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.security.Principal;
+
+@RestController
+@RequestMapping(value = "/authenticated")
+public class AuthenticatedController {
+
+    @GetMapping(value = "")
+    public ResponseEntity<Object> authenticated(Authentication authentication, Principal principal) {
+        return ResponseEntity.ok().body(principal);
+    }
+}
+```
+
+In plaats van een paramater hebben we een argument staan: `Authentication authentication, Principal principal`.
+Principal geeft weer met wat voor credentials je bent ingelogd. De credentials geef je gelijk terug in de
+body: `body(principal)`.
+
+Wanneer je in Postman de volgende url zet: `http://localhost:8080/authenticated`. Je krijgt de gegevens van `admin`
+terug. Je ziet bijvoorbeeld bij de authorities dat `admin` zowel de rol als admin heeft als user.
+
+![img103.png](images/img103.png)
+
+Hetzelfde kun je doen wanneer je als `user` bent ingelogd.
+
+Deze gegevens zijn een soort weergave van de interne gegevens die hij heeft van een user. Dat noemen ze de principal.
+
+## Security met gebruikerstabel
+
+We willen geen vaste tabel zoals `my_users` en `my_authorities`.
+
+We maken een nieuw IntelliJ project in de Initializr.
+
+Maak een nieuwe package aan genaamd `controller` en hierin de volgende bestanden: `AdminController.java`
+, `AuthenticatedController.java`, `BaseController.java` en `CustomersController.java`.
+
+_AdminController.java_
+
+```java
+package nl.danielle.demo_third_security.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping(value = "/admin")
+public class AdminController {
+
+    @GetMapping(value = "")
+    public ResponseEntity<Object> getMessage() {
+        return new ResponseEntity<>("SECURED REST endpoint: /admin", HttpStatus.OK);
+    }
+}
+```
+
+_AuthenticatedController.java_
+
+```java
+package nl.danielle.demo_third_security.controller;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.security.Principal;
+
+@RestController
+@RequestMapping(value = "/authenticated")
+public class AuthenticatedController {
+
+    @GetMapping(value = "")
+    public ResponseEntity<Object> authenticated(Authentication authentication, Principal principal) {
+        return ResponseEntity.ok().body(principal);
+    }
+}
+```
+
+_BaseController.java_
+
+```java
+package nl.danielle.demo_third_security.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class BaseController {
+
+    @GetMapping(value = "/")
+    public String hello() {
+        return "Hello World";
+    }
+}
+```
+
+_CustomersController.java_
+
+```java
+package nl.danielle.demo_third_security.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping(value = "/customers")
+public class CustomersController {
+
+    @GetMapping(value = "")
+    public ResponseEntity<Object> getMessage() {
+        return new ResponseEntity<>("SECURED REST endpoint: /customers", HttpStatus.OK);
+    }
+}
+```
+
+Maak een nieuwe package aan genaamd `config` en hierin het volgende bestand: `SpringSecurityConfig.java`.
+
+```java
+package nl.danielle.demo_third_security.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import javax.sql.DataSource;
+
+@Configuration
+@EnableWebSecurity
+public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Autowired
+    private DataSource dataSource;
+
+    @Autowired
+    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+
+        auth.jdbcAuthentication().dataSource(dataSource);
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    // Secure the endpoints with HTTP Basic authentication
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+
+        http
+                //HTTP Basic authentication
+                .httpBasic()
+                .and()
+                .authorizeRequests()
+                .antMatchers(HttpMethod.GET, "/customers/**").hasRole("USER")
+                .antMatchers(HttpMethod.GET, "/admin/**").hasRole("ADMIN")
+                .antMatchers(HttpMethod.GET, "/authenticated/**").authenticated()
+                .anyRequest().permitAll()
+                .and()
+                .csrf().disable()
+                .formLogin().disable();
+    }
+}
+```
+
+We hebben de query's (my_users en my_authorities) eruit gelaten en verwijzen nu naar de datasource met de
+jdbc `auth.jdbcAuthentication().dataSource(dataSource);`
+
+Omdat we nu een tabel maken die `'User` en `Authority` heten, gaat `jdbc` de query's volledig automatisch doen.
+
+Maak een nieuwe package aan genaamd `model` en hierin de volgende bestanden: `Authority.java` en `User.java`.
+
+_Authority.java_
+
+```java
+package nl.danielle.demo_third_security.model;
+
+import javax.persistence.*;
+import java.io.Serializable;
+
+@Entity
+@Table(name = "authorities")
+public class Authority implements Serializable {
+
+    @Id
+    @Column(nullable = false)
+    private String username;
+
+    @Id
+    @Column(nullable = false)
+    private String authority;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getAuthority() {
+        return authority;
+    }
+
+    public void setAuthority(String authority) {
+        this.authority = authority;
+    }
+}
+```
+
+_User.java_
+
+```java
+package nl.danielle.demo_third_security.model;
+
+import javax.persistence.*;
+
+@Entity
+@Table(name = "users")
+public class User {
+
+    @Id
+    @Column(nullable = false, unique = true)
+    private String username;
+
+    @Column(nullable = false, length = 255)
+    private String password;
+
+    @Column(nullable = false)
+    private boolean enabled;
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+}
+
+```
+
+In de `resources` map heb je de volgende bestanden met bijbehorende code: `application.properties` en `data.sql`. Schema hebben we niet meer nodig.
+
+_application.properties_
+
+    # datasource Postgres
+    spring.jpa.database=postgresql
+    spring.datasource.platform=postgres
+    spring.datasource.url=jdbc:postgresql://localhost:5432/demo_third_security
+    spring.datasource.username=postgres
+    spring.datasource.password=postgres123
+    spring.datasource.driver-class-name=org.postgresql.Driver
+    spring.datasource.initialization-mode=always
+    spring.jpa.generate-ddl=true
+    spring.jpa.hibernate.ddl-auto=create-drop
+    spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+    
+    spring.jpa.properties.hibernate.dialect= org.hibernate.dialect.PostgreSQLDialect
+
+_data.sql_
+
+```sql
+INSERT INTO users (username, password, enabled)
+VALUES ('user', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
+INSERT INTO users (username, password, enabled)
+VALUES ('admin', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
+INSERT INTO users (username, password, enabled)
+VALUES ('peter', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
+
+INSERT INTO authorities (username, authority)
+VALUES ('user', 'ROLE_USER');
+INSERT INTO authorities (username, authority)
+VALUES ('admin', 'ROLE_USER');
+INSERT INTO authorities (username, authority)
+VALUES ('admin', 'ROLE_ADMIN');
+INSERT INTO authorities (username, authority)
+VALUES ('peter', 'ROLE_USER');
+INSERT INTO authorities (username, authority)
+VALUES ('peter', 'ROLE_ADMIN');
+```
+
+Het wachtwoord wat je ziet staan, is een encrypted wachtwoord. We hebben dit in code in de data.sql staan maar het is een encryptie. Spring Boot kent allerlei encrypties.
+
+In `SpringSecurityConfig.java` zie je de volgende code staan.
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+      return new BCryptPasswordEncoder();
+    }
+
+Dit is de encoder die gebruikt word om de wachtwoorden te encoden. De `BCryptPasswordEncoder` vereist een bepaalde hoeveelheid rekenwerk.
+
+Hoe weet je dat de code `$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica` bij het wachtwoord `password` hoort? Daar zijn websites voor: https://www.browserling.com/tools/bcrypt. Wanneer je het wachtwoord `password` intikt krijg je `$2a$10$in7p/8vt5wmfqmo8xD5QHumpRPSuB2tEQ4oeWX5bL.cGi5GOqr7XW`.
+
+Run de applicatie.
+
+In postgreSQL zie je de tabellen `authorities` en `users` staan.
+
+![img104.png](images/img104.png)
+
+![img105.png](images/img105.png)
+
+In Postman ga je naar url `http://localhost:8080/authenticated` en logt in als `peter`, `admin` of `user`.
+
+![img106.png](images/img106.png)
+
+De url's `http://localhost:8080/`, `http://localhost:8080/customers` en `http://localhost:8080/admin` kun je testen met de rollen `peter`, `admin` of `user` met wachtwoord `password`. Dit zijn alle endpoints die je in de `controller`heb gedefinieerd.
+
+## Security met gebruikersentiteit
+
+
+
+
+
+
+Maak een nieuwe package aan genaamd `service` en hierin de volgende bestanden: `MyUserDetailsService.java`
+en `MyUserPrincipal.java`.
+
+_MyUserDetailsService.java_
+
+```java
+
+```
+
+_MyUserPrincipal.java_
+
+```java
+
 ```
 
