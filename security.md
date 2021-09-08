@@ -1438,6 +1438,13 @@ public class UserController {
 }
 ```
 
+Met endpoint `/user` kun je nu zeggen, ik wil alle users `""` of ik wil een bepaalde user `/{username}`. Verder
+is `createUser`, `updateUser` en `deletUser` mogelijk. En je kan ook opvragen welke `authorities` een user heeft. Dus
+het is nu mogelijk om users zelf aan te maken.
+
+Deze `UserController` maakt contact met `userService`. De `userService` heeft alle methoden om al die query's aan te
+vragen.
+
 Maak een nieuwe map aan `config` met daarin 2 bestanden: `CustomUserDetailsService.java` en `SpringSecurityConfig.java`.
 
 _CustomUserDetailsService.java_
@@ -1545,9 +1552,18 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ```
 
-Maak een nieuwe map aan `exceptions` met daarin 3 bestanden: `BadRequestException.java`, `RecordNotFoundException.java` en `UsernameNotFoundException.java`.
+De config is anders vergeleken met de vorige versie. De `jdbcAuthentication` is `userDetailsService` geworden. Spring
+Boot heeft een user service, dat is een classe die je kan gebruiken en hier willen we deze aanpassen en dat zie je
+in `customUserDetailsService.java`.
 
-_BadRequestException.java_ 
+De `customUserDetailsService.java` is gebaseerd op basis van
+de `UserDetailsService`: `public class CustomUserDetailsService implements UserDetailsService`. Het gaat om één
+methode `loadUserByUsername` en die maakt gebruik van onze `userService`.
+
+Maak een nieuwe map aan `exceptions` met daarin 3 bestanden: `BadRequestException.java`, `RecordNotFoundException.java`
+en `UsernameNotFoundException.java`.
+
+_BadRequestException.java_
 
 ```java
 package nl.danielle.demo_fifth_security.exceptions;
@@ -1763,6 +1779,8 @@ public interface UserRepository extends JpaRepository<User, String> {
 }
 ```
 
+De Repository is een JpaRepository. Deze doet niet zoveel. Daar zitten de `getById` en `findAll` in.
+
 Maak een nieuwe map aan `service` met daarin 2 bestanden: `UserService.java`
 en `UserServiceImpl.java`.
 
@@ -1773,6 +1791,7 @@ package nl.danielle.demo_fifth_security.service;
 
 import nl.danielle.demo_fifth_security.model.Authority;
 import nl.danielle.demo_fifth_security.model.User;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -1780,13 +1799,21 @@ import java.util.Set;
 public interface UserService {
 
     public abstract String createUser(User user);
+
     public abstract void updateUser(String username, User user);
+
     public abstract void deleteUser(String username);
+
     public abstract Collection<User> getUsers();
+
     public abstract Optional<User> getUser(String username);
+
     public abstract boolean userExists(String username);
+
     public abstract Set<Authority> getAuthorities(String username);
+
     public abstract void addAuthority(String username, String authority);
+
     public abstract void removeAuthority(String username, String authority);
 }
 ```
@@ -1800,11 +1827,11 @@ import nl.danielle.demo_fifth_security.exceptions.RecordNotFoundException;
 import nl.danielle.demo_fifth_security.exceptions.UsernameNotFoundException;
 import nl.danielle.demo_fifth_security.model.Authority;
 import nl.danielle.demo_fifth_security.model.User;
-//import nl.danielle.demo_fifth_security.repository.AuthorityRepository;
 import nl.danielle.demo_fifth_security.repository.UserRepository;
 import nl.danielle.demo_fifth_security.utils.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -1848,6 +1875,8 @@ public class UserServiceImpl implements UserService {
         if (!userRepository.existsById(username)) throw new RecordNotFoundException();
         User user = userRepository.findById(username).get();
         user.setPassword(newUser.getPassword());
+        user.setEmail(newUser.getEmail());
+        user.setApikey(newUser.getApikey());
         userRepository.save(user);
     }
 
@@ -1877,6 +1906,8 @@ public class UserServiceImpl implements UserService {
 }
 ```
 
+Je hebt een Service, die kan `getUser` doen, `userExists`, `createUser`, `deleteUser` en `updateUser`.
+
 Maak een nieuwe map aan `utils` met daarin 1 bestand: `RandomStringGenerator.java`.
 
 ```java
@@ -1902,3 +1933,44 @@ public class RandomStringGenerator {
     }
 }
 ```
+
+Run de applicatie.
+
+We gaan naar Postman en vullen de volgende url in `http://localhost:8080/admin` met `GET`.
+
+![img107.png](img107.png)
+
+We gaan naar de users met `http://localhost:8080/users` en `GET`. Die laat de 3 users zien: `user`, `admin` en `peter`
+met alle gegevens en rollen.
+
+Wanneer je naar `http://localhost:8080/users/peter` gaat met `GET` krijg je van één user alle gegevens.
+
+We gaan een user `danielle` toevoegen met `http://localhost:8080/users` en `POST`.
+
+![img108.png](img108.png)
+
+We gaan naar postgreSQL en kijken in de user tabel. Je ziet dat de nieuwe user is toegevoegd.
+
+![img109.png](img109.png)
+
+We gaan user `peter` verwijderen in Postman met url `http://localhost:8080/users/peter` en `DELETE`.
+
+![img110.png](img110.png)
+
+In postgreSQL is de user verdwenen.
+
+![img111.png](img111.png)
+
+De nieuwe user `danielle` mag niet de `users` zien met url `http://localhost:8080/users` en `GET`.
+
+![img112.png](img112.png)
+
+Wel mag de nieuwe user `http://localhost:8080/` en `http://localhost:8080/authenticated` zien.
+
+We gaan met `PUT` het emailadres toevoegen bij user `admin` en url `http://localhost:8080/users/admin`.
+
+![img113.png](img113.png)
+
+In postgreSQL zie je dat het e-mailadres is toegevoegd aan de tabel bij de user `admin`.
+
+![img114.png](img114.png)
