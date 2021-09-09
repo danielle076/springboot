@@ -761,7 +761,7 @@ keer de url hoeft te veranderen.
 Het kan gebeuren dat een request niet slaagt. Er is bijvoorbeeld een niet bestaand id meegegeven. Wanneer je
 url `http://localhost:8080/personen/9` met `GET` probeert krijg je `500 Internal Server Error`.
 
-![img115.png](img115.png)
+![img115.png](images/img115.png)
 
 In de code van webservice kan dit worden afgevangen bijvoorbeeld door eerst te kijken of de betreffend id wel bestaat.
 Zo niet, dan kan er 404 Not Found status code worden teruggegeven. Dit kunnen we doen met `try` en `catch`.
@@ -780,7 +780,7 @@ In `PersoonController.java` wordt de code van `@GetMapping {nr}` aangepast.
 
 Wanneer je url `http://localhost:8080/personen/9` met `GET` probeert krijg je de melding "Persoon bestaat niet" en `400 Bad Request`.
 
-![img116.png](img116.png)
+![img116.png](images/img116.png)
 
 In de code kan hiervoor exceptions worden gebruikt. Het is wenselijk eigen exception klassen te definiëren. Als zich een
 onwenselijke situatie voordoet dan kan een exception worden gegeneerd. Spring Boot heeft een
