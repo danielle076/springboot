@@ -758,14 +758,32 @@ keer de url hoeft te veranderen.
 
 ### Exception Handler
 
-Het kan gebeuren dat een request niet slaagt. Er is bijvoorbeeld een niet bestaand id meegegeven of je bent als
-gebruiker niet geauthoriseerd om de operatie uit te voeren. In die gevallen wordt een 4xx status code teruggegeven.
+Het kan gebeuren dat een request niet slaagt. Er is bijvoorbeeld een niet bestaand id meegegeven. Wanneer je
+url `http://localhost:8080/personen/9` met `GET` probeert krijg je `500 Internal Server Error`.
+
+![img115.png](img115.png)
 
 In de code van webservice kan dit worden afgevangen bijvoorbeeld door eerst te kijken of de betreffend id wel bestaat.
-Zo niet, dan kan er 404 Not Found status code worden teruggegeven.
+Zo niet, dan kan er 404 Not Found status code worden teruggegeven. Dit kunnen we doen met `try` en `catch`.
 
-In de code kan hiervoor exceptions worden gebruikt. Het is wenselijk eigen exceptions klassen te definiëren. Als zich
-een onwenselijke situatie voordoet dan kan een exception worden gegeneerd. Spring Boot heeft een
+In `PersoonController.java` wordt de code van `@GetMapping {nr}` aangepast.
+
+    @GetMapping(value = "/personen/{nr}")
+    public ResponseEntity getPerson(@PathVariable int nr) {
+      try {
+        return ResponseEntity.ok(personen.get(nr));
+      }
+      catch (Exception ex){
+        return ResponseEntity.badRequest().body("Persoon bestaat niet");
+      }
+    }
+
+Wanneer je url `http://localhost:8080/personen/9` met `GET` probeert krijg je de melding "Persoon bestaat niet" en `400 Bad Request`.
+
+![img116.png](img116.png)
+
+In de code kan hiervoor exceptions worden gebruikt. Het is wenselijk eigen exception klassen te definiëren. Als zich een
+onwenselijke situatie voordoet dan kan een exception worden gegeneerd. Spring Boot heeft een
 annotatie `@ControllerAdvice` waarmee een speciale exception controller kan worden aangegeven. Een exception eindigt in
 een controller methode die als response de juiste status code teruggeeft.
 
@@ -776,14 +794,6 @@ package com.danielle.demo_springboot.exception;
 
 public class RecordNotFoundException extends RuntimeException {
     private static final long serialVersionUID = 1L;
-
-    public RecordNotFoundException() {
-        super();
-    }
-
-    public RecordNotFoundException(String message) {
-        super(message);
-    }
 }
 ```
 
@@ -793,7 +803,6 @@ Vervolgens maken we een bestand in de map controller genaamd `ExceptionControlle
 package com.danielle.demo_springboot.controller;
 
 import com.danielle.demo_springboot.exception.RecordNotFoundException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -804,21 +813,73 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExceptionController {
     @ExceptionHandler(value = RecordNotFoundException.class)
     public ResponseEntity<Object> exception(RecordNotFoundException exception) {
-        return new ResponseEntity<>(exception.getMessage(), HttpStatus.NOT_FOUND);
+        return ResponseEntity.notFound().build();
     }
 }
 ```
 
->>> werkt niet > uitzoeken
+In de `PersonController` kun je de `try` en `catch` aanpassen met `throw`.
 
-In de `QuestionsController` voeg je een if statement toe.
-
-
-
-Je kunt dit bij alle `{nr}` paths aanpassen. De `QuestionsController` zie er als volgt uit.
+Je kunt dit bij alle `{nr}` paths aanpassen. De `PersonController` zie er als volgt uit.
 
 ```java
+package com.danielle.demo_springboot.controller;
 
+import com.danielle.demo_springboot.exception.RecordNotFoundException;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+public class PersonController {
+    private static List<String> personen = new ArrayList<>();
+
+    @GetMapping(value = "/personen")
+    public ResponseEntity getPersonen() {
+        return ResponseEntity.ok(personen);
+    }
+
+    @GetMapping(value = "/personen/{nr}")
+    public ResponseEntity getPerson(@PathVariable int nr) {
+        try {
+            return ResponseEntity.ok(personen.get(nr));
+        } catch (Exception ex) {
+            throw new RecordNotFoundException();
+        }
+    }
+
+    @PostMapping(value = "/personen")
+    public ResponseEntity addPerson(@RequestBody String persoon) {
+        personen.add(persoon);
+        return ResponseEntity.ok("Toegevoegd");
+    }
+
+    @DeleteMapping(value = "/personen/{nr}")
+    public ResponseEntity deletePerson(@PathVariable int nr) {
+        try {
+            personen.remove(nr);
+            return ResponseEntity.ok("Verwijderd");
+        } catch (Exception ex) {
+            throw new RecordNotFoundException();
+        }
+    }
+
+    @PutMapping(value = "/personen/{nr}")
+    public ResponseEntity updatePerson(@PathVariable int nr, @RequestBody String persoon) {
+        try {
+            personen.set(nr, persoon);
+            return ResponseEntity.ok("Updated");
+        } catch (Exception ex) {
+            throw new RecordNotFoundException();
+        }
+    }
+}
 ```
 
-Hij gaat kijken of de gevraagde id er is, bestaat hij niet dan gaat hij naar `RecordNotFoundException`.
+Hij gaat kijken of de gevraagde `nr` er is, bestaat hij niet dan gaat hij naar `RecordNotFoundException`.
+
+## Github
+
+Dit project staat op github: https://github.com/danielle076/project_questions_springboot

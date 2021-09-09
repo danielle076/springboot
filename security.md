@@ -1938,7 +1938,7 @@ Run de applicatie.
 
 We gaan naar Postman en vullen de volgende url in `http://localhost:8080/admin` met `GET`.
 
-![img107.png](img107.png)
+![img107.png](images/img107.png)
 
 We gaan naar de users met `http://localhost:8080/users` en `GET`. Die laat de 3 users zien: `user`, `admin` en `peter`
 met alle gegevens en rollen.
@@ -1947,30 +1947,40 @@ Wanneer je naar `http://localhost:8080/users/peter` gaat met `GET` krijg je van 
 
 We gaan een user `danielle` toevoegen met `http://localhost:8080/users` en `POST`.
 
-![img108.png](img108.png)
+![img108.png](images/img108.png)
 
 We gaan naar postgreSQL en kijken in de user tabel. Je ziet dat de nieuwe user is toegevoegd.
 
-![img109.png](img109.png)
+![img109.png](images/img109.png)
 
 We gaan user `peter` verwijderen in Postman met url `http://localhost:8080/users/peter` en `DELETE`.
 
-![img110.png](img110.png)
+![img110.png](images/img110.png)
 
 In postgreSQL is de user verdwenen.
 
-![img111.png](img111.png)
+![img111.png](images/img111.png)
 
 De nieuwe user `danielle` mag niet de `users` zien met url `http://localhost:8080/users` en `GET`.
 
-![img112.png](img112.png)
+![img112.png](images/img112.png)
 
 Wel mag de nieuwe user `http://localhost:8080/` en `http://localhost:8080/authenticated` zien.
 
 We gaan met `PUT` het emailadres toevoegen bij user `admin` en url `http://localhost:8080/users/admin`.
 
-![img113.png](img113.png)
+![img113.png](images/img113.png)
 
 In postgreSQL zie je dat het e-mailadres is toegevoegd aan de tabel bij de user `admin`.
 
-![img114.png](img114.png)
+![img114.png](images/img114.png)
+
+## Security met JWT
+
+We maken een nieuw IntelliJ project in de Initializr.
+
+Maak een nieuwe package aan `controller` met daarin 5 bestanden: `AdminController.java`, `AuthenticatedController.java`
+, `BaseController.java`, `ExceptionController.java` en `UserController.java`.
+
+_AdminController.java_
+
