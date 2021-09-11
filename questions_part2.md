@@ -260,3 +260,138 @@ Vervolgens gaan we in het project naar het bestand resources > `application.prop
 - `username` is jouw username in pgAdmin
 - `password` is jouw wachtwoord in pgAdmin
 
+We gaan terug naar de code `Persoon.java`. We willen dat deze classe als tabel in de database komt. Om dit te doen moeten we een aantal dingen aangeven. Ten eerste gaan we een `@Entity` in de code zetten. Deze zorgt ervoor dat `Persoon` gezien wordt als een entity. Vervolgens heeft de database een primary key met `@id` nodig, dat is de `public long id;`. Als laatste moet je de kolommen definiëren met `@column`.
+
+```java
+package nl.danielle.demo_springboot.model;
+
+import javax.persistence.*;
+
+@Entity
+public class Persoon {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column
+    public long id; // primary key
+
+    @Column
+    public String voornaam;
+    @Column
+    public String achternaam;
+    @Column
+    public String woonplaats;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getVoornaam() {
+        return voornaam;
+    }
+
+    public void setVoornaam(String voornaam) {
+        this.voornaam = voornaam;
+    }
+
+    public String getAchternaam() {
+        return achternaam;
+    }
+
+    public void setAchternaam(String achternaam) {
+        this.achternaam = achternaam;
+    }
+
+    public String getWoonplaats() {
+        return woonplaats;
+    }
+
+    public void setWoonplaats(String woonplaats) {
+        this.woonplaats = woonplaats;
+    }
+}
+```
+
+Run de applicatie.
+
+Ga naar postgreSQL en klik op de database `person`. Ga naar Schemas > Tables > klik de tabel `persoon` open. Je ziet dat we een tabel `persoon`hebben gemaakt met daarin 4 kolommen.
+
+![img120.png](images/img120.png)
+
+#### Decorateurs referentie
+
+Je kan in Java met `@Entity(name = "person")` aangeven dat de tabel naam `person` moet zijn in de database.
+
+```java
+@Entity(name = "person")
+public class Persoon {
+}
+```
+
+Een column kun je ook een naam meegeven met `@Column(name = "first_name")`.
+
+```java
+
+@Entity(name = "person")
+public class Persoon {
+
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "id_nr")
+  public long id; // primary key
+
+  @Column(name = "first_name")
+  public String voornaam;
+  @Column(name = "last_name")
+  public String achternaam;
+  @Column(name = "city")
+  public String woonplaats;
+}
+```
+
+![img121.png](img121.png)
+
+Naast dat je een column een naam kan geven, kun je hem ook definiëren met een bepaalde lengte en eventueel of hij wel of
+niet nul mag zijn. Bijvoorbeeld `@Column(name = "first_name", length = 255, nullable = false)`
+
+Bron: <a href="https://orkhan.gitbook.io/typeorm/docs/decorator-reference" target="_blank">decorator-reference</a> 
+
+#### Bestand data.sql
+
+Met `data.sql` gaan we data toevoegen aan de tabel in de database. Dit doe je door in de `resources` een nieuw file te maken en die noemen we `data.sql`. Dit is een `sql`
+bestand waarmee we records kunnen toevoegen aan `Persoon.java`.
+
+In dit bestand zet je de volgende code.
+
+    INSERT INTO person (first_name, last_name, city)
+    VALUES ('Frizzle', 'Sizzle', 'Breda')
+    ,      ('Freckle', 'Sproetje', 'Breda');
+
+Wanneer je IntelliJ Ultimate heb krijg je het volgende te zien.
+
+![img122.png](img122.png)
+
+IntelliJ Ultimate heeft de mogelijkheid van Inspections. In de editor worden deze gebruikt om de code te onderzoeken en
+suggesties te doen. Deze Inspections kunnen aan of uit worden gezet.
+
+Bij het creëren van een .sql bestand zoals `data.sql` worden onder de volgende inspections geactiveerd:
+
+- __SQL dialect detection__ Hiermee wordt de syntax van SQL gecontroleerd volgens een aangegeven SQL dialect
+- __No data sources configured__ IntelliJ Ultimate biedt de mogelijkheid datasources te configureren. Leuk maar die optie gebruiken we niet in de Spring Boot projecten
+
+Je kan de inspectie meldingen die in de gele balken verschijnen negeren, maar je kunt ze ook uitzetten. In de balk zie
+je een instellingen icon (een radertje) met in de pulldown menu de optie `Disable inspection`.
+
+Als je deze weer aan wilt zetten moet dat via het hoofdmenu > preferences > editor > inspections. Daar kun je de
+betreffende inspections opzoeken in de lijst en het vinkje weer aanzetten.
+
+Run de applicatie.
+
+In postgreSQL krijg je de gegevens te zien die je in de `data.sql` heb gezet via person > View/Edit Data > All Rows.
+
+![img123.png](img123.png)
+
