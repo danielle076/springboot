@@ -143,16 +143,6 @@ public class PersonController {
             throw new RecordNotFoundException();
         }
     }
-
-    @PutMapping(value = "/personen/{nr}")
-    public ResponseEntity updatePerson(@PathVariable int nr, @RequestBody Persoon persoon) {
-        try {
-            personen.set(nr, persoon);
-            return ResponseEntity.ok("Updated");
-        } catch (Exception ex) {
-            throw new RecordNotFoundException();
-        }
-    }
 }
 ```
 
@@ -245,16 +235,20 @@ We gaan naar pgAdmin (postgreSQL) en maken een nieuwe database genaamd `person`.
 Vervolgens gaan we in het project naar het bestand resources > `application.properties`. De volgende code zet je hierin.
 
     # datasource PostgreSQL
+    spring.jpa.database=postgresql
     spring.datasource.platform=postgres
     spring.datasource.url=jdbc:postgresql://localhost:5432/person
     spring.datasource.username=postgres
     spring.datasource.password=postgres123
     spring.datasource.driver-class-name=org.postgresql.Driver
-    # jpa
-    spring.jpa.database=postgresql
     spring.jpa.generate-ddl=true
     spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
     spring.jpa.properties.hibernate.dialect= org.hibernate.dialect.PostgreSQLDialect
+    
+    spring.jpa.show-sql = true
+    
+    spring.jpa.hibernate.ddl-auto=create
+    spring.datasource.initialization-mode=always
 
 - `url` is de database naam in pgAdmin
 - `username` is jouw username in pgAdmin
@@ -353,7 +347,7 @@ public class Persoon {
 }
 ```
 
-![img121.png](img121.png)
+![img121.png](images/img121.png)
 
 Naast dat je een column een naam kan geven, kun je hem ook definiëren met een bepaalde lengte en eventueel of hij wel of
 niet nul mag zijn. Bijvoorbeeld `@Column(name = "first_name", length = 255, nullable = false)`
@@ -373,7 +367,7 @@ In dit bestand zet je de volgende code.
 
 Wanneer je IntelliJ Ultimate heb krijg je het volgende te zien.
 
-![img122.png](img122.png)
+![img122.png](images/img122.png)
 
 IntelliJ Ultimate heeft de mogelijkheid van Inspections. In de editor worden deze gebruikt om de code te onderzoeken en
 suggesties te doen. Deze Inspections kunnen aan of uit worden gezet.
@@ -393,5 +387,82 @@ Run de applicatie.
 
 In postgreSQL krijg je de gegevens te zien die je in de `data.sql` heb gezet via person > View/Edit Data > All Rows.
 
-![img123.png](img123.png)
+![img123.png](images/img123.png)
 
+In Postman wanneer je url `http://localhost:8080/personen/` gebruikt met `GET` krijg je ook de gegevens te zien van `data.sql`.
+
+![img124.png](images/img124.png)
+
+### Repository
+
+De communicatie met de database gebeurd via een repository, dus PersoonRepository communiceert straks met de database. Het is een interface die op basis van een bestaande CrudRepository toegang heeft naar `Persoon` op basis van de id wat `Long` is. Hij vertaald Java in SQL.
+
+Maak een nieuwe package genaamd `repository`. In deze map maken we een nieuwe interface `PersoonRepository.java`.
+
+```java
+package nl.danielle.demo_springboot.repository;
+
+import nl.danielle.demo_springboot.model.Persoon;
+import org.springframework.data.repository.CrudRepository;
+
+public interface PersoonRepository extends CrudRepository<Persoon, Long> {
+}
+```
+
+Met `CrudRepository` heb je de beschikking tot een aantal methodes. Deze methodes verwrek je in `PersoonController.java`.
+
+We willen van de lijst `private static List<Persoon> personen = new ArrayList<>();` geen gebruik van maken, dus maken we gebruik van een repository.
+
+We maken gebruik van `@Autowired` en zetten de `PersoonRepository` in alle CRUD-methodes (`@PutMapping` is achterwege gelaten).
+
+```java
+package nl.danielle.demo_springboot.controller;
+
+import nl.danielle.demo_springboot.exception.RecordNotFoundException;
+import nl.danielle.demo_springboot.model.Persoon;
+import nl.danielle.demo_springboot.repository.PersoonRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
+
+@RestController
+public class PersonController {
+
+    @Autowired
+    private PersoonRepository persoonRepository;
+
+    @GetMapping(value = "/personen")
+    public ResponseEntity getPersonen() {
+        Iterable<Persoon> personen = persoonRepository.findAll();
+        return ResponseEntity.ok(personen);
+    }
+
+    @GetMapping(value = "/personen/{nr}")
+    public ResponseEntity getPerson(@PathVariable long nr) {
+        try {
+            Optional<Persoon> persoon = persoonRepository.findById(nr);
+            return ResponseEntity.ok(persoon);
+        } catch (Exception ex) {
+            throw new RecordNotFoundException();
+        }
+    }
+
+    @PostMapping(value = "/personen")
+    public ResponseEntity addPerson(@RequestBody Persoon persoon) {
+        persoonRepository.save(persoon);
+        return ResponseEntity.ok("Toegevoegd");
+    }
+
+    @DeleteMapping(value = "/personen/{nr}")
+    public ResponseEntity deletePerson(@PathVariable long nr) {
+        try {
+            persoonRepository.deleteById(nr);
+            return ResponseEntity.ok("Verwijderd");
+        } catch (Exception ex) {
+            throw new RecordNotFoundException();
+        }
+    }
+}
+```
