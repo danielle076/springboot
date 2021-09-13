@@ -3022,3 +3022,28 @@ INSERT INTO authorities (username, authority) VALUES ('peter', 'ROLE_USER');
 INSERT INTO authorities (username, authority) VALUES ('peter', 'ROLE_ADMIN');
 ```
 
+Run de applicatie.
+
+Ga in Postman naar url `http://localhost:8080/customers`, authorization `Basic Auth`, username `admin` en `GET`.
+
+![img129.png](images/img129.png)
+
+Dit mag hij niet meer doen, want we hebben ingesteld dat er een JWT token verwacht word.
+
+We gaan de token ophalen. Hiervoor is de endpoint `/authenticate` die in `AuthenticationController.java` staat.
+
+In Postman gaan we naar `POST`, `http://localhost:8080/authenticate`, `Basic Auth` en login `admin`. In de body moeten we een Username en een Password meegeven.
+
+![img130.png](images/img130.png)
+
+We hebben een JWT token gegenereert. We maken nu geen gebruik meer van de `Basic Auth`, maar van een `Bearer Token`. De token die je hebt teruggekregen zet je in het veld Token.
+
+![img131.png](images/img131.png)
+
+Je bent nu niet meer bezig met username en wachtwoord, maar door de token weet hij wel dat je `admin` ben. De token heeft hij in de header opgeslagen.
+
+![img132.png](images/img132.png)
+
+Ga naar url `http://localhost:8080/admin` en `GET`. Je hebt nu toegang gekregen via de token.
+
+![img133.png](images/img133.png)
