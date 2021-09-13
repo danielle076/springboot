@@ -1975,9 +1975,111 @@ In postgreSQL zie je dat het e-mailadres is toegevoegd aan de tabel bij de user 
 
 ![img114.png](images/img114.png)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Security met JWT
 
-We maken een nieuw IntelliJ project in de Initializr.
+Een JWT token is een ge-encrypt String van 50 karakters.
+
+Je gaat eerst van de Client naar de Server met een wachtwoord. De Server geeft terug een JWT token, vanaf dit moment heb je aan de Client kant een token. Deze kun je gebruiken om een volgend verzoek te doen om de JWT token in de Header op te nemen. De Server (Spring Boot) kijkt naar de JWT token,  aan de hand daarvan weet hij welke user daarbij hoort en weet hij of je wel of niet de resource mag zien. Dit gebeurt maar één keer. De token wordt aan de Client kant opgeslagen en daarna kun je alle verzoeken met behulp van de token gaan afhandelen. Je hoeft nooit meer username of wachtwoord te versturen.
+
+![img125.png](images/img125.png)
+
+Er is een manier om een JWT token te genereren, dat gebeurd in een aantal stappen.
+
+![img126.png](images/img126.png)
+
+Zodra de token is gemaakt, kun je deze gaan gebruiken.
+
+![img127.png](images/img127.png)
+
+We maken een nieuw IntelliJ project in de Initializr. Je voegt hier een extra dependency aan toe genaamd io.jsonwebtoken. De `pom.xml` ziet er als volgt uit.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.4.3</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>nl.danielle</groupId>
+    <artifactId>demo_sixth_security</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>demo_sixth_security</name>
+    <description>Demo project for Spring Boot</description>
+    <properties>
+        <java.version>11</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${project.parent.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
 
 Maak een nieuwe package aan genaamd `controller` met daarin 5 bestanden: `AdminController.java`, `AuthenticatedController.java`
 , `BaseController.java`, `CustomersController.java`, `ExceptionController.java` en `UserController.java`.
@@ -2020,48 +2122,51 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.Principal;
 
 @RestController
-class AuthenticationController {
+public class AuthenticationController {
 
-    @Autowired
-    private AuthenticationManager authenticationManager;
+  @Autowired
+  private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+  @Autowired
+  private CustomUserDetailsService userDetailsService;
 
-    @Autowired
-    JwtUtil jwtUtl;
+  @Autowired
+  JwtUtil jwtUtl;
 
-    @GetMapping(value = "/authenticated")
-    public ResponseEntity<Object> authenticated(Authentication authentication, Principal principal) {
-        return ResponseEntity.ok().body(principal);
+  @GetMapping(value = "/authenticated")
+  public ResponseEntity<Object> authenticated(Authentication authentication, Principal principal) {
+    return ResponseEntity.ok().body(principal);
+  }
+
+  @PostMapping(value = "/authenticate")
+  public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+
+    String username = authenticationRequest.getUsername();
+    String password = authenticationRequest.getPassword();
+
+    try {
+      authenticationManager.authenticate(
+              new UsernamePasswordAuthenticationToken(username, password)
+      );
+    } catch (BadCredentialsException ex) {
+      throw new Exception("Incorrect username or password", ex);
     }
 
-    @PostMapping(value = "/authenticate")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+    final UserDetails userDetails = userDetailsService
+            .loadUserByUsername(username);
 
-        String username = authenticationRequest.getUsername();
-        String password = authenticationRequest.getPassword();
+    final String jwt = jwtUtl.generateToken(userDetails);
 
-        try {
-            authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(username, password)
-            );
-        } catch (BadCredentialsException ex) {
-            throw new Exception("Incorrect username or password", ex);
-        }
-
-        final UserDetails userDetails = userDetailsService
-                .loadUserByUsername(username);
-
-        final String jwt = jwtUtl.generateToken(userDetails);
-
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
-    }
+    return ResponseEntity.ok(new AuthenticationResponse(jwt));
+  }
 }
 ```
 
@@ -2268,6 +2373,10 @@ public class Authority implements Serializable {
 }
 ```
 
+Je ziet dat er twee kolommen zijn die samen de `id` vormen, een combinatie van `username` en `authority` dit is de primary key.
+
+Je hebt een aparte `@IdClass` en dit is de `AuthorityKey`.
+
 _AuthorityKey.java_
 
 ```java
@@ -2280,6 +2389,10 @@ public class AuthorityKey implements Serializable {
     private String authority;
 }
 ```
+
+De `AuthorityKey` is niks anders dan een combinatie van `username` en `authority` en daar maakt hij een String van op basis van de Serializable.
+
+In `UserRepository.java` komt deze String terug.
 
 _User.java_
 
@@ -2659,6 +2772,14 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 }
 ```
 
+Naast dat we gebruik maken van `customUserDetailsService`, de `passwordEncoder` en de verschillende rechten in de `http configure`, is er ook een `AuthenticationManager` met een `jwtRequestFilter`.
+
+Wat er gebeurd op het moment dat je een HTTP Request doet naar Spring Boot, dan gaat hij een hele keten aan stappen afronden (FilterChain). Uiteindelijk komt hij bij de `@RestController`, dus de plek waar je je controllers heb gedefinieerd. De stappen die hij doorloopt zijn allemaal `Filters`. Een `Filter` beoordeelt of hij wel of niet door mag. Als hij door mag dan gaat hij door naar de volgende `Filter`. Gaat het ergens fout dan wordt de keten doorbroken en komt hij nooit bij de `Controller`.
+
+![img128.png](images/img128.png)
+
+Werken met een JWT is op basis van een filter en deze filter moet geïmplementeerd worden.
+
 Maak een nieuwe package aan genaamd `filter` met daarin 1 bestand: `JwtRequestFilter.java`.
 
 _JwtRequestFilter.java_
@@ -2667,8 +2788,8 @@ _JwtRequestFilter.java_
 package nl.danielle.demo_sixth_security.filter;
 
 import nl.danielle.demo_sixth_security.service.CustomUserDetailsService;
-import nl.danielle.demo_sixth_security.utils.JwtUtil;
 
+import nl.danielle.demo_sixth_security.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -2686,41 +2807,45 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    @Autowired
-    private CustomUserDetailsService userDetailsService;
+  @Autowired
+  private CustomUserDetailsService userDetailsService;
 
-    @Autowired
-    private JwtUtil jwtUtil;
+  @Autowired
+  private JwtUtil jwtUtil;
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        final String authorizationHeader = request.getHeader("Authorization");
+    final String authorizationHeader = request.getHeader("Authorization");
 
-        String username = null;
-        String jwt = null;
+    String username = null;
+    String jwt = null;
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            jwt = authorizationHeader.substring(7);
-            username = jwtUtil.extractUsername(jwt);
-        }
-
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-
-            if (jwtUtil.validateToken(jwt, userDetails)) {
-
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                        userDetails, null, userDetails.getAuthorities()
-                );
-                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            }
-        }
-        filterChain.doFilter(request, response);
+    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+      jwt = authorizationHeader.substring(7);
+      username = jwtUtil.extractUsername(jwt);
     }
+
+    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+      UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+
+      if (jwtUtil.validateToken(jwt, userDetails)) {
+
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities()
+        );
+        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+      }
+    }
+    filterChain.doFilter(request, response);
+  }
 }
 ```
+
+De `JwtRequestFilter` is een subklasse van de `OncePerRequestFilter`. 
+
+Er wordt gebruik gemaakt van de `userDetailsService` en is verbonden met de `jwtUtil`. 
 
 Maak een nieuwe package aan genaamd `payload` met daarin 2 bestanden: `AuthenticationRequest.java` en `AuthenticationResponse.java`.
 
@@ -2842,6 +2967,8 @@ public class JwtUtil {
 }
 ```
 
+De `jwtUtil` is een utility die een aantal dingen kan doen met een JWT token. Zoals bijvoorbeeld uit de `String token` de username eruit halen.
+
 _RandomStringGenerator.java_
 
 ```java
@@ -2867,3 +2994,31 @@ public class RandomStringGenerator {
     }
 }
 ```
+
+In de resources map heb je de volgende bestanden met bijbehorende code: `application.properties` en `data.sql`. 
+
+    spring.jpa.database=postgresql
+    spring.datasource.platform=postgres
+    spring.datasource.url=jdbc:postgresql://localhost:5432/demo_sixth_security
+    spring.datasource.username=postgres
+    spring.datasource.password=postgres123
+    spring.datasource.driver-class-name=org.postgresql.Driver
+    spring.datasource.initialization-mode=always
+    spring.jpa.generate-ddl=true
+    spring.jpa.hibernate.ddl-auto=create-drop
+    spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
+    
+    spring.jpa.properties.hibernate.dialect= org.hibernate.dialect.PostgreSQLDialect
+
+```sql
+INSERT INTO users (username, password, enabled) VALUES ('user', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
+INSERT INTO users (username, password, enabled) VALUES ('admin', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
+INSERT INTO users (username, password, enabled) VALUES ('peter', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
+
+INSERT INTO authorities (username, authority) VALUES ('user', 'ROLE_USER');
+INSERT INTO authorities (username, authority) VALUES ('admin', 'ROLE_USER');
+INSERT INTO authorities (username, authority) VALUES ('admin', 'ROLE_ADMIN');
+INSERT INTO authorities (username, authority) VALUES ('peter', 'ROLE_USER');
+INSERT INTO authorities (username, authority) VALUES ('peter', 'ROLE_ADMIN');
+```
+
