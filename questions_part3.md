@@ -386,3 +386,7 @@ Run de applicatie.
 ### Code
 
 De volledige code kun je <a href="https://github.com/danielle076/project_questions3_springboot" target="_blank">hier</a> vinden.
+
+## Github
+
+Dit project staat op github: https://github.com/danielle076/project_questions3_springboot
