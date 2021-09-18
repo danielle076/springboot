@@ -7,7 +7,7 @@ Spring Boot werkt met lagen. Het voordeel om dit in lagen op te bouwen is dat al
 De Controller praat met de Service, de Service praat met de Repository en de Repository zorgt voor de afhandeling naar
 de Database.
 
-![img134.png](img134.png)
+![img134.png](images/img134.png)
 
 De Controller houdt zich bezig met de communicatie. De Service houdt zich bezig met alles wat typisch bij de applicatie
 hoort dus die is op de hoogte van welke modellen je gebruikt, de data, maar ook de regels die horen bij de applicatie.
