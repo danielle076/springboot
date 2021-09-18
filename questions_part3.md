@@ -36,34 +36,16 @@ de volgende methodes `findAll()`, `findById()`, `save()`, `deleteById()` en een 
 _PersoonService.java_
 
 ```java
-package nl.danielle.demo_springboot.service;
+package nl.danielle.demo_service.service;
 
-import nl.danielle.demo_springboot.model.Persoon;
+import nl.danielle.demo_service.model.Persoon;
 
 public interface PersoonService {
 
     Iterable<Persoon> findAll();
-
     public Persoon findById(long nr);
-
     void save(Persoon persoon);
-
     void deleteById(long nr);
-
-    Iterable<Persoon> findByLastname(String lastname);
-}
-```
-
-De laatste methode bestaat nog niet, dus die maken we in `PersoonRepository.java`.
-
-```java
-package nl.danielle.demo_springboot.repository;
-
-import nl.danielle.demo_springboot.model.Persoon;
-import org.springframework.data.repository.CrudRepository;
-
-public interface PersoonRepository extends CrudRepository<Persoon, Long> {
-
     Iterable<Persoon> findByLastname(String lastname);
 }
 ```
@@ -74,12 +56,11 @@ implementeren in `PersoonServiceImpl`.
 _PersoonServiceImpl_
 
 ```java
-package nl.danielle.demo_springboot.service;
+package nl.danielle.demo_service.service;
 
-import nl.danielle.demo_springboot.exception.RecordNotFoundException;
-import nl.danielle.demo_springboot.model.Persoon;
-import nl.danielle.demo_springboot.repository.PersoonRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import nl.danielle.demo_service.exception.RecordNotFoundException;
+import nl.danielle.demo_service.model.Persoon;
+import nl.danielle.demo_service.repository.PersoonRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -87,35 +68,36 @@ import java.util.Optional;
 @Service
 public class PersoonServiceImpl implements PersoonService {
 
-    @Autowired
-    private PersoonRepository persoonRepository;
+    private final PersoonRepository persoonRepository;
 
-    @Override
+    public PersoonServiceImpl(PersoonRepository persoonRepository) {
+        this.persoonRepository = persoonRepository;
+    }
+
     public Iterable<Persoon> findAll() {
         Iterable<Persoon> personen = persoonRepository.findAll();
         return personen;
     }
 
-    @Override
     public Persoon findById(long nr) {
         Optional<Persoon> persoon = persoonRepository.findById(nr);
         if (persoon.isPresent()) {
             return persoon.get();
-        } else {
+        }
+        else {
             throw new RecordNotFoundException("Persoon with id " + nr + " not found");
         }
     }
 
-    @Override
     public void save(Persoon persoon) {
         persoonRepository.save(persoon);
     }
 
-    @Override
     public void deleteById(long nr) {
         try {
             persoonRepository.deleteById(nr);
-        } catch (IndexOutOfBoundsException ex) {
+        }
+        catch (IndexOutOfBoundsException ex) {
             System.out.println(ex);
             throw new RecordNotFoundException();
         }
@@ -123,8 +105,22 @@ public class PersoonServiceImpl implements PersoonService {
 
     @Override
     public Iterable<Persoon> findByLastname(String lastname) {
-        return persoonRepository.findByLastname(lastname);
+        return persoonRepository.findByAchternaam(lastname);
     }
+}
+```
+
+De methode `findByAchternaam` bestaat nog niet, dus die maken we in `PersoonRepository.java`.
+
+```java
+package nl.danielle.demo_service.repository;
+
+import nl.danielle.demo_service.model.Persoon;
+import org.springframework.data.repository.CrudRepository;
+
+public interface PersoonRepository extends CrudRepository<Persoon, Long> {
+
+    Iterable<Persoon> findByAchternaam(String lastname);
 }
 ```
 
@@ -134,7 +130,7 @@ worden wanneer de gebruiker een exception tegenkomt.
 _RecordNotFoundException.java_
 
 ```java
-package nl.danielle.demo_springboot.exception;
+package nl.danielle.demo_service.exception;
 
 public class RecordNotFoundException extends RuntimeException {
     private static final long serialVersionUID = 1L;
@@ -142,7 +138,6 @@ public class RecordNotFoundException extends RuntimeException {
     public RecordNotFoundException(String message) {
         super(message);
     }
-
     public RecordNotFoundException() {
         super("Record not found.");
     }
@@ -152,9 +147,9 @@ public class RecordNotFoundException extends RuntimeException {
 _ExceptionController.java_
 
 ```java
-package nl.danielle.demo_springboot.controller;
+package nl.danielle.demo_service.controller;
 
-import nl.danielle.demo_springboot.exception.RecordNotFoundException;
+import nl.danielle.demo_service.exception.RecordNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -172,7 +167,7 @@ public class ExceptionController {
 }
 ```
 
-De `PersonController` verwijst naar de `persoonRepository`. Dit moet vervangen worden in `persoonService`.
+De `PersoonController` verwijst naar de `persoonRepository`. Dit moet vervangen worden in `persoonService`.
 
     @GetMapping(value = "/personen")
     public ResponseEntity getPersonen() {
@@ -180,20 +175,19 @@ De `PersonController` verwijst naar de `persoonRepository`. Dit moet vervangen w
         return ResponseEntity.ok(personen);
     }
 
-_PersonController.java_
+_PersoonController.java_
 
 ```java
-package nl.danielle.demo_springboot.controller;
+package nl.danielle.demo_service.controller;
 
-import nl.danielle.demo_springboot.model.Persoon;
-import nl.danielle.demo_springboot.service.PersoonService;
+import nl.danielle.demo_service.model.Persoon;
+import nl.danielle.demo_service.service.PersoonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class PersonController {
-
+public class PersoonController {
     @Autowired
     private PersoonService persoonService;
 
@@ -234,17 +228,11 @@ public class PersonController {
 }
 ```
 
-
-
-
-
-
-
 ### @PutMapping
 
 We gaan `@PutMapping` toevoegen. Dit heeft gevolgen voor de volgende files.
 
-_PersonController.java_
+_PersoonController.java_
 
 ```java
 package nl.danielle.demo_springboot.controller;
@@ -394,3 +382,7 @@ public class PersoonServiceImpl implements PersoonService {
 De methode `updatePersoon` is toegevoegd. De gegevens voor `existingPersoon` haal je uit `Persoon.java`.
 
 Run de applicatie.
+
+### Code
+
+De volledige code kun je <a href="https://github.com/danielle076/project_questions3_springboot" target="_blank">hier</a> vinden.
