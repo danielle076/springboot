@@ -85,7 +85,7 @@ In [deel 3](questions.md) komt het volgende aan bod.
 ### Security uitgelegd in 8 stappen
 
 - [Stap 1](security.md): Security project starten
-- [stap 2](security_pt2.md)
+- [stap 2](security_pt2.md): Configureren
 - [stap 3](security_pt3.md)
 - [stap 4](security_pt4.md)
 - [stap 5](security_pt5.md)

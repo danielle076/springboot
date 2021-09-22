@@ -1,4 +1,4 @@
-### Configureren
+## Configureren
 
 Maak een nieuwe package aan `config` met daarin de file `SpringSecurityConfig.java`
 
