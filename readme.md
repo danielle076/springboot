@@ -88,7 +88,7 @@ In [deel 3](questions.md) komt het volgende aan bod.
 - [stap 2](security_pt2.md): Configureren
 - [stap 3](security_pt3.md): HTTPS
 - [stap 4](security_pt4.md): Security met aangepaste gebruikers tabel
-- [stap 5](security_pt5.md)
+- [stap 5](security_pt5.md): Security met gebruikerstabel
 - [stap 6](security_pt6.md)
 - [stap 7](security_pt7.md)
 - [stap 8](security_pt8.md)
