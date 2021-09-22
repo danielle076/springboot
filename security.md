@@ -1,6 +1,6 @@
-## Security
+## Security project starten
 
-Security gaat in eerste instantie over het gebruik van Authentication en Authorization.
+Security gaat over het gebruik van Authentication en Authorization.
 
 Authentication betekend dat je wilt weten wie er achter de knoppen zit. Dus welke user/gebruiker ben je.
 
@@ -58,7 +58,7 @@ Ga naar File > Project Structure en zet `Project SDK` op 11. Klik op apply.
 - `username` is jouw username in pgAdmin
 - `password` is jouw wachtwoord in pgAdmin
 
-Zet de versie in de pom.xml op `<version>2.4.3</version>`.
+Zet de `<parent>` versie in de pom.xml op `<version>2.4.3</version>` en wanneer je een foutmelding in de `<plugin>` krijg zet je de versie er tussen op de volgende manier: `<version>${project.parent.version}</version>`.
 
 ### Controller
 
