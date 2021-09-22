@@ -1024,6 +1024,8 @@ INSERT INTO authorities (username, authority) VALUES ('peter', 'ROLE_ADMIN');
 
 Run de applicatie.
 
+### Postman
+
 Ga in Postman naar url `http://localhost:8080/customers`, authorization `Basic Auth`, username `admin` en `GET`.
 
 ![img129.png](images/img129.png)
