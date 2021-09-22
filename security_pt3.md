@@ -1,6 +1,6 @@
 ## HTTPS
 
-Het grote nadeel van basic authentication is dat alles openbaar is. Gebruik daarom geen http, maar https.
+Het grote nadeel van basic authentication is dat alles openbaar is. Gebruik daarom geen `http`, maar `https`.
 
 _Maak een zelfondertekend certificaat_
 
