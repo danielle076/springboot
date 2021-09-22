@@ -1,7 +1,7 @@
 ## Security met aangepaste gebruikers tabel
 
-Het nadeel van bovenstaande code in `SpringSecurityConfig.java` is dat we de users hard hebben geprogrammeerd. Dit
-noemen ze ook de `inMemoryAuthentication`. Wat we eigenlijk willen is een user tabel in onze database, waarbij we users
+Het nadeel van voorgaande code in `SpringSecurityConfig.java` is dat we de users hard hebben geprogrammeerd. Dit
+noemen ze `inMemoryAuthentication`. Wat we eigenlijk willen is een user tabel in onze database, waarbij we users
 kunnen toevoegen, verwijderen, rollen kunnen geven en wachtwoorden kunnen opslaan.
 
 We maken een nieuw IntelliJ project in de Initializr.
