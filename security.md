@@ -189,7 +189,7 @@ public class AdminController {
 }
 ```
 
-Run de applicatie.
+### Run de applicatie
 
 Ga in de webbrowser naar `http://localhost:8080/info`. De link verandert naar `http://localhost:8080/login` en je krijgt
 het volgende scherm te zien.
@@ -198,3 +198,7 @@ het volgende scherm te zien.
 
 Deze login pagina is automatisch gegenereert door Spring Boot. Je kan nog niet inloggen, want we hebben geen users
 gedefinieert.
+
+### GitHub
+
+De volledige code is [hier](https://github.com/danielle076/demo_security) op github te vinden.
