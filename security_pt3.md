@@ -1,8 +1,8 @@
 ## HTTPS
 
-Het grote nadeel van basic authentication is dat alles openbaar is. Gebruik daarom geen `http`, maar `https`.
+Het grote nadeel van basic authentication is dat alles openbaar is. Gebruik daarom geen `http` maar `https`.
 
-_Maak een zelfondertekend certificaat_
+### Maak een zelfondertekend certificaat
 
 Voer in IntelliJ terminal of de opdrachtprompt de volgende commando uit:
 
@@ -10,11 +10,14 @@ Voer in IntelliJ terminal of de opdrachtprompt de volgende commando uit:
 
 Beantwoord de vragen.
 
-Er is een nieuw bestand in gemaakt `certificate.jks`. Zet dit bestand in de map `resources`.
+Er is een nieuw bestand gemaakt `certificate.jks`. Zet dit bestand in de map `resources`.
 
 ![img96.png](images/img96.png)
 
-_Toevoegen aan applicatie-eigenschappen_
+### Toevoegen aan application.properties
+
+Voeg de volgende code toe aan de application.properties.
+
 
     server.ssl.key-store=classpath:certificate.jks
     server.ssl.key-store-type=pkcs12
@@ -23,9 +26,14 @@ _Toevoegen aan applicatie-eigenschappen_
     server.ssl.key-alias=certificate
     server.port=8443
 
-_Postman_
+
+### Run de applicatie
 
 In Postman gebruik je de url `https://localhost:8443/info`. Zorg ervoor dat je bij de settings het zelfondertekende
 certificaat toestaat.
 
 ![img95.png](images/img95.png)
+
+### GitHub
+
+De volledige code is [hier](https://github.com/danielle076/demo_security/tree/pt3) op github te vinden.
