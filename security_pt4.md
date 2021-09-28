@@ -134,7 +134,7 @@ het voor alle HTTP methods en niet alleen `GET`. Je kunt specificeren dat bijvoo
 
 `"/authenticated/**").authenticated()` is hetzelfde als `hasRole` maar is voor iedere user die is ingelogd.
 
-### schema.sql
+### Resources
 
 Maak een nieuw bestand aan in resources genaamd `schema.sql`. In `schema.sql` creëer je de tabellen voor in de database.
 
