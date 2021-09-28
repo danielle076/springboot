@@ -4,36 +4,14 @@ Het nadeel van voorgaande code in `SpringSecurityConfig.java` is dat we de users
 noemen ze `inMemoryAuthentication`. Wat we eigenlijk willen is een user tabel in onze database, waarbij we users
 kunnen toevoegen, verwijderen, rollen kunnen geven en wachtwoorden kunnen opslaan.
 
-We maken een nieuw IntelliJ project in de Initializr.
+### Controller
 
-Maak een nieuwe map aan `controller` met daarin 4 bestanden: `AdminController.java`, `AuthenticatedController.java`
-, `BaseController.java` en `CustomersController.java`
-
-_AdminController.java_
-
-```java
-package nl.danielle.demo_second_security.controller;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-public class AdminController {
-
-    @RequestMapping(value = "/admin")
-    public ResponseEntity<Object> getMessage() {
-        return new ResponseEntity<>("SECURED REST endpoint: /admin", HttpStatus.OK);
-    }
-}
-```
+In de map `controller` hebben we 4 bestanden: `AdminController.java`, `BaseController.java`, `AuthenticatedController.java` en `CustomersController.java`
 
 _AuthenticatedController.java_
 
 ```java
-package nl.danielle.demo_second_security.controller;
+package nl.danielle.security_demo.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -54,52 +32,32 @@ public class AuthenticatedController {
 }
 ```
 
-_BaseController.java_
-
-```java
-package nl.danielle.demo_second_security.controller;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-public class BaseController {
-
-    @RequestMapping(value = "/")
-    @ResponseStatus(HttpStatus.OK)
-    public String hello() {
-        return "Hello World";
-    }
-}
-```
-
 _CustomersController.java_
 
 ```java
-package nl.danielle.demo_second_security.controller;
+package nl.danielle.security_demo.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class CustomersController {
 
-    @RequestMapping(value = "/customers")
+    @GetMapping(value = "/customers")
     public ResponseEntity<Object> getMessage() {
         return new ResponseEntity<>("SECURED REST endpoint: /customers", HttpStatus.OK);
     }
 }
 ```
 
-Maak een map `config` aan met een bestand `SpringSecurityConfig.java`.
+### Config
+
+In de map `config` staat het bestand `SpringSecurityConfig.java`.
 
 ```java
-package nl.danielle.demo_second_security.config;
+package nl.danielle.security_demo.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -166,17 +124,19 @@ Een `jdbcAuthentication` werkt op basis van een query naar een database (datasou
 
 - We moeten de volgende tabellen krijgen: `my_users` en `my_authorities`.
 - We kunnen zoeken op `username`
-- Bij `my_users` krijgen we op basis van `username` een `username`, `password`, `enabled` terug
+- Bij `my_users` krijgen we op basis van `username` een `username`, `password` en `enabled` terug
 - Bij `my_authorities` krijgen we op basis van `username` de `username` en `authority` (de rol) terug
 
 De endpoints die we hebben zijn: `/customers`, `/admin `en `/authenticated`.
 
 Bij de `.antMatchers` zie je `HttpMethod.GET` staan. Dit hoef je niet te specificeren, dat mag je weglaten, dan geldt
-het voor alle HTTP methods. Je kunt specificeren dat bijvoorbeeld als je ingelogd ben, dat je mag veranderen.
+het voor alle HTTP methods en niet alleen `GET`. Je kunt specificeren dat bijvoorbeeld als je ingelogd bent, dat je mag veranderen.
 
 `"/authenticated/**").authenticated()` is hetzelfde als `hasRole` maar is voor iedere user die is ingelogd.
 
-In `schema.sql` creeër je de tabellen voor in de database.
+### schema.sql
+
+Maak een nieuw bestand aan in resources genaamd `schema.sql`. In `schema.sql` creëer je de tabellen voor in de database.
 
 ```sql
 drop index if exists ix_auth_username;
@@ -202,7 +162,7 @@ create table my_authorities
 create unique index ix_auth_username on my_authorities (username, authority);
 ```
 
-In `data.sql` voegen we records toe.
+Maak een nieuw bestand aan in resources genaamd `data.sql`. In `data.sql` voegen we records toe.
 
 ```sql
 INSERT INTO my_users (username, password, enabled)
@@ -218,11 +178,11 @@ INSERT INTO my_authorities (username, authority)
 VALUES ('admin', 'ROLE_ADMIN');
 ```
 
-Run de applicatie.
+### Run de applicatie
 
-Ga naar PostgreSQL en kijk in de tabel `demo_second_security`.
+Ga naar PostgreSQL en kijk in de tabel `security_demo`.
 
-De applicatie heeft twee tabellen gemaakt: `my_users` en `my_authorities`
+De applicatie heeft twee tabellen gemaakt: `my_authorities` en `my_users`.
 
 ![img97.png](images/img97.png)
 
@@ -236,23 +196,23 @@ Bij `my_authorities` staan de rollen van de users erin.
 
 ![img100.png](images/img100.png)
 
-Ga naar Postman en vul de url `http://localhost:8080/admin` in met als username `user`.
+Ga naar Postman en vul de url `https://localhost:8443/admin` in met als username `user` en wachtwoord `password`.
 
 ![img101.png](images/img101.png)
 
 Je krijgt een status code `403 forbidden`.
 
-Doe hetzelfde maar dan met user `admin`.
+Doe hetzelfde met user `admin`.
 
 ![img102.png](images/img102.png)
 
-##### Authenticated
+### Authenticated
 
 Authenticated in `SpringSecurityConfig.java` gaat naar de endoint `/authenticated`, die in
 de `AuthenticatedController.java` zit.
 
 ```java
-package nl.danielle.demo_second_security.controller;
+package nl.danielle.security_demo.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -277,11 +237,15 @@ In plaats van een paramater hebben we een argument staan: `Authentication authen
 Principal geeft weer met wat voor credentials je bent ingelogd. De credentials geef je gelijk terug in de
 body: `body(principal)`.
 
-Wanneer je in Postman de volgende url zet: `http://localhost:8080/authenticated`. Je krijgt de gegevens van `admin`
+Wanneer je in Postman de volgende url zet: `https://localhost:8443/authenticated`. Je krijgt de gegevens van `admin`
 terug. Je ziet bijvoorbeeld bij de authorities dat `admin` zowel de rol als admin heeft als user.
 
 ![img103.png](images/img103.png)
 
 Hetzelfde kun je doen wanneer je als `user` bent ingelogd.
 
-Deze gegevens zijn een soort weergave van de interne gegevens die hij heeft van een user. Dat noemen ze de principal.
+Deze gegevens zijn een weergave van de interne gegevens die het systeem heeft van een user. Dat noemen ze de `principal`.
+
+### GitHub
+
+De volledige code is [hier](https://github.com/danielle076/demo_security/tree/pt4) op github te vinden.
