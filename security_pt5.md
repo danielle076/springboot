@@ -315,3 +315,7 @@ In Postman ga je naar url `http://localhost:8080/authenticated` en logt in als `
 De url's `http://localhost:8080/`, `http://localhost:8080/customers` en `http://localhost:8080/admin` kun je testen met
 de rollen `peter`, `admin` of `user` met wachtwoord `password`. Dit zijn alle endpoints die je in de `controller`heb
 gedefinieerd.
+
+### GitHub
+
+De volledige code is [hier](https://github.com/danielle076/demo_security/tree/pt5) op github te vinden.
