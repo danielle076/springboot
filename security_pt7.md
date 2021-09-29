@@ -14,7 +14,9 @@ Zodra de token is gemaakt, kun je deze gaan gebruiken.
 
 ![img127.png](images/img127.png)
 
-We maken een nieuw IntelliJ project in de Initializr. Je voegt hier een extra dependency aan toe genaamd io.jsonwebtoken. De `pom.xml` ziet er als volgt uit.
+### pom.xml
+
+Aan de `pom.xml` voeg je een extra dependency toe genaamd `io.jsonwebtoken`. 
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -28,9 +30,9 @@ We maken een nieuw IntelliJ project in de Initializr. Je voegt hier een extra de
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>nl.danielle</groupId>
-    <artifactId>demo_sixth_security</artifactId>
+    <artifactId>security_demo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>demo_sixth_security</name>
+    <name>security_demo</name>
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>11</java.version>
@@ -69,6 +71,7 @@ We maken een nieuw IntelliJ project in de Initializr. Je voegt hier een extra de
             <scope>test</scope>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
             <plugin>
@@ -78,43 +81,23 @@ We maken een nieuw IntelliJ project in de Initializr. Je voegt hier een extra de
             </plugin>
         </plugins>
     </build>
+
 </project>
 ```
 
-Maak een nieuwe package aan genaamd `controller` met daarin 5 bestanden: `AdminController.java`, `AuthenticatedController.java`
-, `BaseController.java`, `CustomersController.java`, `ExceptionController.java` en `UserController.java`.
+### Controller
 
-_AdminController.java_
-
-```java
-package nl.danielle.demo_sixth_security.controller;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-@RequestMapping(value = "/admin")
-public class AdminController {
-
-    @GetMapping(value = "")
-    public ResponseEntity<Object> getMessage() {
-        return new ResponseEntity<>("SECURED REST endpoint: /admin", HttpStatus.OK);
-    }
-}
-```
+In de map `controller` hebben we 6 bestanden: `AdminController.java`, `AuthenticatedController.java` , `BaseController.java`, `CustomersController.java`, `ExceptionController.java` en `UserController.java`.
 
 _AuthenticatedController.java_
 
 ```java
-package nl.danielle.demo_sixth_security.controller;
+package nl.danielle.security_demo.controller;
 
-import nl.danielle.demo_sixth_security.payload.AuthenticationRequest;
-import nl.danielle.demo_sixth_security.payload.AuthenticationResponse;
-import nl.danielle.demo_sixth_security.service.CustomUserDetailsService;
-import nl.danielle.demo_sixth_security.utils.JwtUtil;
+import nl.danielle.security_demo.payload.AuthenticationRequest;
+import nl.danielle.security_demo.payload.AuthenticationResponse;
+import nl.danielle.security_demo.service.CustomUserDetailsService;
+import nl.danielle.security_demo.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -130,206 +113,54 @@ import org.springframework.web.bind.annotation.RestController;
 import java.security.Principal;
 
 @RestController
-public class AuthenticationController {
-
-  @Autowired
-  private AuthenticationManager authenticationManager;
-
-  @Autowired
-  private CustomUserDetailsService userDetailsService;
-
-  @Autowired
-  JwtUtil jwtUtl;
-
-  @GetMapping(value = "/authenticated")
-  public ResponseEntity<Object> authenticated(Authentication authentication, Principal principal) {
-    return ResponseEntity.ok().body(principal);
-  }
-
-  @PostMapping(value = "/authenticate")
-  public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
-
-    String username = authenticationRequest.getUsername();
-    String password = authenticationRequest.getPassword();
-
-    try {
-      authenticationManager.authenticate(
-              new UsernamePasswordAuthenticationToken(username, password)
-      );
-    } catch (BadCredentialsException ex) {
-      throw new Exception("Incorrect username or password", ex);
-    }
-
-    final UserDetails userDetails = userDetailsService
-            .loadUserByUsername(username);
-
-    final String jwt = jwtUtl.generateToken(userDetails);
-
-    return ResponseEntity.ok(new AuthenticationResponse(jwt));
-  }
-}
-```
-
-_BaseController.java_
-
-```java
-package nl.danielle.demo_sixth_security.controller;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-public class BaseController {
-
-    @GetMapping(value = "/")
-    public String hello() {
-        return "Hello World";
-    }
-}
-```
-
-_CustomersController.java_
-
-```java
-package nl.danielle.demo_sixth_security.controller;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-@RequestMapping(value = "/customers")
-public class CustomersController {
-
-    @GetMapping(value = "")
-    public ResponseEntity<Object> getMessage() {
-        return new ResponseEntity<>("SECURED REST endpoint: /customers", HttpStatus.OK);
-    }
-}
-```
-
-_ExceptionController.java_
-
-```java
-package nl.danielle.demo_sixth_security.controller;
-
-import nl.danielle.demo_sixth_security.exceptions.BadRequestException;
-import nl.danielle.demo_sixth_security.exceptions.RecordNotFoundException;
-import nl.danielle.demo_sixth_security.exceptions.UsernameNotFoundException;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-@ControllerAdvice
-public class ExceptionController {
-
-    @ExceptionHandler(value = RecordNotFoundException.class)
-    public ResponseEntity<Object> exception(RecordNotFoundException exception) {
-        return ResponseEntity.notFound().build();
-    }
-
-    @ExceptionHandler(value = BadRequestException.class)
-    public ResponseEntity<Object> exception(BadRequestException exception) {
-        return ResponseEntity.badRequest().build();
-    }
-
-    @ExceptionHandler(value = UsernameNotFoundException.class)
-    public ResponseEntity<Object> exception(UsernameNotFoundException exception) {
-        return ResponseEntity.badRequest().build();
-    }
-}
-```
-
-_UserController.java_
-
-```java
-package nl.danielle.demo_sixth_security.controller;
-
-import nl.danielle.demo_sixth_security.exceptions.BadRequestException;
-import nl.danielle.demo_sixth_security.model.User;
-import nl.danielle.demo_sixth_security.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
-import java.util.Map;
-
-@RestController
-@RequestMapping(value = "/users")
-public class UserController {
+public class AuthenticatedController {
 
     @Autowired
-    private UserService userService;
+    private AuthenticationManager authenticationManager;
 
-    @GetMapping(value = "")
-    public ResponseEntity<Object> getUsers() {
-        return ResponseEntity.ok().body(userService.getUsers());
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    @Autowired
+    JwtUtil jwtUtl;
+
+    @GetMapping(value = "/authenticated")
+    public ResponseEntity<Object> authenticated(Authentication authentication, Principal principal) {
+        return ResponseEntity.ok().body(principal);
     }
 
-    @GetMapping(value = "/{username}")
-    public ResponseEntity<Object> getUser(@PathVariable("username") String username) {
-        return ResponseEntity.ok().body(userService.getUser(username));
-    }
+    @PostMapping(value = "/authenticate")
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
 
-    @PostMapping(value = "")
-    public ResponseEntity<Object> createKlant(@RequestBody User user) {
-        String newUsername = userService.createUser(user);
+        String username = authenticationRequest.getUsername();
+        String password = authenticationRequest.getPassword();
 
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{username}")
-                .buildAndExpand(newUsername).toUri();
-
-        return ResponseEntity.created(location).build();
-    }
-
-    @PutMapping(value = "/{username}")
-    public ResponseEntity<Object> updateKlant(@PathVariable("username") String username, @RequestBody User user) {
-        userService.updateUser(username, user);
-        return ResponseEntity.noContent().build();
-    }
-
-    @DeleteMapping(value = "/{username}")
-    public ResponseEntity<Object> deleteKlant(@PathVariable("username") String username) {
-        userService.deleteUser(username);
-        return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping(value = "/{username}/authorities")
-    public ResponseEntity<Object> getUserAuthorities(@PathVariable("username") String username) {
-        return ResponseEntity.ok().body(userService.getAuthorities(username));
-    }
-
-    @PostMapping(value = "/{username}/authorities")
-    public ResponseEntity<Object> addUserAuthority(@PathVariable("username") String username, @RequestBody Map<String, Object> fields) {
         try {
-            String authorityName = (String) fields.get("authority");
-            userService.addAuthority(username, authorityName);
-            return ResponseEntity.noContent().build();
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(username, password)
+            );
+        } catch (BadCredentialsException ex) {
+            throw new Exception("Incorrect username or password", ex);
         }
-        catch (Exception ex) {
-            throw new BadRequestException();
-        }
-    }
 
-    @DeleteMapping(value = "/{username}/authorities/{authority}")
-    public ResponseEntity<Object> deleteUserAuthority(@PathVariable("username") String username, @PathVariable("authority") String authority) {
-        userService.removeAuthority(username, authority);
-        return ResponseEntity.noContent().build();
+        final UserDetails userDetails = userDetailsService
+                .loadUserByUsername(username);
+
+        final String jwt = jwtUtl.generateToken(userDetails);
+
+        return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
 }
 ```
 
-Maak een nieuwe package aan genaamd `model` met daarin 3 bestanden: `Authority.java`, `AuthorityKey.java` en `User.java`.
+### Model
+
+In package `model` staan 3 bestanden: `Authority.java`, `AuthorityKey.java` en `User.java`.
 
 _Authority.java_
 
 ```java
-package nl.danielle.demo_sixth_security.model;
+package nl.danielle.security_demo.model;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -373,14 +204,14 @@ public class Authority implements Serializable {
 }
 ```
 
-Je ziet dat er twee kolommen zijn die samen de `id` vormen, een combinatie van `username` en `authority` dit is de primary key.
+Er zijn twee kolommen die samen de `id` vormen, een combinatie van `username` en `authority`. Dit is de primary key.
 
 Je hebt een aparte `@IdClass` en dit is de `AuthorityKey`.
 
 _AuthorityKey.java_
 
 ```java
-package nl.danielle.demo_sixth_security.model;
+package nl.danielle.security_demo.model;
 
 import java.io.Serializable;
 
@@ -390,14 +221,14 @@ public class AuthorityKey implements Serializable {
 }
 ```
 
-De `AuthorityKey` is niks anders dan een combinatie van `username` en `authority` en daar maakt hij een String van op basis van de Serializable.
+De `AuthorityKey` is niks anders dan een combinatie van `username` en `authority` en daar maakt hij een String van op basis van de `Serializable`.
 
 In `UserRepository.java` komt deze String terug.
 
 _User.java_
 
 ```java
-package nl.danielle.demo_sixth_security.model;
+package nl.danielle.security_demo.model;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -485,65 +316,25 @@ public class User {
 }
 ```
 
-Maak een nieuwe package aan genaamd `exceptions` met daarin 3 bestanden: `BadRequestException.java`, `RecordNotFoundException.java` en `UsernameNotFoundException.java`.
+### Exceptions
 
-_BadRequestException.java_
+We hebben een package genaamd `exceptions` met daarin 3 bestanden: `BadRequestException.java`, `RecordNotFoundException.java` en `UsernameNotFoundException.java`.
 
-```java
-package nl.danielle.demo_sixth_security.exceptions;
+### Repository
 
-public class BadRequestException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
-}
-```
+In de package `repository` zit 1 interface: `UserRepository.java`.
 
-_RecordNotFoundException.java_
+### Service
 
-```java
-package nl.danielle.demo_sixth_security.exceptions;
-
-public class RecordNotFoundException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
-}
-```
-
-_UsernameNotFoundException.java_
-
-```java
-package nl.danielle.demo_sixth_security.exceptions;
-
-public class UsernameNotFoundException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
-
-    public UsernameNotFoundException(String username) {
-        super("Cannot find user " + username);
-    }
-}
-```
-
-Maak een nieuwe package aan genaamd `repository` met daarin 1 interface: `UserRepository.java`.
-
-_UserRepository.java_
-
-```java
-package nl.danielle.demo_sixth_security.repository;
-
-import nl.danielle.demo_sixth_security.model.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-public interface UserRepository extends JpaRepository<User, String> {
-}
-```
-
-Maak een nieuwe package aan genaamd `service` met daarin 3 bestanden: `CustomUserDetailsService.java`, `UserService.java` en `UserServiceImpl.java`.
+De package `service` heeft 3 bestanden: `CustomUserDetailsService.java`, `UserService.java` en `UserServiceImpl.java`.
 
 _CustomUserDetailsService.java_
 
 ```java
-package nl.danielle.demo_sixth_security.service;
+package nl.danielle.security_demo.service;
 
-import nl.danielle.demo_sixth_security.model.Authority;
-import nl.danielle.demo_sixth_security.model.User;
+import nl.danielle.security_demo.model.Authority;
+import nl.danielle.security_demo.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -551,6 +342,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -573,7 +365,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         Set<Authority> authorities = user.get().getAuthorities();
         List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        for (Authority authority: authorities) {
+        for (Authority authority : authorities) {
             grantedAuthorities.add(new SimpleGrantedAuthority(authority.getAuthority()));
         }
 
@@ -582,51 +374,17 @@ public class CustomUserDetailsService implements UserDetailsService {
 }
 ```
 
-_UserService.java_
-
-```java
-package nl.danielle.demo_sixth_security.service;
-
-import nl.danielle.demo_sixth_security.model.Authority;
-import nl.danielle.demo_sixth_security.model.User;
-
-import java.util.Collection;
-import java.util.Optional;
-import java.util.Set;
-
-public interface UserService {
-
-    public abstract String createUser(User user);
-
-    public abstract void updateUser(String username, User user);
-
-    public abstract void deleteUser(String username);
-
-    public abstract Collection<User> getUsers();
-
-    public abstract Optional<User> getUser(String username);
-
-    public abstract boolean userExists(String username);
-
-    public abstract Set<Authority> getAuthorities(String username);
-
-    public abstract void addAuthority(String username, String authority);
-
-    public abstract void removeAuthority(String username, String authority);
-}
-```
-
 _UserServiceImpl.java_
 
 ```java
-package nl.danielle.demo_sixth_security.service;
+package nl.danielle.security_demo.service;
 
-import nl.danielle.demo_sixth_security.exceptions.RecordNotFoundException;
-import nl.danielle.demo_sixth_security.exceptions.UsernameNotFoundException;
-import nl.danielle.demo_sixth_security.model.Authority;
-import nl.danielle.demo_sixth_security.model.User;
-import nl.danielle.demo_sixth_security.repository.UserRepository;
-import nl.danielle.demo_sixth_security.utils.RandomStringGenerator;
+import nl.danielle.security_demo.exceptions.RecordNotFoundException;
+import nl.danielle.security_demo.exceptions.UsernameNotFoundException;
+import nl.danielle.security_demo.model.Authority;
+import nl.danielle.security_demo.model.User;
+import nl.danielle.security_demo.repository.UserRepository;
+import nl.danielle.security_demo.utils.RandomStringGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -635,7 +393,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class UserServiceImpl implements nl.danielle.demo_sixth_security.service.UserService {
+public class UserServiceImpl implements nl.danielle.security_demo.service.UserService {
 
     @Autowired
     private UserRepository userRepository;
@@ -702,15 +460,17 @@ public class UserServiceImpl implements nl.danielle.demo_sixth_security.service.
 }
 ```
 
-Maak een nieuwe package aan genaamd `config` met daarin 1 bestand: `SpringSecurityConfig.java`.
+### Config
+
+In de package genaamd `config` zit 1 bestand: `SpringSecurityConfig.java`.
 
 _SpringSecurityConfig.java_
 
 ```java
-package nl.danielle.demo_sixth_security.config;
+package nl.danielle.security_demo.config;
 
-import nl.danielle.demo_sixth_security.filter.JwtRequestFilter;
-import nl.danielle.demo_sixth_security.service.CustomUserDetailsService;
+import nl.danielle.security_demo.filter.JwtRequestFilter;
+import nl.danielle.security_demo.service.CustomUserDetailsService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -774,9 +534,11 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
 Naast dat we gebruik maken van `customUserDetailsService`, de `passwordEncoder` en de verschillende rechten in de `http configure`, is er ook een `AuthenticationManager` met een `jwtRequestFilter`.
 
-Wat er gebeurd op het moment dat je een HTTP Request doet naar Spring Boot, dan gaat hij een hele keten aan stappen afronden (FilterChain). Uiteindelijk komt hij bij de `@RestController`, dus de plek waar je je controllers heb gedefinieerd. De stappen die hij doorloopt zijn allemaal `Filters`. Een `Filter` beoordeelt of hij wel of niet door mag. Als hij door mag dan gaat hij door naar de volgende `Filter`. Gaat het ergens fout dan wordt de keten doorbroken en komt hij nooit bij de `Controller`.
+Op het moment dat je een HTTP Request doet naar Spring Boot, gaat hij een hele keten aan stappen afronden (FilterChain). Uiteindelijk komt hij bij de `@RestController`, de plek waar je de controllers hebt gedefinieerd. De stappen die hij doorloopt zijn allemaal `Filters`. Een `Filter` beoordeelt of hij wel of niet door mag. Als hij door mag dan gaat hij door naar de volgende `Filter`. Gaat het ergens fout dan wordt de keten doorbroken en komt hij nooit bij de `Controller`.
 
 ![img128.png](images/img128.png)
+
+### Filter
 
 Werken met een JWT is op basis van een filter en deze filter moet geïmplementeerd worden.
 
@@ -785,11 +547,10 @@ Maak een nieuwe package aan genaamd `filter` met daarin 1 bestand: `JwtRequestFi
 _JwtRequestFilter.java_
 
 ```java
-package nl.danielle.demo_sixth_security.filter;
+package nl.danielle.security_demo.filter;
 
-import nl.danielle.demo_sixth_security.service.CustomUserDetailsService;
-
-import nl.danielle.demo_sixth_security.utils.JwtUtil;
+import nl.danielle.security_demo.service.CustomUserDetailsService;
+import nl.danielle.security_demo.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -807,39 +568,39 @@ import java.io.IOException;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-  @Autowired
-  private CustomUserDetailsService userDetailsService;
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
 
-  @Autowired
-  private JwtUtil jwtUtil;
+    @Autowired
+    private JwtUtil jwtUtil;
 
-  @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-    final String authorizationHeader = request.getHeader("Authorization");
+        final String authorizationHeader = request.getHeader("Authorization");
 
-    String username = null;
-    String jwt = null;
+        String username = null;
+        String jwt = null;
 
-    if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-      jwt = authorizationHeader.substring(7);
-      username = jwtUtil.extractUsername(jwt);
+        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+            jwt = authorizationHeader.substring(7);
+            username = jwtUtil.extractUsername(jwt);
+        }
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+
+            if (jwtUtil.validateToken(jwt, userDetails)) {
+
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities()
+                );
+                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            }
+        }
+        filterChain.doFilter(request, response);
     }
-
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-      UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-
-      if (jwtUtil.validateToken(jwt, userDetails)) {
-
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
-                userDetails, null, userDetails.getAuthorities()
-        );
-        usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-      }
-    }
-    filterChain.doFilter(request, response);
-  }
 }
 ```
 
@@ -847,12 +608,14 @@ De `JwtRequestFilter` is een subklasse van de `OncePerRequestFilter`.
 
 Er wordt gebruik gemaakt van de `userDetailsService` en is verbonden met de `jwtUtil`.
 
+### Payload
+
 Maak een nieuwe package aan genaamd `payload` met daarin 2 bestanden: `AuthenticationRequest.java` en `AuthenticationResponse.java`.
 
 _AuthenticationRequest.java_
 
 ```java
-package nl.danielle.demo_sixth_security.payload;
+package nl.danielle.security_demo.payload;
 
 public class AuthenticationRequest {
 
@@ -884,7 +647,7 @@ public class AuthenticationRequest {
 _AuthenticationResponse.java_
 
 ```java
-package nl.danielle.demo_sixth_security.payload;
+package nl.danielle.security_demo.payload;
 
 public class AuthenticationResponse {
 
@@ -900,12 +663,14 @@ public class AuthenticationResponse {
 }
 ```
 
-Maak een nieuwe package aan genaamd `utils` met daarin 2 bestanden: `JwtUtil.java` en `RandomStringGenerator.java`.
+### Utils
+
+In de package `utils` staan 2 bestanden: `JwtUtil.java` en `RandomStringGenerator.java`.
 
 _JwtUtil.java_
 
 ```java
-package nl.danielle.demo_sixth_security.utils;
+package nl.danielle.security_demo.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -969,83 +734,32 @@ public class JwtUtil {
 
 De `jwtUtil` is een utility die een aantal dingen kan doen met een JWT token. Zoals bijvoorbeeld uit de `String token` de username eruit halen.
 
-_RandomStringGenerator.java_
+### Run de applicatie
 
-```java
-package nl.danielle.demo_sixth_security.utils;
-
-import java.util.Random;
-
-public class RandomStringGenerator {
-
-    public static String generateAlphaNumeric(int length) {
-        int leftLimit = 48; // numeral '0'
-        int rightLimit = 122; // letter 'z'
-        int targetStringLength = 10;
-        Random random = new Random();
-
-        String generatedString = random.ints(leftLimit, rightLimit + 1)
-                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
-                .limit(length)
-                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
-                .toString();
-
-        return generatedString;
-    }
-}
-```
-
-In de resources map heb je de volgende bestanden met bijbehorende code: `application.properties` en `data.sql`.
-
-    spring.jpa.database=postgresql
-    spring.datasource.platform=postgres
-    spring.datasource.url=jdbc:postgresql://localhost:5432/demo_sixth_security
-    spring.datasource.username=postgres
-    spring.datasource.password=postgres123
-    spring.datasource.driver-class-name=org.postgresql.Driver
-    spring.datasource.initialization-mode=always
-    spring.jpa.generate-ddl=true
-    spring.jpa.hibernate.ddl-auto=create-drop
-    spring.jpa.properties.hibernate.jdbc.lob.non_contextual_creation=true
-    
-    spring.jpa.properties.hibernate.dialect= org.hibernate.dialect.PostgreSQLDialect
-
-```sql
-INSERT INTO users (username, password, enabled) VALUES ('user', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
-INSERT INTO users (username, password, enabled) VALUES ('admin', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
-INSERT INTO users (username, password, enabled) VALUES ('peter', '$2a$10$wPHxwfsfTnOJAdgYcerBt.utdAvC24B/DWfuXfzKBSDHO0etB1ica', TRUE);
-
-INSERT INTO authorities (username, authority) VALUES ('user', 'ROLE_USER');
-INSERT INTO authorities (username, authority) VALUES ('admin', 'ROLE_USER');
-INSERT INTO authorities (username, authority) VALUES ('admin', 'ROLE_ADMIN');
-INSERT INTO authorities (username, authority) VALUES ('peter', 'ROLE_USER');
-INSERT INTO authorities (username, authority) VALUES ('peter', 'ROLE_ADMIN');
-```
-
-Run de applicatie.
-
-### Postman
-
-Ga in Postman naar url `http://localhost:8080/customers`, authorization `Basic Auth`, username `admin` en `GET`.
+Ga in Postman naar url `https://localhost:8443/customers`, authorization `Basic Auth`, username `admin` en `GET`.
 
 ![img129.png](images/img129.png)
 
-Dit mag hij niet meer doen, want we hebben ingesteld dat er een JWT token verwacht word.
+Je krijgt een `403 Forbidden` terug, want we hebben ingesteld dat er een JWT token verwacht word.
 
 We gaan de token ophalen. Hiervoor is de endpoint `/authenticate` die in `AuthenticationController.java` staat.
 
-In Postman gaan we naar `POST`, `http://localhost:8080/authenticate`, `Basic Auth` en login `admin`. In de body moeten we een Username en een Password meegeven.
+In Postman gaan we naar `POST`, `https://localhost:8443/authenticate`, `Basic Auth` en login `admin`. In de body moeten we een Username en een Password meegeven.
 
 ![img130.png](images/img130.png)
 
-We hebben een JWT token gegenereert. We maken nu geen gebruik meer van de `Basic Auth`, maar van een `Bearer Token`. De token die je hebt teruggekregen zet je in het veld Token.
+We hebben een JWT token gegenereert. We maken geen gebruik meer van de `Basic Auth`, maar van een `Bearer Token`. De token die je hebt teruggekregen zet je in het veld Token.
 
 ![img131.png](images/img131.png)
 
-Je bent nu niet meer bezig met username en wachtwoord, maar door de token weet hij wel dat je `admin` ben. De token heeft hij in de header opgeslagen.
+We zijn niet meer bezig met username en wachtwoord, maar door de token weet hij wel dat je `admin` ben. De token heeft hij in de header opgeslagen.
 
 ![img132.png](images/img132.png)
 
-Ga naar url `http://localhost:8080/admin` en `GET`. Je hebt nu toegang gekregen via de token.
+Ga naar url `https://localhost:8443/admin` en `GET`. Je hebt toegang gekregen via de token.
 
 ![img133.png](images/img133.png)
+
+### GitHub
+
+De volledige code is [hier](https://github.com/danielle076/demo_security/tree/pt7) op github te vinden.
