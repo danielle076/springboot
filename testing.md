@@ -1,7 +1,16 @@
-## Unit Testing & Mocking
+# Unit Testing & Mocking
 
 Wanneer je alleen met Java werkt, is Unit Testing met JUnit voldoende. Echter met Spring Boot is Unit Testing niet
 genoeg, je maakt gebruik van een uitgebreidere testing mogelijkheid namelijk mocking met Mockito.
+
+## Unit Testing
+
+Arrange, Act and Assert (AAA) Pattern is de standaard manier om een Unit Test te schrijven.
+
+Het verdeelt de tests in drie duidelijke en afzonderlijke stappen:
+1. Opstellen (arrange): Voer de setup en initialisatie uit die nodig zijn voor de test.
+2. Actie (act): Onderneem actie(s) die nodig zijn voor de test.
+3. Bevestig (assert): Verifieer de uitkomst(en) van de test.
 
 ### Code
 
@@ -111,12 +120,12 @@ in `CounterMain` doen.
 We maken een nieuwe package aan genaamd `test`. We maken een nieuwe file aan `CounterTest.java`, deze hoort
 bij `Counter.java`.
 
-We gaan een test schrijven met `@Test`. We beginnen met het toevoegen van `Add 'JUnit4' to classpath`.
+We gaan een test schrijven met `@Test`. We beginnen met het toevoegen van `Add 'JUnit5' to classpath`.
 
 _CounterTest.java_
 
 ```java
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class CounterTest {
 
@@ -127,10 +136,30 @@ public class CounterTest {
 }
 ```
 
-Bij het schrijven van een test doe je een aantal dingen.
-
 Van de `Assert` opdrachten gaan we gebruik maken van `assertEquals`. De `assertEquals` kijkt naar de uitkomst van `som`
 en kijkt of dit gelijk is aan `expected`.
+
+```java
+import org.junit.jupiter.api.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class CounterTest {
+
+    @Test
+    public void EerstTest() {
+        // arrange
+        int som;
+
+        // act
+        som = 34 + 56;
+
+        // assert
+        int expected = 90;
+        assertEquals(expected, som);
+    }
+}
+```
 
 Run de test.
 
@@ -139,7 +168,7 @@ Je kan meerdere testen schrijven.
 _CounterTest.java_
 
 ```java
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -147,31 +176,46 @@ public class CounterTest {
 
     @Test
     public void EerstTest() {
+        // arrange
         int som;
+
+        // act
         som = 34 + 56;
+
+        // assert
         int expected = 90;
         assertEquals(expected, som);
     }
 
     @Test
     public void TweedeTest() {
+        // arrange
         int min;
+
+        // act
         min = 12 - 6;
+
+        // assert
         int expected = 6;
         assertEquals(expected, min);
     }
 
     @Test
     public void DerdeTest() {
+        // arrange
         String s = "abcde";
+
+        // act
         String actual = s.toUpperCase();
+
+        // assert
         String expected = "ABCDE";
         assertEquals(expected, actual);
     }
 }
 ```
 
-We hebben nu standaard Java getest.
+We hebben nu drie standaard Java testen gedaan.
 
 Stel we willen hetgeen wat in `CounterMain.java` staat in een `@Test`. 
 
@@ -181,50 +225,24 @@ Stel we willen hetgeen wat in `CounterMain.java` staat in een `@Test`.
 
 We noemen deze test `CounterTestAdd`.
 
-_CounterTest.java_
-
 ```java
-package test;
-
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import main.Counter;
-
 import static org.junit.Assert.assertEquals;
 
 public class CounterTest {
 
     @Test
-    public void EerstTest() {
-        int som;
-        som = 34 + 56;
-        int expected = 90;
-        assertEquals(expected, som);
-    }
-
-    @Test
-    public void TweedeTest() {
-        int min;
-        min = 12 - 6;
-        int expected = 6;
-        assertEquals(expected, min);
-    }
-
-    @Test
-    public void DerdeTest() {
-        String s = "abcde";
-        String actual = s.toUpperCase();
-        String expected = "ABCDE";
-        assertEquals(expected, actual);
-    }
-
-    @Test
     public void CounterTestAdd() {
+        // arrange
         Counter counter = new Counter();
 
+        // act
         counter.add(1);
         counter.add(2);
         counter.add(3);
 
+        // assert
         int expected = 6;
         assertEquals(expected, counter.getTotal());
     }
@@ -237,58 +255,23 @@ We gaan het optellen met een array testen die in `Counter.java` staat.
         total = this.addWithLoop(numbers);
     }
 
-_CounterTest.java_
-
 ```java
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import main.Counter;
 import static org.junit.Assert.assertEquals;
 
 public class CounterTest {
 
     @Test
-    public void EerstTest() {
-        int som;
-        som = 34 + 56;
-        int expected = 90;
-        assertEquals(expected, som);
-    }
-
-    @Test
-    public void TweedeTest() {
-        int min;
-        min = 12 - 6;
-        int expected = 6;
-        assertEquals(expected, min);
-    }
-
-    @Test
-    public void DerdeTest() {
-        String s = "abcde";
-        String actual = s.toUpperCase();
-        String expected = "ABCDE";
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void CounterTestAdd() {
-        Counter counter = new Counter();
-
-        counter.add(1);
-        counter.add(2);
-        counter.add(3);
-
-        int expected = 6;
-        assertEquals(expected, counter.getTotal());
-    }
-
-    @Test
     public void CounterTestAddArray() {
+        // arrange
         Counter counter = new Counter();
-
         int[] numbers = new int[] {1,2,3};
+
+        // act
         counter.add(numbers);
 
+        // assert
         int expected = 6;
         assertEquals(expected, counter.getTotal());
     }
@@ -308,71 +291,73 @@ We gaan nog een test doen van `reset`.
 _CounterTest.java_
 
 ```java
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import main.Counter;
 import static org.junit.Assert.assertEquals;
 
 public class CounterTest {
 
     @Test
-    public void EerstTest() {
-        int som;
-        som = 34 + 56;
-        int expected = 90;
-        assertEquals(expected, som);
-    }
-
-    @Test
-    public void TweedeTest() {
-        int min;
-        min = 12 - 6;
-        int expected = 6;
-        assertEquals(expected, min);
-    }
-
-    @Test
-    public void DerdeTest() {
-        String s = "abcde";
-        String actual = s.toUpperCase();
-        String expected = "ABCDE";
-        assertEquals(expected, actual);
-    }
-
-    @Test
-    public void CounterTestAdd() {
-        Counter counter = new Counter();
-
-        counter.add(1);
-        counter.add(2);
-        counter.add(3);
-
-        int expected = 6;
-        assertEquals(expected, counter.getTotal());
-    }
-
-    @Test
-    public void CounterTestAddArray() {
-        Counter counter = new Counter();
-
-        int[] numbers = new int[] {1,2,3};
-        counter.add(numbers);
-
-        int expected = 6;
-        assertEquals(expected, counter.getTotal());
-    }
-
-    @Test
     public void CounterTestReset() {
+        // arrange
         Counter counter = new Counter();
-
         int[] numbers = new int[] {1,2,3};
+
+        // act
         counter.add(numbers);
         counter.reset();
-
         int actual = counter.getTotal();
+
+        // assert
         int expected = 0;
         assertEquals(expected, actual);
     }
 }
 ```
 
+### Starten met test: test driven development
+
+Stel we hebben nog geen methode in `Counter.java` om de kleinste getallen op te halen, maar we willen deze test al wel in `CounterTest.java` zetten.
+
+```java
+import main.Counter;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.Assert.assertEquals;
+
+public class CounterTest {
+
+    @Test
+    public void CounterTestMaximum() {
+        // arrange
+        Counter counter = new Counter();
+        int[] numbers = new int[] {1,2,3};
+
+        // act
+        counter.add(numbers);
+        int actual = counter.getMaximum(numbers);
+
+        // assert
+        int expected = 3;
+        assertEquals(expected, actual);
+    }
+}
+```
+
+De methode `getMaximum()` is rood, klik erop en voer `Create method 'getMaximum' in 'Counter'` uit. De methode wordt aangemaakt in `Counter.java`.
+
+    public int getMaximum() {
+        return 0;
+    }
+
+We passen de methode aan, zodat hij iets doet.
+
+    public int getMaximum(int[] numbers) {
+        return getMaxWithStream(numbers);
+    }
+
+Run de test.
+
+### Github
+
+De volledige code is [hier](https://github.com/danielle076/demo_counter_test) op github te vinden.
