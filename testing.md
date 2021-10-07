@@ -1,8 +1,5 @@
 ## Unit Testing 
 
-Wanneer je alleen met Java werkt, is Unit Testing met JUnit voldoende. Echter met Spring Boot is Unit Testing niet
-genoeg, je maakt daarbij gebruik van een uitgebreidere testing mogelijkheid namelijk mocking met Mockito.
-
 Arrange, Act and Assert (AAA) Pattern is de standaard manier om een Unit Test te schrijven.
 
 Het verdeelt de tests in drie duidelijke en afzonderlijke stappen:
