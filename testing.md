@@ -12,7 +12,7 @@ Het verdeelt de tests in drie duidelijke en afzonderlijke stappen:
 
 ### Code
 
-`Counter.java` is geen entity, maar een klasse. Hij heeft een `total` en iedere keer wanneer je zegt `add` telt
+`Counter.java` is geen Spring Boot maar gewoon een klasse. Hij heeft een `total` en iedere keer wanneer je zegt `add` telt
 hij het getal bij de `total` op. Het opvragen van het getal doe je met `getTotal`.
 
 _Counter.java_
@@ -349,6 +349,12 @@ We passen de methode aan, zodat hij iets doet.
     }
 
 Run de test.
+
+### Run with Coverage
+
+Coverage gaat erom hoeveel van de code je heb gedekt met testen.
+
+![img140.png](images/img140.png)
 
 ### Github
 
