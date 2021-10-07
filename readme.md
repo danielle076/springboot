@@ -91,3 +91,8 @@ In [deel 3](questions.md) komt het volgende aan bod.
 - [stap 5](security_pt5.md): Security met gebruikerstabel
 - [stap 6](security_pt6.md): Security met gebruikersservice
 - [stap 7](security_pt7.md): Security met JWT
+
+### Testing & Mockito
+
+Wanneer je alleen met Java werkt, is [Unit Testing](testing.md) met JUnit voldoende. Echter met Spring Boot is Unit Testing niet
+genoeg, je maakt daarbij gebruik van een uitgebreidere testing mogelijkheid namelijk mocking met [Mockito](mockito.md).
