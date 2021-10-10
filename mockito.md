@@ -679,3 +679,7 @@ JUnit.
 
 - user: admin 
 - password: p4ssw0rd
+
+### GitHub
+
+De volledige code is [hier](https://github.com/danielle076/demo_mockito) op github te vinden.
