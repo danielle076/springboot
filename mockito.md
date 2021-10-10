@@ -2,7 +2,7 @@
 
 Meszaros gebruikt de term `Test Double` als de algemene term voor elk soort voorwerp dat wordt gebruikt in plaats van
 een echt voorwerp voor testdoeleinden. De naam komt van het begrip "stuntdubbel" in films. (Een van zijn doelstellingen
-was te vermijden een naam te gebruiken die reeds algemeen gebruikt werd.) Meszaros definieert vervolgens vijf specifieke
+was te vermijden een naam te gebruiken die reeds algemeen gebruikt werd.) Meszaros definieert vijf specifieke
 soorten dubbelgangers:
 
 - `Dummy` - objecten worden doorgegeven, maar nooit echt gebruikt. Meestal worden ze alleen gebruikt om parameterlijsten
@@ -20,11 +20,11 @@ We gaan mocken met het pakket Mockito: een database testen.
 
 ### Behavior Driven Development
 
-Behavior Driven Development (BDD) testen draait om de "given", "when" en "then".
+Behavior Driven Development (BDD) testen draait om "given", "when" en "then".
 
-- given, initial context
-- when, event occurs
-- then, ensure some outcomes
+- `given`, initiële context
+- `when`, de gebeurtenis plaatsvindt
+- `then`, sommige uitkomsten garanderen
 
 ### Initializr
 
@@ -143,7 +143,9 @@ De [database](https://github.com/danielle076/demo_mockito) dat we gaan testen me
 
 ### Model
 
-In `model` zie je een aantal extra methodes die de leeftijd berekenen zoals `getAge` nu (now) en `getAge` op een bepaalde datum (onDate). Deze maken gebruik van de lokale methode `calculateAge` die de periode berekend tussen de birthDate en de currentDate.
+In `model` zie je een aantal extra methodes die de leeftijd berekenen zoals `getAge` nu (now) en `getAge` op een
+bepaalde datum (onDate). Deze maken gebruik van de lokale methode `calculateAge` die de periode berekend tussen de
+birthDate en de currentDate.
 
 ```
 public int getAge() {
@@ -163,7 +165,8 @@ public int getAge() {
     }
 ```
 
-We hebben twee attributen `firstName` en `lastNAme`, maar soms wil je de volledige naam hebben en dit doen we met de methode `getFullName`. 
+We hebben twee attributen `firstName` en `lastNAme`, maar soms wil je de volledige naam hebben en dit doen we met de
+methode `getFullName`.
 
 ```
     public String getFullName() {
@@ -171,11 +174,12 @@ We hebben twee attributen `firstName` en `lastNAme`, maar soms wil je de volledi
     }
 ```
 
-#### JUnit
+### JUnit
 
 Voor de packages `model` en `util` gebruiken we JUnit5 om te testen.
 
-`@BeforeEach` is een setup methode die voor iedere test wordt uitgevoerd. Deze `@BeforeEach` maakt een customer met een naam en een geboortedatum en die gebruiken we in twee testen.
+`@BeforeEach` is een setup methode die voor iedere test wordt uitgevoerd. Deze `@BeforeEach` maakt een customer met een
+naam en een geboortedatum en die gebruiken we in twee testen.
 
 _CustomerTest.java_
 
@@ -274,16 +278,19 @@ class CounterTest {
 
 ### Mockito
 
-Voor de packages `controller`, `repository` en `service` testen we met Mockito.
+De packages `controller`, `repository` en `service` testen we met Mockito.
 
-`IntegrationTest` betekend dat je niet meer bezig bent met één element/klasse, maar een integratie van een aantal klasses/lagen.
+`IntegrationTest` betekend dat je niet meer bezig bent met één element/klasse, maar een integratie van een aantal
+klasses/lagen.
 
 We importeren `Mockito` en `Mock`.
 
     import org.mockito.Mock;
     import org.mockito.Mockito;
 
-We moeten de configuration van Spring Boot aanpassen: `@ContextConfiguration(classes = {DemoMockitoApplication.class}` en verwijzen naar het project. Als we dit niet zouden doen dan maakt Spring Boot er een webservice van. Ook zeg je niet dat het een SpringBoot application is maar een `@SpringBootTest()`.
+We moeten de configuration van Spring Boot aanpassen: `@ContextConfiguration(classes = {DemoMockitoApplication.class}`
+en verwijzen naar het project. Als we dit niet zouden doen dan maakt Spring Boot er een webservice van. Ook zeg je niet
+dat het een SpringBoot application is maar een `@SpringBootTest()`.
 
     @SpringBootTest()
     @ContextConfiguration(classes = {DemoMockitoApplication.class})
@@ -295,12 +302,14 @@ We doen de `@Autowired` naar de customerService.
     @Autowired
     private CustomerService customerService;
 
-`@MockBean` zorgt ervoor dat de repository stil wordt gezet. We willen niet dat de repository naar de database gaat, maar we willen dat hij een voorgeprogrammeerd antwoord teruggeeft.
+`@MockBean` zorgt ervoor dat de repository stil wordt gezet. We willen niet dat de repository naar de database gaat,
+maar we willen dat hij een voorgeprogrammeerd antwoord teruggeeft.
 
     @MockBean
     private CustomerRepository customerRepository;
 
-Als je een methode, bijvoorbeeld `getCustomerByLastName`, in de service doet, krijg je dan het goede antwoord. Dit doe je door de repository te vervangen met een `@MockBean`.
+Als je een methode, bijvoorbeeld `getCustomerByLastName`, in de service doet, krijg je dan het goede antwoord. Dit doe
+je door de repository te vervangen met een `@MockBean`.
 
 _CustomerServiceImplIntegrationTest_
 
@@ -392,9 +401,155 @@ public class CustomerServiceImplIntegrationTest {
 
 Bij het testen van de service, mocken we de repository.
 
+#### Repository
 
+Bij de repository gebruik je `@DataJpaTest`.
+
+We gebruiken een `entityManager` die zich voor doet als een database.
+
+In de repository testen we of de methode `findByLastName` op basis van de laatste naam `getLastName()` geeft wat we
+verwachten.
+
+```java
+package com.example.demo_mockito.repository;
+
+import com.example.demo_mockito.DemoMockitoApplication;
+import com.example.demo_mockito.model.Customer;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.test.context.ContextConfiguration;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+@DataJpaTest
+@ContextConfiguration(classes = {DemoMockitoApplication.class})
+class CustomerRepositoryIntegrationTest {
+
+    @Autowired
+    private TestEntityManager entityManager;
+
+    @Autowired
+    private CustomerRepository customerRepository;
+
+    @Test
+    void testFindByLastLast() {
+        // given
+        Customer customer = new Customer("Albert", "Einstein");
+        entityManager.persist(customer);
+        entityManager.flush();
+
+        // when
+        Customer found = customerRepository.findByLastName(customer.getLastName());
+
+        // then
+        String expected = "Albert Einstein";
+        String actual = found.getFullName();
+        assertEquals(expected, actual);
+    }
+}
+```
+
+#### Controller
+
+Bij `BaseControllerIntegrationTest.java` maak je gebruik van `@AutoConfigureMockMvc`. De hele webservice `mvc` wordt
+hiermee gemocked.
+
+_BaseControllerIntegrationTest.java_
+
+```java
+package com.example.demo_mockito.controller;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+class BaseControllerIntegrationTest {
+
+    @Autowired
+    private MockMvc mvc;
+
+    @Test
+    void EndpointTest() throws Exception {
+        mvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("/customers endpoint available"));
+    }
+}
+```
+
+We maken bij `CustomerControllerIntegrationTest.java` een mock van de service: `private CustomerService service;`, dit betekend dat de service een voorgeprogrammeerde response terugkrijgt.
+
+_CustomerControllerIntegrationTest.java_
+
+```java
+package com.example.demo_mockito.controller;
+
+import com.example.demo_mockito.DemoMockitoApplication;
+import com.example.demo_mockito.model.Customer;
+import com.example.demo_mockito.service.CustomerService;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest
+@ContextConfiguration(classes = {DemoMockitoApplication.class})
+public class CustomerControllerIntegrationTest {
+
+    @Autowired
+    private MockMvc mvc;
+
+    @MockBean
+    private CustomerService service;
+
+    @Test
+    public void testEndpointCustomers() throws Exception {
+
+        Customer customer = new Customer("Albert", "Einstein");
+
+        List<Customer> allCustomers = Arrays.asList(customer);
+
+        given(service.getAllCustomers()).willReturn(allCustomers);
+
+        mvc.perform(get("/customers")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)))
+                .andExpect(jsonPath("$[0].lastName", is(customer.getLastName())));
+    }
+}
+```
+
+### Prioriteit testen
+
+Het testen van de `service` is het belangrijkst, want hier zit alle intelligentie in. `Controller` en `repository` kun je
+daarnaast testen, om een volledige coverage te hebben. `Model` en `util` zijn minder belangrijk, deze test je alleen met
+JUnit.
 
 ### Mijn webservice inlog
 
-user: admin
-password: p4ssw0rd
+- user: admin 
+- password: p4ssw0rd
